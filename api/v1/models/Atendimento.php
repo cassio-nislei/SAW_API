@@ -24,7 +24,7 @@ class Atendimento
         $sql = "INSERT INTO tbatendimento (id, situacao, nome, id_atend, nome_atend, numero, setor, dt_atend, hr_atend, canal, protocolo) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        $lastId = Database::execute($sql, [$newId, $situacao, $nome, $idAtende, $nomeAtende, $numero, $setor, $dtAtend, $hrAtend, $canal, $protocolo]);
+        $lastId = Database::execute($sql, [$newId, $situacao, $nome, $idAtende, $nomeAtende, $numero, (string)$setor, $dtAtend, $hrAtend, (string)$canal, $protocolo]);
 
         if ($lastId === false) {
             return false;
