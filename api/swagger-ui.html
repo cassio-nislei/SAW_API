@@ -129,13 +129,14 @@
       let swaggerUrl = "";
 
       // Detectar o caminho correto baseado na URL atual
+      // Use swagger-json.php para CORS headers
       if (pathname.includes("/SAW-main/api")) {
-        swaggerUrl = protocol + "//" + host + "/SAW-main/api/swagger.json";
+        swaggerUrl = protocol + "//" + host + "/SAW-main/api/swagger-json.php";
       } else if (pathname.includes("/api")) {
-        swaggerUrl = protocol + "//" + host + "/api/swagger.json";
+        swaggerUrl = protocol + "//" + host + "/api/swagger-json.php";
       } else {
         // Fallback
-        swaggerUrl = protocol + "//" + host + "/api/swagger.json";
+        swaggerUrl = protocol + "//" + host + "/api/swagger-json.php";
       }
 
       console.log("📍 URL Swagger:", swaggerUrl);
