@@ -53,12 +53,22 @@ class Atendimento
      */
     public static function getById($id, $numero)
     {
-        $result = Database::query(
-            "SELECT * FROM tbatendimento WHERE id = ? AND numero = ?",
-            [$id, $numero]
-        );
+        $conn = Database::connect();
+        if (!$conn) {
+            return null;
+        }
 
-        return $result[0] ?? null;
+        $numero_esc = mysqli_real_escape_string($conn, $numero);
+        $sql = "SELECT * FROM tbatendimento WHERE id = " . (int)$id . " AND numero = '" . $numero_esc . "'";
+        
+        $result = mysqli_query($conn, $sql);
+        if (!$result) {
+            error_log("Query Error in getById: " . mysqli_error($conn));
+            return null;
+        }
+
+        $row = mysqli_fetch_assoc($result);
+        return $row ?? null;
     }
 
     /**
