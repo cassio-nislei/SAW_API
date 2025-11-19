@@ -116,104 +116,70 @@
     </div>
     <div id="swagger-ui"></div>
     <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui-standalone-preset.js"></script>
     <script>
-      // Detectar caminho base dinamicamente
-      const currentUrl = window.location.href;
-      const protocol = window.location.protocol;
-      const host = window.location.host;
-      const pathname = window.location.pathname;
-
-      // Determinar a URL base correta
-      let swaggerUrl = "";
-
-      if (pathname.includes("/api/swagger-ui.html")) {
-        // Se for /api/swagger-ui.html, procura /api/swagger.json
-        swaggerUrl = protocol + "//" + host + "/api/swagger.json";
-      } else if (pathname.includes("/SAW-main/api/swagger-ui.html")) {
-        // Se for /SAW-main/api/swagger-ui.html, procura no mesmo local
-        swaggerUrl = protocol + "//" + host + "/SAW-main/api/swagger.json";
-      } else {
-        // Fallback: tenta URL relativa
-        swaggerUrl = "./swagger.json";
-      }
-
-      console.log("Swagger JSON URL:", swaggerUrl);
-
-      const ui = SwaggerUIBundle({
-        url: swaggerUrl,
-        dom_id: "#swagger-ui",
-        presets: [
-          SwaggerUIBundle.presets.apis,
-          SwaggerUIBundle.SwaggerUIStandalonePreset,
-        ],
-        layout: "BaseLayout",
-        onComplete: function () {
-          console.log("Swagger UI loaded successfully");
-
-          // Customize the UI
-          const customCss = `
-                    .swagger-ui .topbar {
-                        display: none;
-                    }
-                `;
-          const style = document.createElement("style");
-          style.textContent = customCss;
-          document.head.appendChild(style);
-        },
-        onFailure: function (error) {
-          console.error("Swagger UI load error:", error);
-
-          // Tentar URL alternativa
-          const altUrl = protocol + "//" + host + "/api/swagger-json.php";
-          console.log("Tentando URL alternativa:", altUrl);
-
-          SwaggerUIBundle({
-            url: altUrl,
-            dom_id: "#swagger-ui",
-            presets: [
-              SwaggerUIBundle.presets.apis,
-              SwaggerUIBundle.SwaggerUIStandalonePreset,
-            ],
-            layout: "BaseLayout",
-            deepLinking: true,
-            preloadContent: true,
-            docExpansion: "list",
-            defaultModelsExpandDepth: 1,
-            defaultModelExpandDepth: 1,
-            filter: true,
-            showRequestHeaders: true,
-            supportedSubmitMethods: [
-              "get",
-              "post",
-              "put",
-              "delete",
-              "patch",
-              "options",
-              "head",
-              "trace",
-            ],
-          });
-        },
-        deepLinking: true,
-        preloadContent: true,
-        docExpansion: "list",
-        defaultModelsExpandDepth: 1,
-        defaultModelExpandDepth: 1,
-        filter: true,
-        showRequestHeaders: true,
-        supportedSubmitMethods: [
-          "get",
-          "post",
-          "put",
-          "delete",
-          "patch",
-          "options",
-          "head",
-          "trace",
-        ],
-      });
-
       window.onload = function () {
+        // Construir URL do swagger.json
+        const protocol = window.location.protocol;
+        const host = window.location.host;
+        const pathname = window.location.pathname;
+
+        let swaggerUrl = "";
+
+        // Detectar o caminho correto baseado na URL atual
+        if (pathname.includes("/SAW-main/api")) {
+          swaggerUrl = protocol + "//" + host + "/SAW-main/api/swagger.json";
+        } else if (pathname.includes("/api")) {
+          swaggerUrl = protocol + "//" + host + "/api/swagger.json";
+        } else {
+          // Fallback
+          swaggerUrl = protocol + "//" + host + "/api/swagger.json";
+        }
+
+        console.log("📍 URL Swagger:", swaggerUrl);
+
+        // Inicializar Swagger UI
+        const ui = SwaggerUIBundle({
+          url: swaggerUrl,
+          dom_id: "#swagger-ui",
+          presets: [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIBundle.SwaggerUIStandalonePreset,
+          ],
+          plugins: [SwaggerUIBundle.plugins.DownloadUrl],
+          layout: "StandaloneLayout",
+          deepLinking: true,
+          preloadContent: true,
+          docExpansion: "list",
+          defaultModelsExpandDepth: 1,
+          defaultModelExpandDepth: 1,
+          filter: true,
+          showRequestHeaders: true,
+          supportedSubmitMethods: [
+            "get",
+            "post",
+            "put",
+            "delete",
+            "patch",
+            "options",
+            "head",
+            "trace",
+          ],
+          onComplete: function () {
+            console.log("✅ Swagger UI carregado com sucesso!");
+          },
+          onFailure: function (error) {
+            console.error("❌ Erro ao carregar Swagger UI:", error);
+            document.getElementById("swagger-ui").innerHTML =
+              "<h2>❌ Erro ao carregar a documentação</h2><p>URL: " +
+              swaggerUrl +
+              "</p><p>Erro: " +
+              error +
+              "</p>";
+          },
+        });
+
         window.ui = ui;
       };
     </script>
