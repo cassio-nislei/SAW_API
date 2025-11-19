@@ -1,0 +1,1070 @@
+{ ============================================================================
+  SAW API - Guia Prático de Migração para Delphi
+  
+  Migre seu projeto Delphi existente para usar a SAW API
+  
+  Data: 19/11/2025
+  Versão: 1.0.0
+  ============================================================================ }
+
+ÍNDICE
+══════════════════════════════════════════════════════════════════════════════
+1. Visão Geral da Migração
+2. Pré-requisitos
+3. Instalação e Configuração
+4. Padrão de Acesso - Antes vs Depois
+5. Exemplos de Código Delphi
+6. Casos de Uso Comuns
+7. Tratamento de Erros
+8. Performance e Boas Práticas
+9. Troubleshooting
+10. FAQ
+
+
+═══════════════════════════════════════════════════════════════════════════════
+1. VISÃO GERAL DA MIGRAÇÃO
+═══════════════════════════════════════════════════════════════════════════════
+
+❌ ANTES (Conexão Direta ao MySQL):
+   - Seu Delphi se conectava diretamente ao MySQL
+   - Código acoplado ao banco de dados
+   - Lógica de negócio misturada com acesso a dados
+   - Difícil de manter e atualizar
+
+✅ DEPOIS (Via API REST):
+   - Seu Delphi se conecta à SAW API
+   - Separação clara entre UI e dados
+   - Lógica de negócio centralizada na API
+   - Fácil de manter, versionar e escalar
+   - Suporta múltiplos clientes (Web, Mobile, Desktop)
+
+BENEFÍCIOS:
+   ✓ Menor acoplamento
+   ✓ Maior segurança
+   ✓ Facilita testes
+   ✓ Melhor performance
+   ✓ Versão única da verdade
+   ✓ Fácil sincronização
+
+
+═══════════════════════════════════════════════════════════════════════════════
+2. PRÉ-REQUISITOS
+═══════════════════════════════════════════════════════════════════════════════
+
+DELPHI:
+   ✓ Delphi 7.0+ (recomendado 10.0+)
+   ✓ Componentes: IdHTTP, IdHTTPServer
+   ✓ Biblioteca JSON (JSON já vem nativo em Delphi 2009+)
+
+CONECTIVIDADE:
+   ✓ Rede local com acesso ao servidor Apache
+   ✓ Porta 80 aberta (ou 8080 alternativa)
+   ✓ URL base configurável
+
+API SAW:
+   ✓ Apache 2.4+ rodando
+   ✓ PHP 7.0+ configurado
+   ✓ MySQL 5.7+ com dados
+
+
+═══════════════════════════════════════════════════════════════════════════════
+3. INSTALAÇÃO E CONFIGURAÇÃO
+═══════════════════════════════════════════════════════════════════════════════
+
+PASSO 1: Verificar Acesso à API
+
+  No seu Delphi, teste a conexão:
+
+    procedure TForm1.TestAPI;
+    var
+      HTTP: TIdHTTP;
+      Response: string;
+    begin
+      HTTP := TIdHTTP.Create(nil);
+      try
+        try
+          Response := HTTP.Get('http://localhost/SAW-main/api/v1/');
+          ShowMessage('API Respondendo: ' + Response);
+        except
+          on E: Exception do
+            ShowMessage('Erro ao conectar: ' + E.Message);
+        end;
+      finally
+        HTTP.Free;
+      end;
+    end;
+
+  Resultado esperado:
+  {"status":"success","data":{"api":"SAW API","version":"1.0.0",...}}
+
+
+PASSO 2: Criar Classe Helper de Acesso à API
+
+  Crie um novo arquivo: APIClient.pas
+
+    unit APIClient;
+
+    interface
+
+    uses
+      System.SysUtils,
+      System.JSON,
+      IdHTTP,
+      IdSSLOpenSSL,
+      System.NetEncoding;
+
+    type
+      TAPIClient = class
+      private
+        FHTTP: TIdHTTP;
+        FBaseURL: string;
+        FTimeout: Integer;
+      public
+        constructor Create(const ABaseURL: string = 'http://localhost/SAW-main/api/v1');
+        destructor Destroy; override;
+        
+        function Get(const Endpoint: string): TJSONObject;
+        function Post(const Endpoint: string; AData: TJSONObject): TJSONObject;
+        function Put(const Endpoint: string; AData: TJSONObject): TJSONObject;
+        function Delete(const Endpoint: string): TJSONObject;
+        
+        procedure SetTimeout(AMilliseconds: Integer);
+      end;
+
+    implementation
+
+    constructor TAPIClient.Create(const ABaseURL: string);
+    begin
+      inherited Create;
+      FBaseURL := ABaseURL;
+      FTimeout := 30000; // 30 segundos
+      
+      FHTTP := TIdHTTP.Create(nil);
+      FHTTP.ConnectTimeout := FTimeout;
+      FHTTP.ReadTimeout := FTimeout;
+    end;
+
+    destructor TAPIClient.Destroy;
+    begin
+      FHTTP.Free;
+      inherited;
+    end;
+
+    function TAPIClient.Get(const Endpoint: string): TJSONObject;
+    var
+      Response: string;
+    begin
+      try
+        Response := FHTTP.Get(FBaseURL + Endpoint);
+        Result := TJSONObject.ParseJSONValue(Response) as TJSONObject;
+      except
+        on E: Exception do
+          raise Exception.Create('Erro GET ' + Endpoint + ': ' + E.Message);
+      end;
+    end;
+
+    function TAPIClient.Post(const Endpoint: string; AData: TJSONObject): TJSONObject;
+    var
+      Response: string;
+      Stream: TStringStream;
+    begin
+      try
+        Stream := TStringStream.Create(AData.ToJSON);
+        try
+          FHTTP.Request.ContentType := 'application/json';
+          Response := FHTTP.Post(FBaseURL + Endpoint, Stream);
+          Result := TJSONObject.ParseJSONValue(Response) as TJSONObject;
+        finally
+          Stream.Free;
+        end;
+      except
+        on E: Exception do
+          raise Exception.Create('Erro POST ' + Endpoint + ': ' + E.Message);
+      end;
+    end;
+
+    function TAPIClient.Put(const Endpoint: string; AData: TJSONObject): TJSONObject;
+    var
+      Response: string;
+      Stream: TStringStream;
+    begin
+      try
+        Stream := TStringStream.Create(AData.ToJSON);
+        try
+          FHTTP.Request.ContentType := 'application/json';
+          Response := FHTTP.Put(FBaseURL + Endpoint, Stream);
+          Result := TJSONObject.ParseJSONValue(Response) as TJSONObject;
+        finally
+          Stream.Free;
+        end;
+      except
+        on E: Exception do
+          raise Exception.Create('Erro PUT ' + Endpoint + ': ' + E.Message);
+      end;
+    end;
+
+    function TAPIClient.Delete(const Endpoint: string): TJSONObject;
+    var
+      Response: string;
+    begin
+      try
+        Response := FHTTP.Delete(FBaseURL + Endpoint);
+        Result := TJSONObject.ParseJSONValue(Response) as TJSONObject;
+      except
+        on E: Exception do
+          raise Exception.Create('Erro DELETE ' + Endpoint + ': ' + E.Message);
+      end;
+    end;
+
+    procedure TAPIClient.SetTimeout(AMilliseconds: Integer);
+    begin
+      FTimeout := AMilliseconds;
+      FHTTP.ConnectTimeout := FTimeout;
+      FHTTP.ReadTimeout := FTimeout;
+    end;
+
+    end.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+4. PADRÃO DE ACESSO - ANTES VS DEPOIS
+═══════════════════════════════════════════════════════════════════════════════
+
+ANTES: Conexão Direta ao MySQL
+──────────────────────────────────────────────────────────────────────────────
+
+  unit DAL_Atendimento;
+  
+  interface
+  uses
+    DBXMySQL,
+    SQLConnection,
+    DBXDatasnap;
+  
+  type
+    TDAL_Atendimento = class
+    private
+      FConn: TSQLConnection;
+    public
+      constructor Create;
+      function ListarAtendimentos: TDataSet;
+      function CriarAtendimento(const Numero, Solicitante: string): Integer;
+    end;
+  
+  implementation
+  
+  constructor TDAL_Atendimento.Create;
+  begin
+    FConn := TSQLConnection.Create(nil);
+    FConn.DriverName := 'MySQL';
+    FConn.GetDriverFunc := MySQLGetDriver;
+    FConn.Params.Values['HostName'] := '172.20.0.6';
+    FConn.Params.Values['Database'] := 'saw15';
+    FConn.Params.Values['User_Name'] := 'root';
+    FConn.Params.Values['Password'] := 'senha123';
+  end;
+  
+  function TDAL_Atendimento.ListarAtendimentos: TDataSet;
+  begin
+    // Código SQL direto
+    Result := FConn.ExecuteQuery(
+      'SELECT * FROM tbatendimento LIMIT 20'
+    );
+  end;
+  
+  end.
+
+DEPOIS: Via API REST
+──────────────────────────────────────────────────────────────────────────────
+
+  unit Manager_Atendimento;
+  
+  interface
+  uses
+    APIClient,
+    System.JSON;
+  
+  type
+    TManager_Atendimento = class
+    private
+      FAPI: TAPIClient;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      function ListarAtendimentos(Page: Integer = 1; PerPage: Integer = 20): TJSONObject;
+      function CriarAtendimento(const Numero, Solicitante, Solicitacao: string): Integer;
+      function ObterAtendimento(const ID: Integer): TJSONObject;
+      function FinalizarAtendimento(const ID: Integer; Observacao: string): Boolean;
+    end;
+  
+  implementation
+  
+  constructor TManager_Atendimento.Create;
+  begin
+    FAPI := TAPIClient.Create('http://localhost/SAW-main/api/v1');
+  end;
+  
+  destructor TManager_Atendimento.Destroy;
+  begin
+    FAPI.Free;
+    inherited;
+  end;
+  
+  function TManager_Atendimento.ListarAtendimentos(Page: Integer; PerPage: Integer): TJSONObject;
+  var
+    Endpoint: string;
+  begin
+    Endpoint := Format('/atendimentos?page=%d&perPage=%d', [Page, PerPage]);
+    Result := FAPI.Get(Endpoint);
+  end;
+  
+  function TManager_Atendimento.CriarAtendimento(const Numero, Solicitante, Solicitacao: string): Integer;
+  var
+    Data: TJSONObject;
+    Response: TJSONObject;
+  begin
+    Data := TJSONObject.Create;
+    try
+      Data.AddPair('numero', Numero);
+      Data.AddPair('solicitante', Solicitante);
+      Data.AddPair('solicitacao', Solicitacao);
+      
+      Response := FAPI.Post('/atendimentos', Data);
+      try
+        if Response.GetValue('status').Value = 'success' then
+          Result := StrToInt(Response.GetValue('data').FindValue('id').Value)
+        else
+          raise Exception.Create(Response.GetValue('message').Value);
+      finally
+        Response.Free;
+      end;
+    finally
+      Data.Free;
+    end;
+  end;
+  
+  end.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+5. EXEMPLOS DE CÓDIGO DELPHI
+═══════════════════════════════════════════════════════════════════════════════
+
+EXEMPLO 1: Listar Atendimentos e Exibir em Grid
+────────────────────────────────────────────────
+
+procedure TFormAtendimento.CarregarAtendimentos;
+var
+  Manager: TManager_Atendimento;
+  Response: TJSONObject;
+  JSONArray: TJSONArray;
+  JSONItem: TJSONObject;
+  I: Integer;
+begin
+  Manager := TManager_Atendimento.Create;
+  try
+    // Obter dados da API
+    Response := Manager.ListarAtendimentos(1, 50);
+    try
+      // Verificar se sucesso
+      if Response.GetValue('status').Value = 'success' then
+      begin
+        // Obter array de dados
+        JSONArray := Response.GetValue('data') as TJSONArray;
+        
+        // Limpar grid
+        StringGrid1.RowCount := JSONArray.Count + 1;
+        StringGrid1.Cells[0, 0] := 'ID';
+        StringGrid1.Cells[1, 0] := 'Número';
+        StringGrid1.Cells[2, 0] := 'Solicitante';
+        StringGrid1.Cells[3, 0] := 'Situação';
+        
+        // Preencher grid
+        for I := 0 to JSONArray.Count - 1 do
+        begin
+          JSONItem := JSONArray.Items[I] as TJSONObject;
+          StringGrid1.Cells[0, I + 1] := JSONItem.GetValue('id').Value;
+          StringGrid1.Cells[1, I + 1] := JSONItem.GetValue('numero').Value;
+          StringGrid1.Cells[2, I + 1] := JSONItem.GetValue('solicitante').Value;
+          StringGrid1.Cells[3, I + 1] := JSONItem.GetValue('situacao').Value;
+        end;
+        
+        ShowMessage('Carregados ' + IntToStr(JSONArray.Count) + ' atendimentos');
+      end
+      else
+        ShowMessage('Erro: ' + Response.GetValue('message').Value);
+    finally
+      Response.Free;
+    end;
+  finally
+    Manager.Free;
+  end;
+end;
+
+
+EXEMPLO 2: Criar Novo Atendimento
+──────────────────────────────────
+
+procedure TFormAtendimento.BtnCriarClick(Sender: TObject);
+var
+  Manager: TManager_Atendimento;
+  NovoID: Integer;
+begin
+  if EditNumero.Text = '' then
+  begin
+    ShowMessage('Número é obrigatório');
+    Exit;
+  end;
+  
+  Manager := TManager_Atendimento.Create;
+  try
+    try
+      NovoID := Manager.CriarAtendimento(
+        EditNumero.Text,
+        EditSolicitante.Text,
+        MemoSolicitacao.Text
+      );
+      
+      ShowMessage('Atendimento criado com sucesso! ID: ' + IntToStr(NovoID));
+      CarregarAtendimentos; // Recarregar lista
+      LimparFormulario;
+    except
+      on E: Exception do
+        ShowMessage('Erro ao criar: ' + E.Message);
+    end;
+  finally
+    Manager.Free;
+  end;
+end;
+
+
+EXEMPLO 3: Buscar Atendimento Específico
+─────────────────────────────────────────
+
+procedure TFormAtendimento.BuscarPorID(const ID: Integer);
+var
+  Manager: TManager_Atendimento;
+  Response: TJSONObject;
+  DataObj: TJSONObject;
+begin
+  Manager := TManager_Atendimento.Create;
+  try
+    try
+      Response := Manager.ObterAtendimento(ID);
+      try
+        if Response.GetValue('status').Value = 'success' then
+        begin
+          DataObj := Response.GetValue('data') as TJSONObject;
+          
+          EditNumero.Text := DataObj.GetValue('numero').Value;
+          EditSolicitante.Text := DataObj.GetValue('solicitante').Value;
+          MemoSolicitacao.Text := DataObj.GetValue('solicitacao').Value;
+          LabelSituacao.Caption := DataObj.GetValue('situacao').Value;
+        end;
+      finally
+        Response.Free;
+      end;
+    except
+      on E: Exception do
+        ShowMessage('Erro: ' + E.Message);
+    end;
+  finally
+    Manager.Free;
+  end;
+end;
+
+
+EXEMPLO 4: Mensagens de um Atendimento
+──────────────────────────────────────
+
+procedure TFormMensagem.CarregarMensagens(const IDAtendimento: Integer);
+var
+  API: TAPIClient;
+  Response: TJSONObject;
+  JSONArray: TJSONArray;
+  JSONItem: TJSONObject;
+  I: Integer;
+begin
+  API := TAPIClient.Create('http://localhost/SAW-main/api/v1');
+  try
+    try
+      Response := API.Get('/atendimentos/' + IntToStr(IDAtendimento) + '/mensagens');
+      try
+        if Response.GetValue('status').Value = 'success' then
+        begin
+          JSONArray := Response.GetValue('data') as TJSONArray;
+          
+          MemoMensagens.Clear;
+          for I := 0 to JSONArray.Count - 1 do
+          begin
+            JSONItem := JSONArray.Items[I] as TJSONObject;
+            MemoMensagens.Lines.Add(
+              Format(
+                '[%s] %s: %s',
+                [
+                  JSONItem.GetValue('data_criacao').Value,
+                  JSONItem.GetValue('remetente').Value,
+                  JSONItem.GetValue('conteudo').Value
+                ]
+              )
+            );
+          end;
+        end;
+      finally
+        Response.Free;
+      end;
+    except
+      on E: Exception do
+        ShowMessage('Erro: ' + E.Message);
+    end;
+  finally
+    API.Free;
+  end;
+end;
+
+
+EXEMPLO 5: Adicionar Mensagem
+─────────────────────────────
+
+procedure TFormMensagem.AdicionarMensagem(const IDAtendimento: Integer; const Conteudo: string);
+var
+  API: TAPIClient;
+  Data: TJSONObject;
+  Response: TJSONObject;
+begin
+  API := TAPIClient.Create('http://localhost/SAW-main/api/v1');
+  try
+    Data := TJSONObject.Create;
+    try
+      Data.AddPair('conteudo', Conteudo);
+      Data.AddPair('remetente', 'Sistema');
+      Data.AddPair('tipo', 'saida');
+      
+      Response := API.Post('/atendimentos/' + IntToStr(IDAtendimento) + '/mensagens', Data);
+      try
+        if Response.GetValue('status').Value = 'success' then
+          ShowMessage('Mensagem enviada com sucesso')
+        else
+          ShowMessage('Erro: ' + Response.GetValue('message').Value);
+      finally
+        Response.Free;
+      end;
+    finally
+      Data.Free;
+    end;
+  finally
+    API.Free;
+  end;
+end;
+
+
+═══════════════════════════════════════════════════════════════════════════════
+6. CASOS DE USO COMUNS
+═══════════════════════════════════════════════════════════════════════════════
+
+CASO 1: Listar Dados com Paginação
+──────────────────────────────────
+
+  procedure TFormAtendimento.CarregarProxima;
+  begin
+    Inc(FPaginaAtual);
+    CarregarAtendimentos;
+  end;
+  
+  procedure TFormAtendimento.CarregarAnterior;
+  begin
+    if FPaginaAtual > 1 then
+      Dec(FPaginaAtual);
+    CarregarAtendimentos;
+  end;
+
+
+CASO 2: Filtrar por Status
+───────────────────────────
+
+  function TManager_Atendimento.ListarPorStatus(const Status: string): TJSONObject;
+  begin
+    Result := FAPI.Get('/atendimentos?situacao=' + Status);
+  end;
+  
+  // Uso:
+  procedure TFormAtendimento.FiltrarAbertos;
+  var
+    Response: TJSONObject;
+  begin
+    Response := FManager.ListarPorStatus('aberto');
+    ExibirEmGrid(Response);
+  end;
+
+
+CASO 3: Atualizar Status de Atendimento
+────────────────────────────────────────
+
+  procedure TFormAtendimento.AlterarSituacao(const IDAtendimento: Integer; const Situacao: string);
+  var
+    API: TAPIClient;
+    Data: TJSONObject;
+    Response: TJSONObject;
+  begin
+    API := TAPIClient.Create('http://localhost/SAW-main/api/v1');
+    try
+      Data := TJSONObject.Create;
+      try
+        Data.AddPair('situacao', Situacao);
+        
+        Response := API.Put(
+          '/atendimentos/' + IntToStr(IDAtendimento) + '/situacao',
+          Data
+        );
+        try
+          if Response.GetValue('status').Value = 'success' then
+            ShowMessage('Status atualizado!')
+          else
+            ShowMessage('Erro: ' + Response.GetValue('message').Value);
+        finally
+          Response.Free;
+        end;
+      finally
+        Data.Free;
+      end;
+    finally
+      API.Free;
+    end;
+  end;
+
+
+CASO 4: Transferir Atendimento para Outro Setor
+────────────────────────────────────────────────
+
+  procedure TFormAtendimento.TransferirSetor(const IDAtendimento: Integer; const NovoSetor: string);
+  var
+    API: TAPIClient;
+    Data: TJSONObject;
+    Response: TJSONObject;
+  begin
+    API := TAPIClient.Create('http://localhost/SAW-main/api/v1');
+    try
+      Data := TJSONObject.Create;
+      try
+        Data.AddPair('setor', NovoSetor);
+        
+        Response := API.Put(
+          '/atendimentos/' + IntToStr(IDAtendimento) + '/setor',
+          Data
+        );
+        try
+          if Response.GetValue('status').Value = 'success' then
+            ShowMessage('Atendimento transferido!')
+          else
+            ShowMessage('Erro: ' + Response.GetValue('message').Value);
+        finally
+          Response.Free;
+        end;
+      finally
+        Data.Free;
+      end;
+    finally
+      API.Free;
+    end;
+  end;
+
+
+CASO 5: Finalizar Atendimento
+──────────────────────────────
+
+  procedure TFormAtendimento.FinalizarAtendimento(const IDAtendimento: Integer; const Observacao: string);
+  var
+    API: TAPIClient;
+    Data: TJSONObject;
+    Response: TJSONObject;
+  begin
+    API := TAPIClient.Create('http://localhost/SAW-main/api/v1');
+    try
+      Data := TJSONObject.Create;
+      try
+        Data.AddPair('observacao', Observacao);
+        
+        Response := API.Post(
+          '/atendimentos/' + IntToStr(IDAtendimento) + '/finalizar',
+          Data
+        );
+        try
+          if Response.GetValue('status').Value = 'success' then
+          begin
+            ShowMessage('Atendimento finalizado!');
+            CarregarAtendimentos;
+          end
+          else
+            ShowMessage('Erro: ' + Response.GetValue('message').Value);
+        finally
+          Response.Free;
+        end;
+      finally
+        Data.Free;
+      end;
+    finally
+      API.Free;
+    end;
+  end;
+
+
+═══════════════════════════════════════════════════════════════════════════════
+7. TRATAMENTO DE ERROS
+═══════════════════════════════════════════════════════════════════════════════
+
+TRATAMENTO ROBUSTO
+──────────────────
+
+procedure ExecutarComTratamento;
+var
+  API: TAPIClient;
+  Response: TJSONObject;
+begin
+  API := TAPIClient.Create;
+  try
+    try
+      Response := API.Get('/atendimentos');
+      try
+        // Verificar se a resposta tem a estrutura esperada
+        if not Assigned(Response) then
+          raise Exception.Create('Resposta vazia da API');
+        
+        if Response.GetValue('status') = nil then
+          raise Exception.Create('Campo status não encontrado');
+        
+        // Verificar status
+        if Response.GetValue('status').Value <> 'success' then
+        begin
+          if Response.GetValue('message') <> nil then
+            raise Exception.Create('API retornou erro: ' + Response.GetValue('message').Value)
+          else
+            raise Exception.Create('Erro desconhecido na API');
+        end;
+        
+        // Processar dados
+        ProcessarDados(Response);
+      finally
+        Response.Free;
+      end;
+    except
+      on EConexao: EIdConnectException do
+        ShowMessage('Erro de conexão: Verifique se a API está rodando');
+      on ETimeout: EIdReadTimeout do
+        ShowMessage('Timeout: A API levou muito tempo para responder');
+      on EJSON: EJSONException do
+        ShowMessage('Erro ao processar JSON: ' + EJSON.Message);
+      on E: Exception do
+        ShowMessage('Erro: ' + E.Message);
+    end;
+  finally
+    API.Free;
+  end;
+end;
+
+
+CLASSE COM RETRY
+────────────────
+
+type
+  TAPIClientWithRetry = class(TAPIClient)
+  private
+    FMaxRetries: Integer;
+    FRetryDelay: Integer; // millisegundos
+  public
+    procedure SetRetry(MaxRetries: Integer; DelayMS: Integer);
+    function GetWithRetry(const Endpoint: string): TJSONObject;
+    function PostWithRetry(const Endpoint: string; AData: TJSONObject): TJSONObject;
+  end;
+
+procedure TAPIClientWithRetry.SetRetry(MaxRetries: Integer; DelayMS: Integer);
+begin
+  FMaxRetries := MaxRetries;
+  FRetryDelay := DelayMS;
+end;
+
+function TAPIClientWithRetry.GetWithRetry(const Endpoint: string): TJSONObject;
+var
+  Tentativa: Integer;
+begin
+  for Tentativa := 1 to FMaxRetries do
+  begin
+    try
+      Result := Get(Endpoint);
+      Exit;
+    except
+      if Tentativa < FMaxRetries then
+      begin
+        Sleep(FRetryDelay);
+        Continue;
+      end
+      else
+        raise;
+    end;
+  end;
+end;
+
+
+═══════════════════════════════════════════════════════════════════════════════
+8. PERFORMANCE E BOAS PRÁTICAS
+═══════════════════════════════════════════════════════════════════════════════
+
+BOM: Cache Local
+────────────────
+
+type
+  TAtendimentoCache = class
+  private
+    FCache: TDictionary<Integer, TJSONObject>;
+    FCacheTime: TDateTime;
+    FCacheTimeout: Integer; // segundos
+  public
+    constructor Create(TimeoutSeconds: Integer = 300);
+    destructor Destroy; override;
+    
+    procedure Armazenar(ID: Integer; Data: TJSONObject);
+    function Obter(ID: Integer; out Data: TJSONObject): Boolean;
+    procedure Limpar;
+    function EstaValido: Boolean;
+  end;
+
+constructor TAtendimentoCache.Create(TimeoutSeconds: Integer);
+begin
+  FCache := TDictionary<Integer, TJSONObject>.Create;
+  FCacheTimeout := TimeoutSeconds;
+  FCacheTime := Now;
+end;
+
+function TAtendimentoCache.EstaValido: Boolean;
+var
+  Decorrido: Integer;
+begin
+  Decorrido := Trunc((Now - FCacheTime) * 24 * 60 * 60); // em segundos
+  Result := Decorrido < FCacheTimeout;
+end;
+
+procedure TAtendimentoCache.Armazenar(ID: Integer; Data: TJSONObject);
+begin
+  if FCache.ContainsKey(ID) then
+    FCache.Items[ID].Free;
+  FCache.AddOrSetValue(ID, Data);
+  FCacheTime := Now;
+end;
+
+function TAtendimentoCache.Obter(ID: Integer; out Data: TJSONObject): Boolean;
+begin
+  Result := EstaValido and FCache.TryGetValue(ID, Data);
+end;
+
+
+BOM: Processar em Thread
+────────────────────────
+
+procedure CarregarAtendimentosAsync;
+begin
+  TThread.CreateAnonymousThread(
+    procedure
+    var
+      Manager: TManager_Atendimento;
+      Response: TJSONObject;
+    begin
+      try
+        Manager := TManager_Atendimento.Create;
+        try
+          Response := Manager.ListarAtendimentos;
+          try
+            // Volta para thread principal
+            TThread.Synchronize(
+              TThread.Current,
+              procedure
+              begin
+                ExibirEmGrid(Response);
+              end
+            );
+          finally
+            Response.Free;
+          end;
+        finally
+          Manager.Free;
+        end;
+      except
+        on E: Exception do
+          TThread.Synchronize(
+            TThread.Current,
+            procedure
+            begin
+              ShowMessage('Erro: ' + E.Message);
+            end
+          );
+      end;
+    end
+  ).Start;
+end;
+
+
+BOM: Conexão Persistente
+────────────────────────
+
+type
+  TAPIClientSingleton = class
+  private
+    class var FInstance: TAPIClient;
+    class var FLock: TCriticalSection;
+  public
+    class function GetInstance: TAPIClient;
+    class procedure Release;
+  end;
+
+class function TAPIClientSingleton.GetInstance: TAPIClient;
+begin
+  if FInstance = nil then
+  begin
+    FLock.Acquire;
+    try
+      if FInstance = nil then
+        FInstance := TAPIClient.Create;
+    finally
+      FLock.Release;
+    end;
+  end;
+  Result := FInstance;
+end;
+
+// Uso:
+API := TAPIClientSingleton.GetInstance;
+Response := API.Get('/atendimentos');
+
+
+═══════════════════════════════════════════════════════════════════════════════
+9. TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════════════
+
+ERRO: "Connection refused" ou "Cannot reach host"
+─────────────────────────────────────────────────
+
+Causa: API não está rodando ou URL incorreta
+
+Solução:
+1. Verifique se Apache está rodando: http://localhost
+2. Verifique URL: http://localhost/SAW-main/api/v1/
+3. Teste via navegador ou cURL
+4. Verifique firewall/antivírus
+5. Confira porta 80 está disponível
+
+
+ERRO: "Invalid JSON response"
+──────────────────────────────
+
+Causa: API retornou HTML em vez de JSON (erro 404 ou 500)
+
+Solução:
+1. Verifique endpoint está correto
+2. Use Swagger UI para testar: http://localhost/SAW-main/api/swagger-ui.html
+3. Verifique logs do Apache: C:\xampp\apache\logs\
+4. Verifique logs do PHP: php_error.log
+5. Teste com Postman
+
+
+ERRO: "Timeout"
+───────────────
+
+Causa: API levando muito tempo ou conexão lenta
+
+Solução:
+1. Aumente timeout: API.SetTimeout(60000); // 60 segundos
+2. Verifique performance do servidor
+3. Processe em thread assíncrona
+4. Use cache para dados frequentes
+5. Reduza quantidade de dados retornados (paginação)
+
+
+ERRO: "401 Unauthorized"
+────────────────────────
+
+Causa: Falha de autenticação
+
+Solução:
+1. Verifique se API requer autenticação
+2. Adicione headers necessários
+3. Consulte DOCUMENTACAO_SWAGGER.md
+
+
+═══════════════════════════════════════════════════════════════════════════════
+10. FAQ - PERGUNTAS FREQUENTES
+═════════════════════════════════════════════════════════════════════════════════
+
+P: Preciso desinstalar o componente de banco de dados Delphi?
+R: Não é obrigatório, mas recomendado para reduzir dependências.
+   Mantenha apenas os componentes necessários para a UI (DataGrid, etc).
+
+
+P: Como lidar com sessões/autenticação?
+R: Por enquanto, a API não tem autenticação. 
+   Para adicionar, veja a seção de próximos passos.
+
+
+P: Posso usar TDataSet?
+R: Não diretamente. Você pode converter JSON para DataSet manualmente,
+   ou usar bibliotecas como RemObjects.
+
+
+P: E performance com muitos dados?
+R: Use paginação (page/perPage), cache local e threads assíncronas.
+
+
+P: Como debugar problemas?
+R: Use Swagger UI para testar endpoints.
+   Crie logs detalhados no seu Delphi.
+   Consulte logs do Apache/PHP.
+
+
+P: Pode usar em aplicações Web (Intraweb, Kaliber)?
+R: Sim! O padrão JSON funciona com qualquer tecnologia Delphi.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+11. PRÓXIMOS PASSOS NA MIGRAÇÃO
+═════════════════════════════════════════════════════════════════════════════════
+
+FASE 1: Setup (1-2 dias)
+───────────────────────
+□ Criar classe APIClient.pas
+□ Testar conexão básica
+□ Criar classe Manager_Atendimento
+□ Testar CRUD básico
+
+
+FASE 2: UI Migration (3-5 dias)
+──────────────────────────────
+□ Migrar formulário de atendimentos
+□ Migrar formulário de mensagens
+□ Testar todas as funcionalidades
+□ Ajustar performance
+
+
+FASE 3: Refinamento (2-3 dias)
+──────────────────────────────
+□ Implementar tratamento de erro robusto
+□ Adicionar cache
+□ Processar em threads
+□ Otimizar performance
+
+
+FASE 4: Testes (3-5 dias)
+─────────────────────────
+□ Testes unitários
+□ Testes de integração
+□ Testes de carga
+□ Testes em produção
+
+
+═════════════════════════════════════════════════════════════════════════════════
+
+Documentação criada: 19/11/2025
+Versão: 1.0.0
+Status: ✅ Pronto para Usar
+
+Para mais informações, consulte:
+- DOCUMENTACAO_SWAGGER.md - Detalhes da API
+- SWAGGER_README.md - Exemplos de uso
+- http://localhost/SAW-main/api/swagger-ui.html - Teste interativo
+

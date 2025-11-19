@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SAW API - Swagger UI</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui.css"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/favicon-32x32.png"
+      sizes="32x32"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/favicon-16x16.png"
+      sizes="16x16"
+    />
+    <style>
+      html {
+        box-sizing: border-box;
+        overflow: -moz-scrollbars-vertical;
+        overflow-y: scroll;
+      }
+      *,
+      *:before,
+      *:after {
+        box-sizing: inherit;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        background: #fafafa;
+      }
+      .topbar {
+        background-color: #1a1a1a;
+        padding: 10px 0;
+        color: white;
+        text-align: center;
+        border-bottom: 3px solid #4caf50;
+      }
+      .topbar h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+      }
+      .topbar p {
+        margin: 5px 0 0 0;
+        font-size: 12px;
+        opacity: 0.8;
+      }
+      .swagger-ui .info .title {
+        color: #1a1a1a;
+      }
+      .swagger-ui .model {
+        background-color: #fff;
+      }
+      .swagger-ui .btn {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      .swagger-ui .btn:hover {
+        background-color: #45a049;
+      }
+      .swagger-ui .opblock {
+        border: 1px solid #f0f0f0;
+        margin-bottom: 15px;
+        border-radius: 4px;
+      }
+      .swagger-ui .opblock.opblock-get {
+        border-left: 3px solid #61affe;
+      }
+      .swagger-ui .opblock.opblock-post {
+        border-left: 3px solid #49cc90;
+      }
+      .swagger-ui .opblock.opblock-put {
+        border-left: 3px solid #fca130;
+      }
+      .swagger-ui .opblock.opblock-delete {
+        border-left: 3px solid #f93e3e;
+      }
+      .swagger-ui .opblock.opblock-patch {
+        border-left: 3px solid #50e3c2;
+      }
+      .swagger-ui .tab-item {
+        color: #1a1a1a;
+      }
+      .swagger-ui .topbar {
+        background-color: #1a1a1a;
+        border-bottom: 3px solid #4caf50;
+      }
+      .swagger-ui .models-container {
+        margin-top: 40px;
+      }
+      .swagger-ui .scheme-container {
+        background: #fff;
+        border-bottom: 1px solid #eee;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topbar">
+      <h1>🔌 SAW API - Swagger Documentation</h1>
+      <p>Sistema de Atendimento Web - API RESTful v1.0.0</p>
+    </div>
+    <div id="swagger-ui"></div>
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui.js"></script>
+    <script>
+      const ui = SwaggerUIBundle({
+        url: "./swagger.json",
+        dom_id: "#swagger-ui",
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIBundle.SwaggerUIStandalonePreset,
+        ],
+        layout: "BaseLayout",
+        onComplete: function () {
+          console.log("Swagger UI loaded successfully");
+
+          // Customize the UI
+          const customCss = `
+                    .swagger-ui .topbar {
+                        display: none;
+                    }
+                `;
+          const style = document.createElement("style");
+          style.textContent = customCss;
+          document.head.appendChild(style);
+        },
+        deepLinking: true,
+        preloadContent: true,
+        docExpansion: "list",
+        defaultModelsExpandDepth: 1,
+        defaultModelExpandDepth: 1,
+        filter: true,
+        showRequestHeaders: true,
+        supportedSubmitMethods: [
+          "get",
+          "post",
+          "put",
+          "delete",
+          "patch",
+          "options",
+          "head",
+          "trace",
+        ],
+      });
+
+      window.onload = function () {
+        window.ui = ui;
+      };
+    </script>
+  </body>
+</html>

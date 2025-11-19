@@ -1,0 +1,1121 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "SAW API",
+    "description": "Sistema de Atendimento Web - API RESTful em PHP puro para gerenciamento de atendimentos, mensagens, anexos e configurações.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Suporte SAW",
+      "email": "suporte@saw.local"
+    },
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost/SAW-main/api/v1",
+      "description": "Servidor de Desenvolvimento"
+    },
+    {
+      "url": "https://api.saw.local/v1",
+      "description": "Servidor de Produção"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Atendimentos",
+      "description": "Operações relacionadas a atendimentos"
+    },
+    {
+      "name": "Mensagens",
+      "description": "Operações relacionadas a mensagens de atendimento"
+    },
+    {
+      "name": "Anexos",
+      "description": "Operações de upload e gerenciamento de anexos"
+    },
+    {
+      "name": "Parâmetros",
+      "description": "Configurações do sistema"
+    },
+    {
+      "name": "Menus",
+      "description": "Gerenciamento de menus e respostas automáticas"
+    },
+    {
+      "name": "Horários",
+      "description": "Informações de horário de funcionamento"
+    },
+    {
+      "name": "Health",
+      "description": "Status da API"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health Check",
+        "description": "Verifica se a API está funcionando corretamente",
+        "operationId": "healthCheck",
+        "responses": {
+          "200": {
+            "description": "API está operacional",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/atendimentos": {
+      "get": {
+        "tags": ["Atendimentos"],
+        "summary": "Lista atendimentos",
+        "description": "Retorna lista de atendimentos com suporte a paginação e filtros",
+        "operationId": "listAtendimentos",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Número da página",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "perPage",
+            "in": "query",
+            "description": "Itens por página (máximo 100)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "situacao",
+            "in": "query",
+            "description": "Filtrar por situação",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["aberto", "em_andamento", "finalizado", "cancelado"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de atendimentos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AtendimentoListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Atendimentos"],
+        "summary": "Criar novo atendimento",
+        "description": "Cria um novo atendimento no sistema",
+        "operationId": "createAtendimento",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AtendimentoCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Atendimento criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AtendimentoResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/atendimentos/ativos": {
+      "get": {
+        "tags": ["Atendimentos"],
+        "summary": "Lista atendimentos ativos",
+        "description": "Retorna apenas os atendimentos em andamento",
+        "operationId": "listActiveAtendimentos",
+        "responses": {
+          "200": {
+            "description": "Lista de atendimentos ativos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AtendimentoListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/atendimentos/{id}": {
+      "get": {
+        "tags": ["Atendimentos"],
+        "summary": "Obter atendimento específico",
+        "description": "Retorna detalhes completos de um atendimento",
+        "operationId": "getAtendimento",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID do atendimento",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Atendimento encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AtendimentoResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/atendimentos/{id}/situacao": {
+      "put": {
+        "tags": ["Atendimentos"],
+        "summary": "Atualizar situação do atendimento",
+        "description": "Muda a situação de um atendimento",
+        "operationId": "updateAtendimentoSituacao",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "situacao": {
+                    "type": "string",
+                    "enum": [
+                      "aberto",
+                      "em_andamento",
+                      "finalizado",
+                      "cancelado"
+                    ]
+                  }
+                },
+                "required": ["situacao"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Situação atualizada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/atendimentos/{id}/setor": {
+      "put": {
+        "tags": ["Atendimentos"],
+        "summary": "Atualizar setor do atendimento",
+        "description": "Transfere um atendimento para outro setor",
+        "operationId": "updateAtendimentoSetor",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "setor": {
+                    "type": "string"
+                  }
+                },
+                "required": ["setor"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Setor atualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/atendimentos/{id}/finalizar": {
+      "post": {
+        "tags": ["Atendimentos"],
+        "summary": "Finalizar atendimento",
+        "description": "Encerra um atendimento em andamento",
+        "operationId": "finalizeAtendimento",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "observacao": {
+                    "type": "string",
+                    "description": "Observação sobre o atendimento"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Atendimento finalizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/atendimentos/{id}/mensagens": {
+      "get": {
+        "tags": ["Mensagens"],
+        "summary": "Listar mensagens do atendimento",
+        "description": "Retorna todas as mensagens de um atendimento",
+        "operationId": "listMensagens",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "tipo",
+            "in": "query",
+            "description": "Tipo de filtro",
+            "schema": {
+              "type": "string",
+              "enum": ["current", "all", "att"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de mensagens",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MensagemListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Mensagens"],
+        "summary": "Criar nova mensagem",
+        "description": "Adiciona uma nova mensagem a um atendimento",
+        "operationId": "createMensagem",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MensagemCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Mensagem criada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MensagemResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        }
+      }
+    },
+    "/atendimentos/{id}/mensagens/pendentes": {
+      "get": {
+        "tags": ["Mensagens"],
+        "summary": "Listar mensagens pendentes",
+        "description": "Retorna apenas mensagens não visualizadas",
+        "operationId": "listMensagensPendentes",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de mensagens pendentes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MensagemListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mensagens/{id}/situacao": {
+      "put": {
+        "tags": ["Mensagens"],
+        "summary": "Atualizar situação da mensagem",
+        "description": "Muda a situação de uma mensagem",
+        "operationId": "updateMensagemSituacao",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "situacao": {
+                    "type": "string"
+                  }
+                },
+                "required": ["situacao"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Situação atualizada"
+          }
+        }
+      }
+    },
+    "/mensagens/{id}/visualizar": {
+      "put": {
+        "tags": ["Mensagens"],
+        "summary": "Marcar mensagem como visualizada",
+        "description": "Marca uma mensagem como já visualizada",
+        "operationId": "markMensagemAsViewed",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mensagem marcada como visualizada"
+          }
+        }
+      }
+    },
+    "/mensagens/{id}/reacao": {
+      "post": {
+        "tags": ["Mensagens"],
+        "summary": "Adicionar reação a mensagem",
+        "description": "Adiciona uma reação emoji a uma mensagem",
+        "operationId": "addMensagemReacao",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reacao": {
+                    "type": "integer",
+                    "description": "Código de reação (0-20)",
+                    "minimum": 0,
+                    "maximum": 20
+                  }
+                },
+                "required": ["reacao"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Reação adicionada"
+          }
+        }
+      }
+    },
+    "/mensagens/{id}": {
+      "delete": {
+        "tags": ["Mensagens"],
+        "summary": "Deletar mensagem",
+        "description": "Remove uma mensagem do sistema",
+        "operationId": "deleteMensagem",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Mensagem deletada com sucesso"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/atendimentos/{id}/anexos": {
+      "post": {
+        "tags": ["Anexos"],
+        "summary": "Criar anexo",
+        "description": "Faz upload de um arquivo anexo",
+        "operationId": "createAnexo",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/AnexoUploadRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Anexo criado"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        }
+      }
+    },
+    "/parametros": {
+      "get": {
+        "tags": ["Parâmetros"],
+        "summary": "Obter parâmetros do sistema",
+        "description": "Retorna todos os parâmetros configurados",
+        "operationId": "getParametros",
+        "responses": {
+          "200": {
+            "description": "Parâmetros retornados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParametroResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/parametros/{id}": {
+      "put": {
+        "tags": ["Parâmetros"],
+        "summary": "Atualizar parâmetro",
+        "description": "Atualiza um parâmetro do sistema",
+        "operationId": "updateParametro",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Parâmetro atualizado"
+          }
+        }
+      }
+    },
+    "/menus": {
+      "get": {
+        "tags": ["Menus"],
+        "summary": "Listar menus",
+        "description": "Retorna lista de menus principais",
+        "operationId": "listMenus",
+        "responses": {
+          "200": {
+            "description": "Lista de menus"
+          }
+        }
+      }
+    },
+    "/menus/{id}": {
+      "get": {
+        "tags": ["Menus"],
+        "summary": "Obter menu específico",
+        "description": "Retorna um menu e seus submenus",
+        "operationId": "getMenu",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Menu encontrado"
+          }
+        }
+      }
+    },
+    "/menus/{id}/resposta-automatica": {
+      "get": {
+        "tags": ["Menus"],
+        "summary": "Obter resposta automática",
+        "description": "Retorna a resposta automática de um menu",
+        "operationId": "getMenuAutoResponser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resposta automática encontrada"
+          }
+        }
+      }
+    },
+    "/menus/submenus/{idPai}": {
+      "get": {
+        "tags": ["Menus"],
+        "summary": "Listar submenus",
+        "description": "Retorna submenus de um menu pai",
+        "operationId": "listSubmenus",
+        "parameters": [
+          {
+            "name": "idPai",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de submenus"
+          }
+        }
+      }
+    },
+    "/horarios/funcionamento": {
+      "get": {
+        "tags": ["Horários"],
+        "summary": "Obter horários de funcionamento",
+        "description": "Retorna os horários de funcionamento do atendimento",
+        "operationId": "getHorariosFuncionamento",
+        "responses": {
+          "200": {
+            "description": "Horários de funcionamento"
+          }
+        }
+      }
+    },
+    "/horarios/aberto": {
+      "get": {
+        "tags": ["Horários"],
+        "summary": "Verificar se está aberto",
+        "description": "Verifica se o atendimento está aberto neste momento",
+        "operationId": "isAtendimentoAberto",
+        "responses": {
+          "200": {
+            "description": "Status de abertura"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "api": {
+                "type": "string",
+                "example": "SAW API"
+              },
+              "version": {
+                "type": "string",
+                "example": "1.0.0"
+              },
+              "status": {
+                "type": "string",
+                "example": "running"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          }
+        }
+      },
+      "Atendimento": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "numero": {
+            "type": "string",
+            "description": "Número único do atendimento"
+          },
+          "solicitante": {
+            "type": "string"
+          },
+          "solicitacao": {
+            "type": "string"
+          },
+          "situacao": {
+            "type": "string",
+            "enum": ["aberto", "em_andamento", "finalizado", "cancelado"]
+          },
+          "setor": {
+            "type": "string"
+          },
+          "responsavel": {
+            "type": "string"
+          },
+          "data_criacao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data_atualizacao": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AtendimentoResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Atendimento"
+          }
+        }
+      },
+      "AtendimentoListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Atendimento"
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "integer"
+              },
+              "perPage": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              },
+              "totalPages": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "AtendimentoCreateRequest": {
+        "type": "object",
+        "properties": {
+          "numero": {
+            "type": "string"
+          },
+          "solicitante": {
+            "type": "string"
+          },
+          "solicitacao": {
+            "type": "string"
+          },
+          "setor": {
+            "type": "string"
+          },
+          "responsavel": {
+            "type": "string"
+          }
+        },
+        "required": ["numero", "solicitante", "solicitacao"]
+      },
+      "Mensagem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "id_atendimento": {
+            "type": "integer"
+          },
+          "seqm": {
+            "type": "integer"
+          },
+          "conteudo": {
+            "type": "string"
+          },
+          "remetente": {
+            "type": "string"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": ["entrada", "saida"]
+          },
+          "visualizada": {
+            "type": "integer",
+            "enum": [0, 1]
+          },
+          "data_criacao": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "MensagemResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Mensagem"
+          }
+        }
+      },
+      "MensagemListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Mensagem"
+            }
+          }
+        }
+      },
+      "MensagemCreateRequest": {
+        "type": "object",
+        "properties": {
+          "conteudo": {
+            "type": "string"
+          },
+          "remetente": {
+            "type": "string"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": ["entrada", "saida"]
+          }
+        },
+        "required": ["conteudo"]
+      },
+      "AnexoUploadRequest": {
+        "type": "object",
+        "properties": {
+          "arquivo": {
+            "type": "string",
+            "format": "binary",
+            "description": "Arquivo a ser enviado"
+          }
+        },
+        "required": ["arquivo"]
+      },
+      "ParametroResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Requisição inválida",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "error"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "errors": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Recurso não encontrado",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "error"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Recurso não encontrado"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "Conflito com recurso existente",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "error"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

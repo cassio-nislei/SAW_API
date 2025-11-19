@@ -1,0 +1,163 @@
+<?php
+/**
+ * SAW API v1 - Model Atendimento
+ */
+
+class Atendimento
+{
+    /**
+     * Cria novo atendimento
+     */
+    public static function create($numero, $nome, $idAtende, $nomeAtende, $situacao = 'P', $canal = 1, $setor = 1)
+    {
+        // Gera novo ID
+        $result = Database::query(
+            "SELECT COALESCE(MAX(id), 0) + 1 as newId FROM tbatendimento WHERE numero = ?",
+            [$numero]
+        );
+
+        $newId = $result[0]['newId'] ?? 1;
+        $protocolo = date('YmdHis');
+
+        $sql = "INSERT INTO tbatendimento (id, situacao, nome, id_atend, nome_atend, numero, setor, dt_atend, hr_atend, canal, protocolo) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, CURDATE(), CURTIME(), ?, ?)";
+
+        $lastId = Database::execute($sql, [$newId, $situacao, $nome, $idAtende, $nomeAtende, $numero, $setor, $canal, $protocolo]);
+
+        if ($lastId === false) {
+            return false;
+        }
+
+        return self::getById($newId, $numero);
+    }
+
+    /**
+     * Obtém atendimento por ID
+     */
+    public static function getById($id, $numero)
+    {
+        $result = Database::query(
+            "SELECT * FROM tbatendimento WHERE id = ? AND numero = ?",
+            [$id, $numero]
+        );
+
+        return $result[0] ?? null;
+    }
+
+    /**
+     * Lista atendimentos ativos
+     */
+    public static function listActive($filters = [])
+    {
+        $sql = "SELECT * FROM tbatendimento WHERE situacao IN ('P', 'A', 'T')";
+        $params = [];
+
+        if (!empty($filters['canal'])) {
+            $sql .= " AND canal = ?";
+            $params[] = $filters['canal'];
+        }
+
+        if (!empty($filters['numero'])) {
+            $sql .= " AND numero = ?";
+            $params[] = $filters['numero'];
+        }
+
+        if (!empty($filters['setor'])) {
+            $sql .= " AND setor = ?";
+            $params[] = $filters['setor'];
+        }
+
+        $sql .= " ORDER BY dt_atend DESC, hr_atend DESC";
+
+        return Database::query($sql, $params);
+    }
+
+    /**
+     * Lista todos os atendimentos com paginação
+     */
+    public static function list($page = 1, $perPage = 20, $filters = [])
+    {
+        $offset = ($page - 1) * $perPage;
+        $sql = "SELECT * FROM tbatendimento WHERE 1=1";
+        $params = [];
+
+        if (!empty($filters['situacao'])) {
+            $sql .= " AND situacao = ?";
+            $params[] = $filters['situacao'];
+        }
+
+        if (!empty($filters['canal'])) {
+            $sql .= " AND canal = ?";
+            $params[] = $filters['canal'];
+        }
+
+        if (!empty($filters['numero'])) {
+            $sql .= " AND numero = ?";
+            $params[] = $filters['numero'];
+        }
+
+        if (!empty($filters['setor'])) {
+            $sql .= " AND setor = ?";
+            $params[] = $filters['setor'];
+        }
+
+        // Contar total
+        $countResult = Database::query("SELECT COUNT(*) as total FROM (" . $sql . ") as filtered", $params);
+        $total = $countResult[0]['total'] ?? 0;
+
+        // Paginar
+        $sql .= " ORDER BY dt_atend DESC LIMIT ? OFFSET ?";
+        $params[] = $perPage;
+        $params[] = $offset;
+
+        $data = Database::query($sql, $params);
+
+        return [
+            'data' => $data,
+            'total' => $total,
+            'page' => $page,
+            'perPage' => $perPage
+        ];
+    }
+
+    /**
+     * Atualiza situação do atendimento
+     */
+    public static function updateSituacao($id, $numero, $situacao)
+    {
+        $sql = "UPDATE tbatendimento SET situacao = ? WHERE id = ? AND numero = ?";
+        return Database::execute($sql, [$situacao, $id, $numero]);
+    }
+
+    /**
+     * Atualiza setor do atendimento
+     */
+    public static function updateSetor($id, $numero, $setor)
+    {
+        $sql = "UPDATE tbatendimento SET setor = ? WHERE id = ? AND numero = ?";
+        return Database::execute($sql, [$setor, $id, $numero]);
+    }
+
+    /**
+     * Finaliza atendimento
+     */
+    public static function finalize($id, $numero)
+    {
+        $sql = "UPDATE tbatendimento SET situacao = 'F' WHERE id = ? AND numero = ?";
+        return Database::execute($sql, [$id, $numero]);
+    }
+
+    /**
+     * Verifica se existe atendimento ativo
+     */
+    public static function checkActive($numero)
+    {
+        $result = Database::query(
+            "SELECT id FROM tbatendimento WHERE numero = ? AND situacao NOT IN ('F') LIMIT 1",
+            [$numero]
+        );
+
+        return count($result) > 0 ? $result[0] : null;
+    }
+}
+?>
