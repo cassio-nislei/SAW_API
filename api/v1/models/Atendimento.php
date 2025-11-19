@@ -10,27 +10,42 @@ class Atendimento
      */
     public static function create($numero, $nome, $idAtende, $nomeAtende, $situacao = 'P', $canal = 1, $setor = 1)
     {
-        // Gera novo ID - busca o máximo ID globalmente (não por número)
-        $result = Database::query(
-            "SELECT COALESCE(MAX(id), 0) + 1 as newId FROM tbatendimento",
-            []
-        );
+        try {
+            // Gera novo ID - busca o máximo ID globalmente (não por número)
+            $result = Database::query(
+                "SELECT COALESCE(MAX(id), 0) + 1 as newId FROM tbatendimento",
+                []
+            );
 
-        $newId = isset($result[0]['newId']) ? (int)$result[0]['newId'] : 1;
-        $protocolo = (int)date('YmdHis');
-        $dtAtend = date('Y-m-d');
-        $hrAtend = date('H:i:s');
+            $newId = isset($result[0]['newId']) ? (int)$result[0]['newId'] : 1;
+            $protocolo = (int)date('YmdHis');
+            $dtAtend = date('Y-m-d');
+            $hrAtend = date('H:i:s');
 
-        $sql = "INSERT INTO tbatendimento (id, situacao, nome, id_atend, nome_atend, numero, setor, dt_atend, hr_atend, canal, protocolo) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            // Usa query SEM prepared statement para evitar problemas de tipo
+            $conn = Database::connect();
+            if (!$conn) {
+                return false;
+            }
 
-        $lastId = Database::execute($sql, [(int)$newId, $situacao, $nome, (int)$idAtende, $nomeAtende, $numero, (string)$setor, $dtAtend, $hrAtend, (string)$canal, $protocolo]);
+            // Escapar strings
+            $nome = mysqli_real_escape_string($conn, $nome);
+            $nomeAtende = mysqli_real_escape_string($conn, $nomeAtende);
+            $numero = mysqli_real_escape_string($conn, $numero);
 
-        if ($lastId === false) {
+            $sql = "INSERT INTO tbatendimento (id, situacao, nome, id_atend, nome_atend, numero, setor, dt_atend, hr_atend, canal, protocolo) 
+                    VALUES ($newId, '$situacao', '$nome', $idAtende, '$nomeAtende', '$numero', '$setor', '$dtAtend', '$hrAtend', '$canal', $protocolo)";
+
+            if (!mysqli_query($conn, $sql)) {
+                error_log("SQL Error: " . mysqli_error($conn));
+                return false;
+            }
+
+            return self::getById($newId, $numero);
+        } catch (Exception $e) {
+            error_log("Create Error: " . $e->getMessage());
             return false;
         }
-
-        return self::getById($newId, $numero);
     }
 
     /**
