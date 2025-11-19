@@ -1,6 +1,6 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /SAW-main/api/v1/
+    RewriteBase /api/v1/
 
     # Bloqueia acesso direto a arquivos e pastas, exceto index.php
     RewriteCond %{REQUEST_FILENAME} !-f

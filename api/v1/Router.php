@@ -15,8 +15,8 @@ class Router
         $this->currentMethod = $_SERVER['REQUEST_METHOD'];
         $this->currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         
-        // Remove o prefixo da API
-        $this->currentPath = str_replace('/SAW-main/api/v1', '', $this->currentPath);
+        // Remove o prefixo da API - suporta múltiplos caminhos
+        $this->currentPath = preg_replace('#^(/SAW-main)?/api/v1#', '', $this->currentPath);
         
         if (empty($this->currentPath)) {
             $this->currentPath = '/';
