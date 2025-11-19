@@ -119,68 +119,110 @@
     <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui-standalone-preset.js"></script>
     <script>
+      console.log("🚀 Swagger UI Init Script Started");
+
+      // Construir URL do swagger.json
+      const protocol = window.location.protocol;
+      const host = window.location.host;
+      const pathname = window.location.pathname;
+
+      let swaggerUrl = "";
+
+      // Detectar o caminho correto baseado na URL atual
+      if (pathname.includes("/SAW-main/api")) {
+        swaggerUrl = protocol + "//" + host + "/SAW-main/api/swagger.json";
+      } else if (pathname.includes("/api")) {
+        swaggerUrl = protocol + "//" + host + "/api/swagger.json";
+      } else {
+        // Fallback
+        swaggerUrl = protocol + "//" + host + "/api/swagger.json";
+      }
+
+      console.log("📍 URL Swagger:", swaggerUrl);
+      console.log(
+        "🔍 SwaggerUIBundle available:",
+        typeof SwaggerUIBundle !== "undefined"
+      );
+      console.log(
+        "🔍 SwaggerUIStandalonePreset available:",
+        typeof SwaggerUIStandalonePreset !== "undefined"
+      );
+
+      // Test fetch before initializing
+      console.log("📡 Testing fetch...");
+      fetch(swaggerUrl)
+        .then((r) => {
+          console.log("✅ Fetch successful:", r.status, r.statusText);
+          console.log("Headers:", Object.fromEntries(r.headers.entries()));
+          return r.json();
+        })
+        .then((data) => {
+          console.log("✅ JSON parsed, paths:", Object.keys(data.paths).length);
+        })
+        .catch((e) => console.error("❌ Fetch error:", e));
+
       window.onload = function () {
-        // Construir URL do swagger.json
-        const protocol = window.location.protocol;
-        const host = window.location.host;
-        const pathname = window.location.pathname;
+        console.log("⏳ Window loaded, initializing Swagger UI...");
 
-        let swaggerUrl = "";
+        try {
+          // Inicializar Swagger UI
+          const ui = SwaggerUIBundle({
+            url: swaggerUrl,
+            dom_id: "#swagger-ui",
+            presets: [
+              SwaggerUIBundle.presets.apis,
+              SwaggerUIBundle.SwaggerUIStandalonePreset,
+            ],
+            plugins: [SwaggerUIBundle.plugins.DownloadUrl],
+            layout: "StandaloneLayout",
+            deepLinking: true,
+            preloadContent: true,
+            docExpansion: "list",
+            defaultModelsExpandDepth: 1,
+            defaultModelExpandDepth: 1,
+            filter: true,
+            showRequestHeaders: true,
+            supportedSubmitMethods: [
+              "get",
+              "post",
+              "put",
+              "delete",
+              "patch",
+              "options",
+              "head",
+              "trace",
+            ],
+            onComplete: function () {
+              console.log("✅ Swagger UI carregado com sucesso!");
+            },
+            onFailure: function (error) {
+              console.error("❌ Erro ao carregar Swagger UI:", error);
+              document.getElementById("swagger-ui").innerHTML =
+                "<div style='padding:20px;background:#f8d7da;color:#721c24;border-radius:5px;'>" +
+                "<h2>❌ Erro ao carregar a documentação</h2>" +
+                "<p><strong>URL:</strong> " +
+                swaggerUrl +
+                "</p>" +
+                "<p><strong>Erro:</strong> " +
+                JSON.stringify(error) +
+                "</p>" +
+                "<p>Verifique o console (F12) para detalhes.</p>" +
+                "</div>";
+            },
+          });
 
-        // Detectar o caminho correto baseado na URL atual
-        if (pathname.includes("/SAW-main/api")) {
-          swaggerUrl = protocol + "//" + host + "/SAW-main/api/swagger.json";
-        } else if (pathname.includes("/api")) {
-          swaggerUrl = protocol + "//" + host + "/api/swagger.json";
-        } else {
-          // Fallback
-          swaggerUrl = protocol + "//" + host + "/api/swagger.json";
+          window.ui = ui;
+          console.log("✅ SwaggerUIBundle initialized");
+        } catch (error) {
+          console.error("❌ Error initializing:", error);
+          document.getElementById("swagger-ui").innerHTML =
+            "<div style='padding:20px;background:#f8d7da;color:#721c24;border-radius:5px;'>" +
+            "<h2>❌ Erro na inicialização</h2>" +
+            "<p>" +
+            error.message +
+            "</p>" +
+            "</div>";
         }
-
-        console.log("📍 URL Swagger:", swaggerUrl);
-
-        // Inicializar Swagger UI
-        const ui = SwaggerUIBundle({
-          url: swaggerUrl,
-          dom_id: "#swagger-ui",
-          presets: [
-            SwaggerUIBundle.presets.apis,
-            SwaggerUIBundle.SwaggerUIStandalonePreset,
-          ],
-          plugins: [SwaggerUIBundle.plugins.DownloadUrl],
-          layout: "StandaloneLayout",
-          deepLinking: true,
-          preloadContent: true,
-          docExpansion: "list",
-          defaultModelsExpandDepth: 1,
-          defaultModelExpandDepth: 1,
-          filter: true,
-          showRequestHeaders: true,
-          supportedSubmitMethods: [
-            "get",
-            "post",
-            "put",
-            "delete",
-            "patch",
-            "options",
-            "head",
-            "trace",
-          ],
-          onComplete: function () {
-            console.log("✅ Swagger UI carregado com sucesso!");
-          },
-          onFailure: function (error) {
-            console.error("❌ Erro ao carregar Swagger UI:", error);
-            document.getElementById("swagger-ui").innerHTML =
-              "<h2>❌ Erro ao carregar a documentação</h2><p>URL: " +
-              swaggerUrl +
-              "</p><p>Erro: " +
-              error +
-              "</p>";
-          },
-        });
-
-        window.ui = ui;
       };
     </script>
   </body>
