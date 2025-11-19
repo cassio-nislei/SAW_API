@@ -115,7 +115,6 @@
       <p>Sistema de Atendimento Web - API RESTful v1.0.0</p>
     </div>
     <div id="swagger-ui"></div>
-    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui-standalone-preset.js"></script>
     <script>
@@ -140,27 +139,6 @@
       }
 
       console.log("📍 URL Swagger:", swaggerUrl);
-      console.log(
-        "🔍 SwaggerUIBundle available:",
-        typeof SwaggerUIBundle !== "undefined"
-      );
-      console.log(
-        "🔍 SwaggerUIStandalonePreset available:",
-        typeof SwaggerUIStandalonePreset !== "undefined"
-      );
-
-      // Test fetch before initializing
-      console.log("📡 Testing fetch...");
-      fetch(swaggerUrl)
-        .then((r) => {
-          console.log("✅ Fetch successful:", r.status, r.statusText);
-          console.log("Headers:", Object.fromEntries(r.headers.entries()));
-          return r.json();
-        })
-        .then((data) => {
-          console.log("✅ JSON parsed, paths:", Object.keys(data.paths).length);
-        })
-        .catch((e) => console.error("❌ Fetch error:", e));
 
       window.onload = function () {
         console.log("⏳ Window loaded, initializing Swagger UI...");
