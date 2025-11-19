@@ -66,12 +66,11 @@
 
         let swaggerUrl = "";
         if (pathname.includes("/SAW-main/api")) {
-          swaggerUrl =
-            protocol + "//" + host + "/SAW-main/api/swagger-json.php";
+          swaggerUrl = protocol + "//" + host + "/SAW-main/api/swagger.json";
         } else if (pathname.includes("/api")) {
-          swaggerUrl = protocol + "//" + host + "/api/swagger-json.php";
+          swaggerUrl = protocol + "//" + host + "/api/swagger.json";
         } else {
-          swaggerUrl = protocol + "//" + host + "/api/swagger-json.php";
+          swaggerUrl = protocol + "//" + host + "/api/swagger.json";
         }
 
         console.log("Swagger URL:", swaggerUrl);
