@@ -1,18 +1,58 @@
-version: '3'
+version: "3.8"
+
 services:
   web:
     build: .
+    container_name: saw-api-web
     ports:
       - "7080:80"
-    networks:
-      - atende
+    volumes:
+      - ./:/var/www/html/
     environment:
-      DB_HOST: 172.20.0.6
-      DB_USER: root
+      DB_HOST: db
+      DB_USER: saw_user
       DB_PASS: Ncm@647534
       DB_NAME: saw15
+    depends_on:
+      - db
+    networks:
+      - saw-network
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    container_name: saw-api-db
+    environment:
+      MYSQL_ROOT_PASSWORD: Ncm@647534
+      MYSQL_DATABASE: saw15
+      MYSQL_USER: saw_user
+      MYSQL_PASSWORD: Ncm@647534
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./mysql-init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - saw-network
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --sql-mode="STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --max_connections=1000
+      --max_allowed_packet=256M
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  db_data:
+    driver: local
 
 networks:
-  atende:
-    external: true
-
+  saw-network:
+    driver: bridge

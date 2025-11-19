@@ -117,8 +117,22 @@
     <div id="swagger-ui"></div>
     <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui.js"></script>
     <script>
+      // Detectar caminho base dinamicamente
+      const currentPath = window.location.pathname;
+      const basePath = currentPath.substring(0, currentPath.lastIndexOf("/"));
+
+      // Tentar múltiplas URLs para servir o swagger.json
+      const swaggerUrls = [
+        basePath + "/swagger.json", // URL relativa
+        "/api/swagger.json", // URL absoluta
+        window.location.origin + "/api/swagger.json", // URL completa
+        basePath + "/swagger-json.php", // PHP fallback
+      ];
+
+      let swaggerUrl = swaggerUrls[0];
+
       const ui = SwaggerUIBundle({
-        url: "./swagger.json",
+        url: swaggerUrl,
         dom_id: "#swagger-ui",
         presets: [
           SwaggerUIBundle.presets.apis,

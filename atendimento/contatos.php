@@ -37,21 +37,21 @@ if ($tipo_pesquisa == 1) { // TELEFONE
     if ($etiqueta != '0') {
         $Consulta .= " AND tbe.cor = '$etiqueta' ";
     }
-    $Consulta .= " GROUP BY tbc.numero, tbe.cor ";
+    $Consulta .= " GROUP BY tbc.numero, tbe.cor, tbe.descricao ";
 }
 else if ($tipo_pesquisa == 2) { // CPF/CNPJ
     $Consulta .= " WHERE cpf_cnpj LIKE '%$pesquisa%' ";
     if ($etiqueta != '0') {
         $Consulta .= " AND tbe.cor = '$etiqueta' ";
     }
-    $Consulta .= " GROUP BY tbc.numero, tbe.cor ";
+    $Consulta .= " GROUP BY tbc.numero, tbe.cor, tbe.descricao ";
 }
 else { // NOME
     $Consulta .= " WHERE UPPER(nome) LIKE UPPER('%$pesquisa%') ";
     if ($etiqueta != '0') {
         $Consulta .= " AND tbe.cor = '$etiqueta' ";
     }
-    $Consulta .= " GROUP BY tbc.numero, tbe.cor ";
+    $Consulta .= " GROUP BY tbc.numero, tbe.cor, tbe.descricao ";
     $Consulta .= " ORDER BY POSITION(UPPER('$pesquisa') IN UPPER(nome)), UPPER(nome) ";
 }
 

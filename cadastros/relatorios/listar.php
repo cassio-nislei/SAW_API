@@ -4,9 +4,9 @@
 	$dtIni = isset($_GET["dtIni"]) ? reverseDate($_GET["dtIni"]) : null;
     $dtFim = isset($_GET["dtFim"]) ? reverseDate($_GET["dtFim"]) : null;
     $atendente = isset($_GET["atendente"]) ? $_GET["atendente"] : "0";
-    $numero = (isset($_GET["numero"]) && !empty($_GET["numero"])) ? SomenteNumero($_GET['numero']) : null;
-    $ddi = substr($numero, 0, 2);
-    $ddd = substr($numero, 2, 2);
+    $numero = (isset($_GET["numero"]) && !empty($_GET['numero'])) ? SomenteNumero($_GET['numero']) : null;
+    $ddi = $numero !== null ? substr($numero, 0, 2) : "";
+    $ddd = $numero !== null ? substr($numero, 2, 2) : "";
     $situacao = (isset($_GET["situacao"]) && !empty($_GET["situacao"])) ? $_GET["situacao"] : null;
     $ordenacao = isset($_GET["ordenacao"]) ? $_GET["ordenacao"] : "ASC";
     $fotoPerfil = fotoPerfil;
@@ -35,7 +35,7 @@
         if( $situacao !== null ){ $sql .= " AND tba.situacao = '" . $situacao . "'"; }
 
         // Agrupamento //
-        $sql .= " GROUP BY tba.numero";
+        $sql .= " GROUP BY tba.numero, tba.dt_atend, tba.hr_atend, tba.nome, tbu.nome, tbd.departamento, tfp.foto";
 
         // Ordenação //
         $sql .= " ORDER BY dt_atend " . $ordenacao . ", hr_atend " . $ordenacao;

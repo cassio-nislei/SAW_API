@@ -1,0 +1,64 @@
+# SAW API - Apache Configuration
+# Habilitar mod_rewrite
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /api/
+    
+    # Servir arquivos estáticos normalmente
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^.*$ - [L]
+    
+    # Servir diretórios normalmente
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^.*$ - [L]
+    
+    # Servir swagger.json diretamente
+    RewriteRule ^swagger\.json$ swagger.json [L]
+    
+    # Servir swagger-ui.html diretamente
+    RewriteRule ^swagger-ui\.html$ swagger-ui.html [L]
+    
+    # Redirecionar requisições para v1/index.php
+    RewriteRule ^(.*)$ v1/index.php?request=$1 [QSA,L]
+</IfModule>
+
+# Cabeçalhos HTTP
+<IfModule mod_headers.c>
+    # Permitir CORS
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+    Header set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    
+    # Cache para arquivos estáticos
+    <FilesMatch "\.(jpg|jpeg|png|gif|ico|css|js|json|woff|woff2)$">
+        Header set Cache-Control "max-age=2592000, public"
+    </FilesMatch>
+    
+    # Sem cache para HTML e PHP
+    <FilesMatch "\.(html|php)$">
+        Header set Cache-Control "max-age=0, public, must-revalidate"
+    </FilesMatch>
+</IfModule>
+
+# Compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE application/xml
+</IfModule>
+
+# Segurança
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Tipos MIME
+AddType application/json .json
+AddType text/html .html
+AddEncoding gzip .gz
