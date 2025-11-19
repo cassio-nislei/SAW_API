@@ -39,41 +39,48 @@ class AtendimentoController
      */
     public static function create()
     {
-        $body = Router::getJsonBody();
+        try {
+            $body = Router::getJsonBody();
 
-        // Validação
-        $required = ['numero', 'nome', 'idAtende', 'nomeAtende'];
-        foreach ($required as $field) {
-            if (!isset($body[$field]) || empty($body[$field])) {
-                Response::validationError([$field => "Campo obrigatório"]);
+            // Validação
+            $required = ['numero', 'nome', 'idAtende', 'nomeAtende'];
+            foreach ($required as $field) {
+                if (!isset($body[$field]) || empty($body[$field])) {
+                    Response::validationError([$field => "Campo obrigatório"]);
+                    return;
+                }
             }
+
+            // Verifica se já existe atendimento ativo
+            $existing = Atendimento::checkActive($body['numero']);
+            if ($existing) {
+                Response::error("Já existe um atendimento ativo para este cliente", 409);
+                return;
+            }
+
+            $situacao = $body['situacao'] ?? 'P';
+            $canal = (int)($body['canal'] ?? 1);
+            $setor = (int)($body['setor'] ?? 1);
+
+            $atendimento = Atendimento::create(
+                $body['numero'],
+                $body['nome'],
+                $body['idAtende'],
+                $body['nomeAtende'],
+                $situacao,
+                $canal,
+                $setor
+            );
+
+            if (!$atendimento) {
+                Response::error("Erro ao criar atendimento: " . Database::getLastError(), 500);
+                return;
+            }
+
+            Response::success($atendimento, "Atendimento criado com sucesso", 201);
+        } catch (Exception $e) {
+            Response::internalError("Erro ao processar requisição: " . $e->getMessage());
         }
-
-        // Verifica se já existe atendimento ativo
-        $existing = Atendimento::checkActive($body['numero']);
-        if ($existing) {
-            Response::error("Já existe um atendimento ativo para este cliente", 409);
-        }
-
-        $situacao = $body['situacao'] ?? 'P';
-        $canal = (int)($body['canal'] ?? 1);
-        $setor = (int)($body['setor'] ?? 1);
-
-        $atendimento = Atendimento::create(
-            $body['numero'],
-            $body['nome'],
-            $body['idAtende'],
-            $body['nomeAtende'],
-            $situacao,
-            $canal,
-            $setor
-        );
-
-        if (!$atendimento) {
-            Response::error("Erro ao criar atendimento", 500);
-        }
-
-        Response::success($atendimento, "Atendimento criado com sucesso", 201);
     }
 
     /**

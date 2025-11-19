@@ -9,7 +9,7 @@ services:
     volumes:
       - ./:/var/www/html/
     environment:
-      DB_HOST: 172.20.0.6
+      DB_HOST: 104.234.173.105
       DB_USER: root
       DB_PASS: Ncm@647534
       DB_NAME: saw15

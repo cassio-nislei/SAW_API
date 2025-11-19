@@ -18,11 +18,13 @@ class Atendimento
 
         $newId = $result[0]['newId'] ?? 1;
         $protocolo = date('YmdHis');
+        $dtAtend = date('Y-m-d');
+        $hrAtend = date('H:i:s');
 
         $sql = "INSERT INTO tbatendimento (id, situacao, nome, id_atend, nome_atend, numero, setor, dt_atend, hr_atend, canal, protocolo) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, CURDATE(), CURTIME(), ?, ?)";
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        $lastId = Database::execute($sql, [$newId, $situacao, $nome, $idAtende, $nomeAtende, $numero, $setor, $canal, $protocolo]);
+        $lastId = Database::execute($sql, [$newId, $situacao, $nome, $idAtende, $nomeAtende, $numero, $setor, $dtAtend, $hrAtend, $canal, $protocolo]);
 
         if ($lastId === false) {
             return false;
