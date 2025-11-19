@@ -10,21 +10,21 @@ class Atendimento
      */
     public static function create($numero, $nome, $idAtende, $nomeAtende, $situacao = 'P', $canal = 1, $setor = 1)
     {
-        // Gera novo ID
+        // Gera novo ID - busca o máximo ID globalmente (não por número)
         $result = Database::query(
-            "SELECT COALESCE(MAX(id), 0) + 1 as newId FROM tbatendimento WHERE numero = ?",
-            [$numero]
+            "SELECT COALESCE(MAX(id), 0) + 1 as newId FROM tbatendimento",
+            []
         );
 
-        $newId = $result[0]['newId'] ?? 1;
-        $protocolo = date('YmdHis');
+        $newId = isset($result[0]['newId']) ? (int)$result[0]['newId'] : 1;
+        $protocolo = (int)date('YmdHis');
         $dtAtend = date('Y-m-d');
         $hrAtend = date('H:i:s');
 
         $sql = "INSERT INTO tbatendimento (id, situacao, nome, id_atend, nome_atend, numero, setor, dt_atend, hr_atend, canal, protocolo) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        $lastId = Database::execute($sql, [$newId, $situacao, $nome, $idAtende, $nomeAtende, $numero, (string)$setor, $dtAtend, $hrAtend, (string)$canal, $protocolo]);
+        $lastId = Database::execute($sql, [(int)$newId, $situacao, $nome, (int)$idAtende, $nomeAtende, $numero, (string)$setor, $dtAtend, $hrAtend, (string)$canal, $protocolo]);
 
         if ($lastId === false) {
             return false;
