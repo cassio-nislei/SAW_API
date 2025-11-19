@@ -62,8 +62,18 @@ class Database
             $values = [];
 
             foreach ($params as $param) {
-                if (is_int($param)) {
-                    $types .= 'i';
+                // Detecta tipo de forma mais eficiente
+                if (is_null($param)) {
+                    $types .= 's'; // NULL como string
+                } elseif (is_int($param)) {
+                    // Verifica se o inteiro cabe em um INT (32-bit signed: -2147483648 a 2147483647)
+                    if ($param >= -2147483648 && $param <= 2147483647) {
+                        $types .= 'i';
+                    } else {
+                        // Números muito grandes precisam ser strings
+                        $param = (string)$param;
+                        $types .= 's';
+                    }
                 } elseif (is_float($param)) {
                     $types .= 'd';
                 } else {
@@ -118,8 +128,18 @@ class Database
             $values = [];
 
             foreach ($params as $param) {
-                if (is_int($param)) {
-                    $types .= 'i';
+                // Detecta tipo de forma mais eficiente
+                if (is_null($param)) {
+                    $types .= 's'; // NULL como string
+                } elseif (is_int($param)) {
+                    // Verifica se o inteiro cabe em um INT (32-bit signed: -2147483648 a 2147483647)
+                    if ($param >= -2147483648 && $param <= 2147483647) {
+                        $types .= 'i';
+                    } else {
+                        // Números muito grandes precisam ser strings
+                        $param = (string)$param;
+                        $types .= 's';
+                    }
                 } elseif (is_float($param)) {
                     $types .= 'd';
                 } else {
