@@ -12,14 +12,11 @@
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^.*$ - [L]
     
-    # Servir swagger.json diretamente
-    RewriteRule ^swagger\.json$ swagger.json [L]
-    
-    # Servir swagger-ui.html diretamente
-    RewriteRule ^swagger-ui\.html$ swagger-ui.html [L]
-    
     # Redirecionar requisições para v1/index.php
-    RewriteRule ^(.*)$ v1/index.php?request=$1 [QSA,L]
+    RewriteRule ^v1/(.*)$ v1/index.php?request=$1 [QSA,L]
+    
+    # Redirecionar outras requisições para v1/index.php
+    RewriteRule ^(.+)$ v1/index.php?request=$1 [QSA,L]
 </IfModule>
 
 # Cabeçalhos HTTP
