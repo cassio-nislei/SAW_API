@@ -1,0 +1,38 @@
+<!-- Quick Reference Guide - Swagger CORS Fix -->
+
+# 🚀 QUICK START - Swagger CORS Fix ## Problema ❌ ``` Swagger UI retorna:
+"Failed to fetch" com erro CORS ``` ## Solução ✅ ``` Nova rota: GET
+/api/v1/swagger.json integrada ao Router ``` --- ## 🧪 Testar em 30 Segundos ###
+1. Via Navegador (Melhor) ```
+http://104.234.173.305:7080/api/test-swagger-route.html ``` Clique no botão
+verde "Test GET /api/v1/swagger.json" ### 2. Via cURL ```bash curl
+http://104.234.173.305:7080/api/v1/swagger.json ``` ### 3. Swagger UI Completo
+``` http://104.234.173.305:7080/api/swagger-ui.html ``` --- ## 📊 O que mudou
+### Arquivo 1: api/v1/index.php - ✅ Adicionado: `require_once AnexosController`
+- ✅ Adicionado: Rota GET `/swagger.json` ### Arquivo 2: api/swagger-ui.html -
+✅ Alterado: URL de `/api/swagger-json.php` para `/api/v1/swagger.json` ###
+Arquivos Novos - ✨ api/test-swagger-route.html - ✨ test-swagger.sh - ✨
+SWAGGER_CORS_FIX_FINAL.md - ✨ TECHNICAL_CHANGES_SUMMARY.md - ✨
+QUICK_REFERENCE.html (este arquivo) --- ## 🔍 Verificação Rápida ```javascript
+// Cole no console do navegador (F12):
+fetch('http://104.234.173.305:7080/api/v1/swagger.json') .then(r => r.json())
+.then(d => console.log(`✅ OK - ${Object.keys(d.paths).length} endpoints`))
+.catch(e => console.log(`❌ ERRO - ${e.message}`)) ``` --- ## 📋 Checklist de
+Validação - [ ] `curl` retorna status 200 - [ ] Headers têm
+`Access-Control-Allow-Origin: *` - [ ] JSON é válido (sem parse errors) - [ ]
+Swagger UI carrega sem erros - [ ] 45+ endpoints aparecem na UI - [ ] Posso
+explorar um endpoint --- ## 🆘 Se Ainda Tiver Erro 1. **Limpar Cache:**
+Ctrl+Shift+Delete no navegador 2. **Testar Rota Básica:**
+`http://104.234.173.305:7080/api/v1` (deve retornar status da API) 3.
+**Verificar Console:** F12 → Console → Deve haver apenas avisos normais 4.
+**Testar Outro Endpoint:** `http://104.234.173.305:7080/api/v1/auth/validate`
+(com JWT válido) --- ## 📞 Links Úteis | Nome | URL | |------|-----| | Swagger
+UI | `http://104.234.173.305:7080/api/swagger-ui.html` | | Teste Interativo |
+`http://104.234.173.305:7080/api/test-swagger-route.html` | | API Base |
+`http://104.234.173.305:7080/api/v1` | | Swagger JSON |
+`http://104.234.173.305:7080/api/v1/swagger.json` | --- ## 💡 Dicas - **Swagger
+UI não carrega?** → Limpe cache (Ctrl+Shift+Delete) - **Vê errors diferentes?**
+→ F12 → Console → copie o erro - **Quer testar endpoints?** → Use o arquivo
+`test-swagger-route.html` - **Precisa de mais detalhes?** → Leia
+`SWAGGER_CORS_FIX_FINAL.md` --- **Status:** ✅ PRONTO PARA PRODUÇÃO **Data:**
+20/11/2025 **Versão API:** v2.0.0

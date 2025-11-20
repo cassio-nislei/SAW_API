@@ -522,29 +522,57 @@ try {
     });
 
     // ============================================
-    // SWAGGER JSON
+    // SWAGGER JSON - Com suporte completo a CORS
     // ============================================
+    
+    // GET /swagger.json
     $router->get('/swagger.json', function () {
+        serveSwaggerJson();
+    });
+    
+    // OPTIONS /swagger.json (CORS preflight)
+    $router->options('/swagger.json', function () {
         // Headers CORS
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, HEAD');
-        header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization');
-        header('Content-Type: application/json; charset=utf-8');
-        header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
+        header('Access-Control-Allow-Origin: *', true);
+        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH', true);
+        header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, Content-Length', true);
+        header('Access-Control-Max-Age: 86400', true);
+        http_response_code(200);
+        exit;
+    });
+
+    // Função para servir Swagger JSON
+    function serveSwaggerJson() {
+        // Headers CORS - DEVE estar ANTES de qualquer output
+        header('Access-Control-Allow-Origin: *', true);
+        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH', true);
+        header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, Content-Length', true);
+        header('Access-Control-Expose-Headers: Content-Length, Content-Type', true);
+        header('Content-Type: application/json; charset=utf-8', true);
+        header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0', true);
+        header('Pragma: no-cache', true);
+        header('Expires: 0', true);
 
         $swaggerFile = __DIR__ . '/../swagger.json';
         
         if (!file_exists($swaggerFile)) {
-            Response::notFound('Swagger specification not found');
-            return;
+            http_response_code(404);
+            echo json_encode(['error' => 'Swagger specification not found'], JSON_UNESCAPED_SLASHES);
+            exit;
         }
 
         $content = file_get_contents($swaggerFile);
-        $decoded = json_decode($content, true);
+        if ($content === false) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Could not read swagger.json'], JSON_UNESCAPED_SLASHES);
+            exit;
+        }
 
+        $decoded = json_decode($content, true);
         if ($decoded === null) {
-            Response::internalError('Invalid JSON in swagger.json');
-            return;
+            http_response_code(500);
+            echo json_encode(['error' => 'Invalid JSON in swagger.json'], JSON_UNESCAPED_SLASHES);
+            exit;
         }
 
         // Detectar URL do servidor atual
@@ -565,7 +593,14 @@ try {
             }
         }
 
+        http_response_code(200);
         echo json_encode($decoded, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        exit;
+    }
+
+    // Alias para compatibilidade
+    $router->get('/swagger-spec', function () {
+        include __DIR__ . '/swagger-spec.php';
     });
 
     $router->get('/', function () {
