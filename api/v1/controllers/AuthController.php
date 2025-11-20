@@ -18,6 +18,10 @@ class AuthController {
         try {
             $data = json_decode(file_get_contents('php://input'), true);
             
+            // Debug
+            error_log("DEBUG: input data: " . print_r($data, true));
+            error_log("DEBUG: REQUEST_BODY: " . file_get_contents('php://input'));
+            
             // Validação
             if (empty($data['usuario']) || empty($data['senha'])) {
                 return Response::error('Usuário e senha são obrigatórios', 400);
