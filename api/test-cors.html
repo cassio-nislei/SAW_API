@@ -230,21 +230,14 @@
       const endpoints = [
         { name: "Health Check", url: "/", method: "GET", needsAuth: false },
         {
-          name: "Login",
-          url: "/auth/login",
-          method: "POST",
-          body: { login: "admin", senha: "123456" },
-          needsAuth: false,
-        },
-        {
           name: "Listar Atendimentos",
           url: "/atendimentos",
           method: "GET",
           needsAuth: false,
         },
         {
-          name: "Parâmetros do Sistema",
-          url: "/parametros/sistema",
+          name: "Atendimentos Inativos",
+          url: "/atendimentos/inativos",
           method: "GET",
           needsAuth: false,
         },
@@ -255,8 +248,14 @@
           needsAuth: false,
         },
         {
-          name: "Verificar Expediente",
-          url: "/parametros/verificar-expediente",
+          name: "Menu Submenus",
+          url: "/menus/submenus",
+          method: "GET",
+          needsAuth: false,
+        },
+        {
+          name: "Avisos Existente",
+          url: "/avisos/verificar-existente?numero=123",
           method: "GET",
           needsAuth: false,
         },
@@ -265,8 +264,10 @@
       let results = {};
 
       // Update page info
-      document.getElementById("baseUrl").textContent = baseUrl;
-      document.getElementById("currentUrl").textContent = window.location.href;
+      const baseUrlEl = document.getElementById("baseUrl");
+      const currentUrlEl = document.getElementById("currentUrl");
+      if (baseUrlEl) baseUrlEl.textContent = baseUrl;
+      if (currentUrlEl) currentUrlEl.textContent = window.location.href;
 
       // Create test UI
       function createTestUI() {
