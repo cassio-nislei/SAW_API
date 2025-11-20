@@ -197,5 +197,63 @@ class AtendimentoController
 
         Response::success($atendimentos, "Atendimentos ativos listados com sucesso");
     }
+
+    /**
+     * GET /api/v1/atendimentos/por-numero/{numero}
+     * Busca atendimento ativo por número de telefone
+     */
+    public static function getByNumber($numero)
+    {
+        try {
+            if (empty($numero)) {
+                Response::validationError(['numero' => 'Número de telefone é obrigatório']);
+                return;
+            }
+
+            $atendimento = Atendimento::getByNumber($numero);
+
+            if (!$atendimento) {
+                Response::notFound('Nenhum atendimento ativo encontrado para este número');
+                return;
+            }
+
+            Response::success($atendimento, "Atendimento encontrado");
+
+        } catch (Exception $e) {
+            Response::internalError($e->getMessage());
+        }
+    }
+
+    /**
+     * GET /api/v1/atendimentos/{id}/anexos
+     * Lista anexos de um atendimento
+     */
+    public static function getAnexos($id)
+    {
+        try {
+            if (empty($id) || !is_numeric($id)) {
+                Response::validationError(['id' => 'ID do atendimento inválido']);
+                return;
+            }
+
+            // Verificar se atendimento existe
+            $atendimento = Atendimento::getById($id);
+            if (!$atendimento) {
+                Response::notFound('Atendimento não encontrado');
+                return;
+            }
+
+            $anexos = Atendimento::getAnexos($id);
+
+            Response::success([
+                'atendimento_id' => $id,
+                'total' => count($anexos),
+                'data' => $anexos
+            ], "Anexos listados com sucesso");
+
+        } catch (Exception $e) {
+            Response::internalError($e->getMessage());
+        }
+    }
 }
 ?>

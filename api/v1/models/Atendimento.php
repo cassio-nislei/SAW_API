@@ -186,5 +186,72 @@ class Atendimento
 
         return count($result) > 0 ? $result[0] : null;
     }
+
+    /**
+     * Busca atendimento por número de telefone (ativo)
+     */
+    public static function getByNumber($numero)
+    {
+        try {
+            $db = Database::getInstance();
+            $stmt = $db->prepare("
+                SELECT 
+                    id,
+                    numero,
+                    nome,
+                    situacao,
+                    canal,
+                    setor,
+                    dt_atend,
+                    hr_atend,
+                    id_atend,
+                    nome_atend,
+                    protocolo,
+                    classifica_atendimento,
+                    created_at,
+                    updated_at
+                FROM tbatendimento
+                WHERE numero = ? AND situacao IN ('T', 'P', 'A')
+                ORDER BY dt_atend DESC
+                LIMIT 1
+            ");
+            $stmt->execute([$numero]);
+            return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+
+        } catch (Exception $e) {
+            error_log("getByNumber Error: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Lista anexos de um atendimento
+     */
+    public static function getAnexos($atendimentoId)
+    {
+        try {
+            $db = Database::getInstance();
+            $stmt = $db->prepare("
+                SELECT 
+                    id,
+                    seq,
+                    numero,
+                    nome_arquivo,
+                    tipo_arquivo,
+                    tamanho_bytes,
+                    caminho,
+                    created_at
+                FROM tbanexo
+                WHERE id_atend = ?
+                ORDER BY seq ASC
+            ");
+            $stmt->execute([$atendimentoId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+        } catch (Exception $e) {
+            error_log("getAnexos Error: " . $e->getMessage());
+            return [];
+        }
+    }
 }
 ?>

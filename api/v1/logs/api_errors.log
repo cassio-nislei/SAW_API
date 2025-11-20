@@ -1,0 +1,28 @@
+[19-Nov-2025 22:36:40 America/Sao_Paulo] PHP Fatal error:  Uncaught TypeError: http_response_code(): Argument #1 ($response_code) must be of type int, string given in C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\Response.php:32
+Stack trace:
+#0 C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\Response.php(32): http_response_code('VALIDATION_ERRO...')
+#1 C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\controllers\AuthController.php(23): Response::error(400, 'VALIDATION_ERRO...', 'Usu\xC3\xA1rio e senh...')
+#2 C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\index.php(72): AuthController::login()
+#3 C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\Router.php(81): {closure:C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\index.php:71}()
+#4 C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\index.php(281): Router->dispatch()
+#5 C:\Users\nislei\Downloads\SAW-main\SAW-main\local-test.php(15): include('C:\\Users\\nislei...')
+#6 {main}
+  thrown in C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\Response.php on line 32
+[19-Nov-2025 22:36:51 America/Sao_Paulo] PHP Fatal error:  Uncaught TypeError: http_response_code(): Argument #1 ($response_code) must be of type int, string given in C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\Response.php:32
+Stack trace:
+#0 C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\Response.php(32): http_response_code('VALIDATION_ERRO...')
+#1 C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\controllers\AuthController.php(23): Response::error(400, 'VALIDATION_ERRO...', 'Usu\xC3\xA1rio e senh...')
+#2 C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\index.php(72): AuthController::login()
+#3 C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\Router.php(81): {closure:C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\index.php:71}()
+#4 C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\index.php(281): Router->dispatch()
+#5 C:\Users\nislei\Downloads\SAW-main\SAW-main\local-test.php(14): include('C:\\Users\\nislei...')
+#6 {main}
+  thrown in C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\Response.php on line 32
+[19-Nov-2025 22:38:23 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined method Database::getInstance() in C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\controllers\AuthController.php:27
+Stack trace:
+#0 C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\index.php(72): AuthController::login()
+#1 C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\Router.php(81): {closure:C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\index.php:71}()
+#2 C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\index.php(281): Router->dispatch()
+#3 C:\Users\nislei\Downloads\SAW-main\SAW-main\local-test.php(59): include('C:\\Users\\nislei...')
+#4 {main}
+  thrown in C:\Users\nislei\Downloads\SAW-main\SAW-main\api\v1\controllers\AuthController.php on line 27

@@ -27,9 +27,43 @@ class Anexo
     }
 
     /**
-     * Obtém anexo
+     * Obtém anexo por ID
      */
-    public static function getById($id, $numero, $seq)
+    public static function getById($id)
+    {
+        try {
+            $db = Database::getInstance();
+            $stmt = $db->prepare("
+                SELECT 
+                    id,
+                    seq,
+                    numero,
+                    arquivo,
+                    nome_arquivo,
+                    nome_original,
+                    tipo_arquivo,
+                    tamanho_bytes,
+                    caminho,
+                    canal,
+                    enviado,
+                    created_at
+                FROM tbanexo
+                WHERE id = ?
+                LIMIT 1
+            ");
+            $stmt->execute([$id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+
+        } catch (Exception $e) {
+            error_log("getById Error: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Obtém anexo por ID, número e sequência (método legado)
+     */
+    public static function getByIdNumeroSeq($id, $numero, $seq)
     {
         $result = Database::query(
             "SELECT * FROM tbanexos WHERE id = ? AND numero = ? AND seq = ?",

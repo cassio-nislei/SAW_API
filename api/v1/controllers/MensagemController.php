@@ -215,5 +215,68 @@ class MensagemController
 
         Response::success($anexo, "Anexo criado com sucesso", 201);
     }
+
+    /**
+     * GET /api/v1/anexos/{id}/download
+     * Baixa arquivo anexo
+     */
+    public static function downloadAnexo($id)
+    {
+        try {
+            if (empty($id) || !is_numeric($id)) {
+                Response::validationError(['id' => 'ID do anexo inválido']);
+                return;
+            }
+
+            $anexo = Anexo::getById($id);
+
+            if (!$anexo) {
+                Response::notFound('Anexo não encontrado');
+                return;
+            }
+
+            // Caminho do arquivo
+            $filepath = __DIR__ . '/../../' . $anexo['caminho'];
+
+            if (!file_exists($filepath)) {
+                Response::notFound('Arquivo não encontrado no servidor');
+                return;
+            }
+
+            // Registrar download (auditoria)
+            self::registerDownload($id);
+
+            // Configurar headers para download
+            header('Content-Type: ' . $anexo['tipo_arquivo']);
+            header('Content-Disposition: attachment; filename="' . $anexo['nome_arquivo'] . '"');
+            header('Content-Length: ' . filesize($filepath));
+            header('Cache-Control: no-cache, must-revalidate');
+            header('Pragma: no-cache');
+
+            // Enviar arquivo
+            readfile($filepath);
+            exit;
+
+        } catch (Exception $e) {
+            Response::internalError($e->getMessage());
+        }
+    }
+
+    /**
+     * Registra download na auditoria
+     */
+    private static function registerDownload($anexoId)
+    {
+        try {
+            $db = Database::getInstance();
+            $stmt = $db->prepare("
+                INSERT INTO tb_audit_download (anexo_id, download_em, ip)
+                VALUES (?, NOW(), ?)
+            ");
+            $stmt->execute([$anexoId, $_SERVER['REMOTE_ADDR']]);
+        } catch (Exception $e) {
+            // Log silently
+        }
+    }
 }
 ?>

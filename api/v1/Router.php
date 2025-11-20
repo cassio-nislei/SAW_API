@@ -89,7 +89,7 @@ class Router
         }
 
         // Rota não encontrada
-        Response::error("Endpoint não encontrado", 404);
+        Response::error('Endpoint não encontrado', 404);
     }
 
     /**
