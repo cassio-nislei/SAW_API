@@ -35,6 +35,15 @@ class Database
     }
 
     /**
+     * Alias para connect() - compatibilidade com código que espera getInstance()
+     * @return mysqli
+     */
+    public static function getInstance()
+    {
+        return self::connect();
+    }
+
+    /**
      * Executa uma query SELECT
      * @param string $sql
      * @param array $params
