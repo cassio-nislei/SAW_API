@@ -714,6 +714,62 @@
           "200": { "description": "Aviso verificado" }
         }
       }
+    },
+    "/avisos/buscar-por-numero": {
+      "get": {
+        "tags": ["Avisos"],
+        "summary": "Buscar avisos por número (Q18: com limpeza de antigos)",
+        "operationId": "buscarAvisosPorNumero",
+        "description": "Remove avisos antigos da data atual e retorna avisos existentes do número",
+        "parameters": [
+          {
+            "name": "numero",
+            "in": "query",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "Número de telefone para buscar avisos"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Avisos retornados com sucesso (antigos removidos automaticamente)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "numero": { "type": "string" },
+                        "avisos": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": { "type": "integer" },
+                              "numero": { "type": "string" },
+                              "mensagem": { "type": "string" },
+                              "dt_aviso": { "type": "string", "format": "date-time" }
+                            }
+                          }
+                        },
+                        "total_avisos": { "type": "integer" },
+                        "linhas_limpas_gerais": { "type": "integer", "description": "Avisos antigos removidos" },
+                        "linhas_limpas_numero": { "type": "integer", "description": "Avisos do número removidos" }
+                      }
+                    },
+                    "mensagem": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Número obrigatório" },
+          "500": { "description": "Erro ao buscar avisos" }
+        }
+      }
     }
   },
   "components": {

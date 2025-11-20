@@ -248,6 +248,7 @@ type
     function LimparAvisoAntigos: Integer;
     function LimparAvisoNumero(const ANumero: string): Integer;
     function VerificarAvisoExistente(const ANumero: string): Boolean;
+    function BuscarAvisosPorNumero(const ANumero: string): TJSONValue;
 
     // ============================================
     // Anexos
@@ -2271,5 +2272,40 @@ begin
   except
     on E: Exception do
       RaiseError('VerificarAvisoExistente: ' + E.Message);
+  end;
+end;
+
+function TSAWAPIClient.BuscarAvisosPorNumero(const ANumero: string): TJSONValue;
+var
+  LRequest: TRESTRequest;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := Format('/avisos/buscar-por-numero?numero=%s', [ANumero]);
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+      begin
+        Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+        LogRequest('GET', Format('/avisos/buscar-por-numero?numero=%s', [ANumero]), 
+          'Avisos retornados');
+      end
+      else
+        raise Exception.Create('Erro ao buscar avisos: ' + LRequest.Response.StatusText);
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('BuscarAvisosPorNumero: ' + E.Message);
+      Result := nil;
+    end;
   end;
 end;

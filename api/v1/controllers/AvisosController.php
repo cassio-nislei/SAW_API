@@ -120,5 +120,54 @@ class AvisosController
             Response::error('Erro: ' . $e->getMessage(), 500);
         }
     }
+
+    /**
+     * Q18: Buscar avisos por número (com limpeza de antigos)
+     * GET /avisos/buscar-por-numero?numero=11999999999
+     * 
+     * Remove avisos antigos da data atual e retorna avisos existentes do número
+     */
+    public function buscarPorNumero()
+    {
+        try {
+            $numero = $_GET['numero'] ?? '';
+
+            if (empty($numero)) {
+                Response::error('Número obrigatório', 400);
+                return;
+            }
+
+            // Limpar avisos antigos de hoje
+            $sqlLimpar = "DELETE FROM tbavisosemexpediente 
+                         WHERE dt_aviso < DATE(NOW())";
+            $stmtLimpar = $this->db->prepare($sqlLimpar);
+            $stmtLimpar->execute();
+            $linhasRemovidas = $stmtLimpar->rowCount();
+
+            // Limpar avisos do número específico com data anterior a hoje
+            $sqlLimparNumero = "DELETE FROM tbavisosemexpediente 
+                               WHERE numero = ? AND dt_aviso < DATE(NOW())";
+            $stmtLimparNumero = $this->db->prepare($sqlLimparNumero);
+            $stmtLimparNumero->execute([$numero]);
+            $linhasRemovidasNumero = $stmtLimparNumero->rowCount();
+
+            // Buscar avisos existentes do número
+            $sqlBuscar = "SELECT * FROM tbavisosemexpediente 
+                         WHERE numero = ? 
+                         ORDER BY dt_aviso DESC";
+            $stmtBuscar = $this->db->prepare($sqlBuscar);
+            $stmtBuscar->execute([$numero]);
+            $avisos = $stmtBuscar->fetchAll(\PDO::FETCH_ASSOC);
+
+            Response::success([
+                'numero' => $numero,
+                'avisos' => $avisos,
+                'total_avisos' => count($avisos),
+                'linhas_limpas_gerais' => $linhasRemovidas,
+                'linhas_limpas_numero' => $linhasRemovidasNumero
+            ], 'Avisos retornados com sucesso');
+        } catch (\PDOException $e) {
+            Response::error('Erro ao buscar avisos: ' . $e->getMessage(), 500);
+        }
+    }
 }
-?>

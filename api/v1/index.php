@@ -492,6 +492,12 @@ try {
         $controller->verificarExistente();
     });
 
+    // Q18: GET - Buscar avisos por número (com limpeza de antigos)
+    $router->get('/avisos/buscar-por-numero', function () {
+        $controller = new AvisosController();
+        $controller->buscarPorNumero();
+    });
+
     $router->get('/', function () {
         Response::success([
             'api' => 'SAW API',
