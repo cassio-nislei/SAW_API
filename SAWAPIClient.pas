@@ -71,6 +71,40 @@ type
     TempoMedioAtendimento: Double;
   end;
 
+  TContato = record
+    ID: Integer;
+    Nome: string;
+    Telefone: string;
+    Email: string;
+  end;
+
+  TMensagem = record
+    ID: Integer;
+    Conteudo: string;
+    Situacao: string;
+    DataCriacao: TDateTime;
+  end;
+
+  TParametro = record
+    ID: Integer;
+    Chave: string;
+    Valor: string;
+  end;
+
+  TMenu = record
+    ID: Integer;
+    Nome: string;
+    Descricao: string;
+    Pai: Integer;
+  end;
+
+  TAviso = record
+    ID: Integer;
+    Numero: string;
+    Mensagem: string;
+    DataCriacao: TDateTime;
+  end;
+
   // ============================================
   // Eventos
   // ============================================
@@ -141,6 +175,73 @@ type
 
     function GetAtendimentoByPhone(const APhone: string): TAtendimento;
     function GetAtendimentoAnexos(AAtendimentoID: Integer): TList<TAnexo>;
+    function VerificarAtendimentoPendente(const ANumero: string): Boolean;
+    function CriarAtendimento(const ANumero, ANome, ASituacao: string): Integer;
+    function FinalizarAtendimento(AID: Integer): Boolean;
+    function GravarMensagemAtendimento(AAtendimentoID: Integer; const AMensagem: string): Boolean;
+    function AtualizarSetorAtendimento(AAtendimentoID: Integer; const ASetor: string): Boolean;
+    function ListarAtendimentosInativos(ATempoMinutos: Integer = 5): TList<TAtendimento>;
+
+    // ============================================
+    // Mensagens
+    // ============================================
+
+    function VerificarMensagemDuplicada(const AChatID: string): Boolean;
+    function GetStatusMultiplasMensagens: TJSONValue;
+    function ListarMensagensParaEnviar: TList<TMensagem>;
+    function ProximaSequenciaMensagem(AAtendimentoID: Integer): Integer;
+    function MarcarMensagemExcluida(const AChatID: string): Boolean;
+    function MarcarMensagemReacao(const AChatID, AReacao: string): Boolean;
+    function MarcarMensagemEnviada(AID: Integer): Boolean;
+    function CompararDuplicacaoMensagem(AID: Integer; const AMensagem: string): Boolean;
+
+    // ============================================
+    // Contatos
+    // ============================================
+
+    function ExportarContatos(APagina: Integer = 1; ALimite: Integer = 20): TList<TContato>;
+    function BuscarNomeContato(const ANumero: string): string;
+
+    // ============================================
+    // Agendamentos
+    // ============================================
+
+    function ListarAgendamentosPendentes: TJSONValue;
+
+    // ============================================
+    // Parâmetros
+    // ============================================
+
+    function GetParametrosSistema: TJSONValue;
+    function VerificarExpediente: TJSONValue;
+
+    // ============================================
+    // Menus
+    // ============================================
+
+    function GetMenuPrincipal: TList<TMenu>;
+    function GetSubmenus: TList<TMenu>;
+
+    // ============================================
+    // Respostas Automáticas
+    // ============================================
+
+    function GetRespostasAutomaticas(AIDMenu: Integer): TJSONValue;
+
+    // ============================================
+    // Departamentos
+    // ============================================
+
+    function GetDepartamentoPorMenu(AIDMenu: Integer): TJSONValue;
+
+    // ============================================
+    // Avisos
+    // ============================================
+
+    function RegistrarAvisoSemExpediente(const ANumero, AMensagem: string): Integer;
+    function LimparAvisoAntigos: Integer;
+    function LimparAvisoNumero(const ANumero: string): Integer;
+    function VerificarAvisoExistente(const ANumero: string): Boolean;
 
     // ============================================
     // Anexos
@@ -993,4 +1094,1040 @@ begin
   FDebugMode := AEnabled;
 end;
 
-end.
+// ============================================
+// Novos Endpoints - Atendimentos
+// ============================================
+
+function TSAWAPIClient.VerificarAtendimentoPendente(const ANumero: string): Boolean;
+var
+  LRequest: TRESTRequest;
+  LJSONValue: TJSONValue;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := Format('/atendimentos/verificar-pendente?numero=%s', [ANumero]);
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+      begin
+        LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+        try
+          Result := TJSONObject(LJSONValue).GetValue('data').GetValue<Boolean>('existe');
+        finally
+          LJSONValue.Free;
+        end;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+      RaiseError('VerificarAtendimentoPendente: ' + E.Message);
+  end;
+end;
+
+function TSAWAPIClient.CriarAtendimento(const ANumero, ANome, ASituacao: string): Integer;
+var
+  LRequest: TRESTRequest;
+  LData: TJSONObject;
+  LJSONValue: TJSONValue;
+begin
+  Result := 0;
+  try
+    CheckTokenExpiry;
+    LData := TJSONObject.Create;
+    try
+      LData.AddPair('numero', TJSONString.Create(ANumero));
+      LData.AddPair('nome', TJSONString.Create(ANome));
+      LData.AddPair('situacao', TJSONString.Create(ASituacao));
+      
+      LRequest := TRESTRequest.Create(nil);
+      try
+        LRequest.Client := FRESTClient;
+        LRequest.Resource := '/atendimentos/criar';
+        LRequest.Method := rmPOST;
+        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.Body.Add(LData.ToString);
+        LRequest.Execute;
+        
+        if LRequest.Response.StatusCode in [200, 201] then
+        begin
+          LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+          try
+            Result := TJSONObject(LJSONValue).GetValue('data').GetValue<Integer>('id');
+            LogRequest('POST', '/atendimentos/criar', 'Atendimento ID: ' + IntToStr(Result));
+          finally
+            LJSONValue.Free;
+          end;
+        end;
+      finally
+        LRequest.Free;
+      end;
+    finally
+      LData.Free;
+    end;
+  except
+    on E: Exception do
+      RaiseError('CriarAtendimento: ' + E.Message);
+  end;
+end;
+
+function TSAWAPIClient.FinalizarAtendimento(AID: Integer): Boolean;
+var
+  LRequest: TRESTRequest;
+  LData: TJSONObject;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LData := TJSONObject.Create;
+    try
+      LData.AddPair('id_atendimento', TJSONNumber.Create(AID));
+      
+      LRequest := TRESTRequest.Create(nil);
+      try
+        LRequest.Client := FRESTClient;
+        LRequest.Resource := '/atendimentos/finalizar';
+        LRequest.Method := rmPUT;
+        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.Body.Add(LData.ToString);
+        LRequest.Execute;
+        
+        Result := LRequest.Response.StatusCode = 200;
+        LogRequest('PUT', '/atendimentos/finalizar', 'Status: ' + IntToStr(LRequest.Response.StatusCode));
+      finally
+        LRequest.Free;
+      end;
+    finally
+      LData.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('FinalizarAtendimento: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
+function TSAWAPIClient.GravarMensagemAtendimento(AAtendimentoID: Integer; const AMensagem: string): Boolean;
+var
+  LRequest: TRESTRequest;
+  LData: TJSONObject;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LData := TJSONObject.Create;
+    try
+      LData.AddPair('id_atendimento', TJSONNumber.Create(AAtendimentoID));
+      LData.AddPair('mensagem', TJSONString.Create(AMensagem));
+      
+      LRequest := TRESTRequest.Create(nil);
+      try
+        LRequest.Client := FRESTClient;
+        LRequest.Resource := '/atendimentos/gravar-mensagem';
+        LRequest.Method := rmPOST;
+        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.Body.Add(LData.ToString);
+        LRequest.Execute;
+        
+        Result := LRequest.Response.StatusCode in [200, 201];
+      finally
+        LRequest.Free;
+      end;
+    finally
+      LData.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('GravarMensagemAtendimento: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
+function TSAWAPIClient.AtualizarSetorAtendimento(AAtendimentoID: Integer; const ASetor: string): Boolean;
+var
+  LRequest: TRESTRequest;
+  LData: TJSONObject;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LData := TJSONObject.Create;
+    try
+      LData.AddPair('id_atendimento', TJSONNumber.Create(AAtendimentoID));
+      LData.AddPair('setor', TJSONString.Create(ASetor));
+      
+      LRequest := TRESTRequest.Create(nil);
+      try
+        LRequest.Client := FRESTClient;
+        LRequest.Resource := '/atendimentos/atualizar-setor';
+        LRequest.Method := rmPUT;
+        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.Body.Add(LData.ToString);
+        LRequest.Execute;
+        
+        Result := LRequest.Response.StatusCode = 200;
+      finally
+        LRequest.Free;
+      end;
+    finally
+      LData.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('AtualizarSetorAtendimento: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
+function TSAWAPIClient.ListarAtendimentosInativos(ATempoMinutos: Integer = 5): TList<TAtendimento>;
+var
+  LRequest: TRESTRequest;
+  LJSONValue: TJSONValue;
+  LArray: TJSONArray;
+  LItem: TJSONValue;
+  LAtendimento: TAtendimento;
+begin
+  Result := TList<TAtendimento>.Create;
+  try
+    CheckTokenExpiry;
+    
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := Format('/atendimentos/inativos?tempo_minutos=%d', [ATempoMinutos]);
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+      begin
+        LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+        try
+          LArray := TJSONObject(LJSONValue).GetValue('data').FindValue('inativos') as TJSONArray;
+          for LItem in LArray do
+          begin
+            if LItem is TJSONObject then
+            begin
+              FillChar(LAtendimento, SizeOf(LAtendimento), 0);
+              LAtendimento.ID := TJSONObject(LItem).GetValue<Integer>('id');
+              Result.Add(LAtendimento);
+            end;
+          end;
+        finally
+          LJSONValue.Free;
+        end;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('ListarAtendimentosInativos: ' + E.Message);
+      Result.Clear;
+    end;
+  end;
+end;
+
+// ============================================
+// Novos Endpoints - Mensagens
+// ============================================
+
+function TSAWAPIClient.VerificarMensagemDuplicada(const AChatID: string): Boolean;
+var
+  LRequest: TRESTRequest;
+  LJSONValue: TJSONValue;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := Format('/mensagens/verificar-duplicada?chatid=%s', [AChatID]);
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+      begin
+        LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+        try
+          Result := TJSONObject(LJSONValue).GetValue('data').GetValue<Boolean>('existe');
+        finally
+          LJSONValue.Free;
+        end;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+      RaiseError('VerificarMensagemDuplicada: ' + E.Message);
+  end;
+end;
+
+function TSAWAPIClient.GetStatusMultiplasMensagens: TJSONValue;
+var
+  LRequest: TRESTRequest;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/mensagens/status-multiplas';
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+        Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+      RaiseError('GetStatusMultiplasMensagens: ' + E.Message);
+  end;
+end;
+
+function TSAWAPIClient.ListarMensagensParaEnviar: TList<TMensagem>;
+var
+  LRequest: TRESTRequest;
+  LJSONValue: TJSONValue;
+  LArray: TJSONArray;
+  LItem: TJSONValue;
+  LMensagem: TMensagem;
+begin
+  Result := TList<TMensagem>.Create;
+  try
+    CheckTokenExpiry;
+    
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/mensagens/pendentes-envio';
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+      begin
+        LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+        try
+          LArray := TJSONObject(LJSONValue).GetValue('data').FindValue('mensagens') as TJSONArray;
+          for LItem in LArray do
+          begin
+            if LItem is TJSONObject then
+            begin
+              FillChar(LMensagem, SizeOf(LMensagem), 0);
+              LMensagem.ID := TJSONObject(LItem).GetValue<Integer>('id');
+              LMensagem.Conteudo := TJSONObject(LItem).GetValue<string>('mensagem');
+              LMensagem.Situacao := TJSONObject(LItem).GetValue<string>('situacao');
+              Result.Add(LMensagem);
+            end;
+          end;
+        finally
+          LJSONValue.Free;
+        end;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('ListarMensagensParaEnviar: ' + E.Message);
+      Result.Clear;
+    end;
+  end;
+end;
+
+function TSAWAPIClient.ProximaSequenciaMensagem(AAtendimentoID: Integer): Integer;
+var
+  LRequest: TRESTRequest;
+  LJSONValue: TJSONValue;
+begin
+  Result := 0;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := Format('/mensagens/proxima-sequencia?id_atendimento=%d', [AAtendimentoID]);
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+      begin
+        LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+        try
+          Result := TJSONObject(LJSONValue).GetValue('data').GetValue<Integer>('seq');
+        finally
+          LJSONValue.Free;
+        end;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+      RaiseError('ProximaSequenciaMensagem: ' + E.Message);
+  end;
+end;
+
+function TSAWAPIClient.MarcarMensagemExcluida(const AChatID: string): Boolean;
+var
+  LRequest: TRESTRequest;
+  LData: TJSONObject;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LData := TJSONObject.Create;
+    try
+      LData.AddPair('chatid', TJSONString.Create(AChatID));
+      LRequest := TRESTRequest.Create(nil);
+      try
+        LRequest.Client := FRESTClient;
+        LRequest.Resource := '/mensagens/marcar-excluida';
+        LRequest.Method := rmPUT;
+        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.Body.Add(LData.ToString);
+        LRequest.Execute;
+        Result := LRequest.Response.StatusCode = 200;
+      finally
+        LRequest.Free;
+      end;
+    finally
+      LData.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('MarcarMensagemExcluida: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
+function TSAWAPIClient.MarcarMensagemReacao(const AChatID, AReacao: string): Boolean;
+var
+  LRequest: TRESTRequest;
+  LData: TJSONObject;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LData := TJSONObject.Create;
+    try
+      LData.AddPair('chatid', TJSONString.Create(AChatID));
+      LData.AddPair('reacao', TJSONString.Create(AReacao));
+      LRequest := TRESTRequest.Create(nil);
+      try
+        LRequest.Client := FRESTClient;
+        LRequest.Resource := '/mensagens/marcar-reacao';
+        LRequest.Method := rmPUT;
+        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.Body.Add(LData.ToString);
+        LRequest.Execute;
+        Result := LRequest.Response.StatusCode = 200;
+      finally
+        LRequest.Free;
+      end;
+    finally
+      LData.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('MarcarMensagemReacao: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
+function TSAWAPIClient.MarcarMensagemEnviada(AID: Integer): Boolean;
+var
+  LRequest: TRESTRequest;
+  LData: TJSONObject;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LData := TJSONObject.Create;
+    try
+      LData.AddPair('id_agendamento', TJSONNumber.Create(AID));
+      LRequest := TRESTRequest.Create(nil);
+      try
+        LRequest.Client := FRESTClient;
+        LRequest.Resource := '/mensagens/marcar-enviada';
+        LRequest.Method := rmPUT;
+        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.Body.Add(LData.ToString);
+        LRequest.Execute;
+        Result := LRequest.Response.StatusCode = 200;
+      finally
+        LRequest.Free;
+      end;
+    finally
+      LData.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('MarcarMensagemEnviada: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
+function TSAWAPIClient.CompararDuplicacaoMensagem(AID: Integer; const AMensagem: string): Boolean;
+var
+  LRequest: TRESTRequest;
+  LData: TJSONObject;
+  LJSONValue: TJSONValue;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LData := TJSONObject.Create;
+    try
+      LData.AddPair('id', TJSONNumber.Create(AID));
+      LData.AddPair('msg_atual', TJSONString.Create(AMensagem));
+      LRequest := TRESTRequest.Create(nil);
+      try
+        LRequest.Client := FRESTClient;
+        LRequest.Resource := '/mensagens/comparar-duplicacao';
+        LRequest.Method := rmPOST;
+        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.Body.Add(LData.ToString);
+        LRequest.Execute;
+        
+        if LRequest.Response.StatusCode = 200 then
+        begin
+          LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+          try
+            Result := TJSONObject(LJSONValue).GetValue('data').GetValue<Boolean>('eh_duplicada');
+          finally
+            LJSONValue.Free;
+          end;
+        end;
+      finally
+        LRequest.Free;
+      end;
+    finally
+      LData.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('CompararDuplicacaoMensagem: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
+// ============================================
+// Novos Endpoints - Contatos
+// ============================================
+
+function TSAWAPIClient.ExportarContatos(APagina: Integer = 1; ALimite: Integer = 20): TList<TContato>;
+var
+  LRequest: TRESTRequest;
+  LJSONValue: TJSONValue;
+  LArray: TJSONArray;
+  LItem: TJSONValue;
+  LContato: TContato;
+begin
+  Result := TList<TContato>.Create;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := Format('/contatos/exportar?pagina=%d&limite=%d', [APagina, ALimite]);
+      LRequest.Method := rmPOST;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+      begin
+        LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+        try
+          LArray := TJSONObject(LJSONValue).GetValue('data').FindValue('contatos') as TJSONArray;
+          for LItem in LArray do
+          begin
+            if LItem is TJSONObject then
+            begin
+              FillChar(LContato, SizeOf(LContato), 0);
+              LContato.ID := TJSONObject(LItem).GetValue<Integer>('id');
+              LContato.Nome := TJSONObject(LItem).GetValue<string>('nome');
+              LContato.Telefone := TJSONObject(LItem).GetValue<string>('telefone');
+              Result.Add(LContato);
+            end;
+          end;
+        finally
+          LJSONValue.Free;
+        end;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('ExportarContatos: ' + E.Message);
+      Result.Clear;
+    end;
+  end;
+end;
+
+function TSAWAPIClient.BuscarNomeContato(const ANumero: string): string;
+var
+  LRequest: TRESTRequest;
+  LJSONValue: TJSONValue;
+begin
+  Result := '';
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := Format('/contatos/buscar-nome?numero=%s', [ANumero]);
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+      begin
+        LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+        try
+          Result := TJSONObject(LJSONValue).GetValue('data').GetValue<string>('nome');
+        finally
+          LJSONValue.Free;
+        end;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+      RaiseError('BuscarNomeContato: ' + E.Message);
+  end;
+end;
+
+// ============================================
+// Novos Endpoints - Agendamentos
+// ============================================
+
+function TSAWAPIClient.ListarAgendamentosPendentes: TJSONValue;
+var
+  LRequest: TRESTRequest;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/agendamentos/pendentes';
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+        Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+      RaiseError('ListarAgendamentosPendentes: ' + E.Message);
+  end;
+end;
+
+// ============================================
+// Novos Endpoints - Parâmetros
+// ============================================
+
+function TSAWAPIClient.GetParametrosSistema: TJSONValue;
+var
+  LRequest: TRESTRequest;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/parametros/sistema';
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+        Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+      RaiseError('GetParametrosSistema: ' + E.Message);
+  end;
+end;
+
+function TSAWAPIClient.VerificarExpediente: TJSONValue;
+var
+  LRequest: TRESTRequest;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/parametros/verificar-expediente';
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+        Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+      RaiseError('VerificarExpediente: ' + E.Message);
+  end;
+end;
+
+// ============================================
+// Novos Endpoints - Menus
+// ============================================
+
+function TSAWAPIClient.GetMenuPrincipal: TList<TMenu>;
+var
+  LRequest: TRESTRequest;
+  LJSONValue: TJSONValue;
+  LArray: TJSONArray;
+  LItem: TJSONValue;
+  LMenu: TMenu;
+begin
+  Result := TList<TMenu>.Create;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/menus/principal';
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+      begin
+        LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+        try
+          LArray := TJSONObject(LJSONValue).GetValue('data').FindValue('menus') as TJSONArray;
+          for LItem in LArray do
+          begin
+            if LItem is TJSONObject then
+            begin
+              FillChar(LMenu, SizeOf(LMenu), 0);
+              LMenu.ID := TJSONObject(LItem).GetValue<Integer>('id');
+              LMenu.Nome := TJSONObject(LItem).GetValue<string>('nome');
+              Result.Add(LMenu);
+            end;
+          end;
+        finally
+          LJSONValue.Free;
+        end;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('GetMenuPrincipal: ' + E.Message);
+      Result.Clear;
+    end;
+  end;
+end;
+
+function TSAWAPIClient.GetSubmenus: TList<TMenu>;
+var
+  LRequest: TRESTRequest;
+  LJSONValue: TJSONValue;
+  LArray: TJSONArray;
+  LItem: TJSONValue;
+  LMenu: TMenu;
+begin
+  Result := TList<TMenu>.Create;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/menus/submenus';
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+      begin
+        LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+        try
+          LArray := TJSONObject(LJSONValue).GetValue('data').FindValue('submenus') as TJSONArray;
+          for LItem in LArray do
+          begin
+            if LItem is TJSONObject then
+            begin
+              FillChar(LMenu, SizeOf(LMenu), 0);
+              LMenu.ID := TJSONObject(LItem).GetValue<Integer>('id');
+              LMenu.Nome := TJSONObject(LItem).GetValue<string>('nome');
+              Result.Add(LMenu);
+            end;
+          end;
+        finally
+          LJSONValue.Free;
+        end;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('GetSubmenus: ' + E.Message);
+      Result.Clear;
+    end;
+  end;
+end;
+
+// ============================================
+// Novos Endpoints - Respostas
+// ============================================
+
+function TSAWAPIClient.GetRespostasAutomaticas(AIDMenu: Integer): TJSONValue;
+var
+  LRequest: TRESTRequest;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := Format('/respostas-automaticas?id_menu=%d', [AIDMenu]);
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+        Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+      RaiseError('GetRespostasAutomaticas: ' + E.Message);
+  end;
+end;
+
+// ============================================
+// Novos Endpoints - Departamentos
+// ============================================
+
+function TSAWAPIClient.GetDepartamentoPorMenu(AIDMenu: Integer): TJSONValue;
+var
+  LRequest: TRESTRequest;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := Format('/departamentos/por-menu?id_menu=%d', [AIDMenu]);
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+        Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+      RaiseError('GetDepartamentoPorMenu: ' + E.Message);
+  end;
+end;
+
+// ============================================
+// Novos Endpoints - Avisos
+// ============================================
+
+function TSAWAPIClient.RegistrarAvisoSemExpediente(const ANumero, AMensagem: string): Integer;
+var
+  LRequest: TRESTRequest;
+  LData: TJSONObject;
+  LJSONValue: TJSONValue;
+begin
+  Result := 0;
+  try
+    CheckTokenExpiry;
+    LData := TJSONObject.Create;
+    try
+      LData.AddPair('numero', TJSONString.Create(ANumero));
+      LData.AddPair('mensagem', TJSONString.Create(AMensagem));
+      LRequest := TRESTRequest.Create(nil);
+      try
+        LRequest.Client := FRESTClient;
+        LRequest.Resource := '/avisos/registrar-sem-expediente';
+        LRequest.Method := rmPOST;
+        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.Body.Add(LData.ToString);
+        LRequest.Execute;
+        
+        if LRequest.Response.StatusCode in [200, 201] then
+        begin
+          LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+          try
+            Result := TJSONObject(LJSONValue).GetValue('data').GetValue<Integer>('id');
+          finally
+            LJSONValue.Free;
+          end;
+        end;
+      finally
+        LRequest.Free;
+      end;
+    finally
+      LData.Free;
+    end;
+  except
+    on E: Exception do
+      RaiseError('RegistrarAvisoSemExpediente: ' + E.Message);
+  end;
+end;
+
+function TSAWAPIClient.LimparAvisoAntigos: Integer;
+var
+  LRequest: TRESTRequest;
+  LJSONValue: TJSONValue;
+begin
+  Result := 0;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/avisos/limpar-antigos';
+      LRequest.Method := rmDELETE;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+      begin
+        LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+        try
+          Result := TJSONObject(LJSONValue).GetValue('data').GetValue<Integer>('rows_deleted');
+        finally
+          LJSONValue.Free;
+        end;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+      RaiseError('LimparAvisoAntigos: ' + E.Message);
+  end;
+end;
+
+function TSAWAPIClient.LimparAvisoNumero(const ANumero: string): Integer;
+var
+  LRequest: TRESTRequest;
+  LJSONValue: TJSONValue;
+begin
+  Result := 0;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := Format('/avisos/limpar-numero?numero=%s', [ANumero]);
+      LRequest.Method := rmDELETE;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+      begin
+        LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+        try
+          Result := TJSONObject(LJSONValue).GetValue('data').GetValue<Integer>('rows_deleted');
+        finally
+          LJSONValue.Free;
+        end;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+      RaiseError('LimparAvisoNumero: ' + E.Message);
+  end;
+end;
+
+function TSAWAPIClient.VerificarAvisoExistente(const ANumero: string): Boolean;
+var
+  LRequest: TRESTRequest;
+  LJSONValue: TJSONValue;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := Format('/avisos/verificar-existente?numero=%s', [ANumero]);
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+      begin
+        LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+        try
+          Result := TJSONObject(LJSONValue).GetValue('data').GetValue<Boolean>('existe');
+        finally
+          LJSONValue.Free;
+        end;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+      RaiseError('VerificarAvisoExistente: ' + E.Message);
+  end;
+end;
