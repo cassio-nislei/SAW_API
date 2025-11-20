@@ -400,6 +400,12 @@ try {
         $controller->marcarEnviada();
     });
 
+    // P15: PUT - Atualizar envio de mensagem
+    $router->put('/mensagens/atualizar-envio', function () {
+        $controller = new MensagensController();
+        $controller->atualizarEnvio();
+    });
+
     // Q14: POST - Comparar duplicação
     $router->post('/mensagens/comparar-duplicacao', function () {
         $controller = new MensagensController();

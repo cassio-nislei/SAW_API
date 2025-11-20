@@ -225,5 +225,49 @@ class MensagensController
             Response::error('Erro: ' . $e->getMessage(), 500);
         }
     }
+
+    /**
+     * P7: Atualizar envio de mensagem (spAtualizarEnvioMensagem)
+     * PUT /mensagens/atualizar-envio
+     * Body: { id_agendamento, enviado, tempo_envio }
+     * 
+     * Atualiza o status de envio de uma mensagem agendada
+     * @param id_agendamento: ID do agendamento (integer)
+     * @param enviado: Flag de envio (1=sim, 0=não) (integer)
+     * @param tempo_envio: Tempo de envio em ms (integer)
+     */
+    public function atualizarEnvio()
+    {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+
+            // Validar parâmetros obrigatórios
+            if (!isset($data['id_agendamento']) || !isset($data['enviado']) || !isset($data['tempo_envio'])) {
+                Response::error('Parâmetros obrigatórios: id_agendamento, enviado, tempo_envio', 400);
+                return;
+            }
+
+            $idAgendamento = (int)$data['id_agendamento'];
+            $enviado = (int)$data['enviado'];
+            $tempoEnvio = (int)$data['tempo_envio'];
+
+            // Executar procedure
+            $sql = "CALL spAtualizarEnvioMensagem(:pIdAgendamento, :pEnviado, :ptempo_envio)";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':pIdAgendamento', $idAgendamento, \PDO::PARAM_INT);
+            $stmt->bindParam(':pEnviado', $enviado, \PDO::PARAM_INT);
+            $stmt->bindParam(':ptempo_envio', $tempoEnvio, \PDO::PARAM_INT);
+            $stmt->execute();
+
+            Response::success([
+                'id_agendamento' => $idAgendamento,
+                'enviado' => $enviado,
+                'tempo_envio' => $tempoEnvio,
+                'executado' => true
+            ], 'Envio de mensagem atualizado com sucesso');
+        } catch (\PDOException $e) {
+            Response::error('Erro ao atualizar envio: ' . $e->getMessage(), 500);
+        }
+    }
 }
 ?>
