@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "SAW API - Sistema de Atendimento Web",
+    "title": "SAW API - Sistema de Atendimento Web Rest",
     "description": "API RESTful completa em PHP puro para gerenciamento de atendimentos, mensagens, anexos, contatos, agendamentos e configurações. Suporta JWT para autenticação.",
     "version": "2.0.0",
     "contact": {
