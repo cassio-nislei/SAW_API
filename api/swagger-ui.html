@@ -46,13 +46,30 @@
         font-size: 12px;
         opacity: 0.8;
       }
+      .info-banner {
+        background-color: #e8f5e9;
+        border-left: 4px solid #4caf50;
+        padding: 12px 15px;
+        margin: 10px 0;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      .info-banner.warning {
+        background-color: #fff3e0;
+        border-left-color: #ff9800;
+      }
+      .info-banner.error {
+        background-color: #ffebee;
+        border-left-color: #f44336;
+      }
     </style>
   </head>
   <body>
     <div class="topbar">
       <h1>🔌 SAW API - Swagger Documentation</h1>
-      <p>Sistema de Atendimento Web - API RESTful v1.0.0</p>
+      <p>Sistema de Atendimento Web - API RESTful v2.0.0</p>
     </div>
+    <div id="info-message"></div>
     <div id="swagger-ui"></div>
 
     <script src="https://unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
@@ -65,16 +82,24 @@
         const pathname = window.location.pathname;
 
         let swaggerUrl = "";
+
+        // Melhor detecção baseada no path
         if (pathname.includes("/SAW-main/api")) {
           swaggerUrl =
             protocol + "//" + host + "/SAW-main/api/swagger-json.php";
         } else if (pathname.includes("/api")) {
           swaggerUrl = protocol + "//" + host + "/api/swagger-json.php";
         } else {
+          // Fallback
           swaggerUrl = protocol + "//" + host + "/api/swagger-json.php";
         }
 
-        console.log("Swagger URL:", swaggerUrl);
+        console.log("📍 Current URL:", window.location.href);
+        console.log("🔗 Swagger JSON URL:", swaggerUrl);
+
+        // Display info
+        const infoDiv = document.getElementById("info-message");
+        infoDiv.innerHTML = `<div class="info-banner">📡 Carregando documentação de: <strong>${swaggerUrl}</strong></div>`;
 
         // Inicializar Swagger UI
         window.ui = SwaggerUIBundle({
@@ -88,11 +113,26 @@
           ],
           plugins: [SwaggerUIBundle.plugins.DownloadUrl],
           layout: "BaseLayout",
+          requestInterceptor: function (request) {
+            // Log all requests
+            console.log("Request:", request.url);
+            return request;
+          },
+          responseInterceptor: function (response) {
+            console.log("Response:", response.url, response.status);
+            return response;
+          },
           onComplete: function () {
-            console.log("✅ Swagger UI loaded successfully");
+            console.log("✅ Swagger UI carregado com sucesso");
+            infoDiv.innerHTML = `<div class="info-banner">✅ Documentação carregada com sucesso de: <strong>${swaggerUrl}</strong></div>`;
           },
           onFailure: function (error) {
-            console.error("❌ Swagger UI load error:", error);
+            console.error("❌ Erro ao carregar Swagger UI:", error);
+            infoDiv.innerHTML = `<div class="info-banner error">
+              ❌ Erro ao carregar documentação<br>
+              URL tentada: <strong>${swaggerUrl}</strong><br>
+              Erro: ${error.message || error}
+            </div>`;
           },
         });
       };
