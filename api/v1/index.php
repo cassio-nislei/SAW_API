@@ -64,6 +64,17 @@ require_once __DIR__ . '/controllers/HorarioController.php';
 require_once __DIR__ . '/controllers/DashboardController.php';
 require_once __DIR__ . '/controllers/UsuariosController.php';
 
+// Carrega novos controllers (32 endpoints)
+require_once __DIR__ . '/controllers/ContatosController.php';
+require_once __DIR__ . '/controllers/AgendamentosController.php';
+require_once __DIR__ . '/controllers/AtendimentosController.php';
+require_once __DIR__ . '/controllers/MensagensController.php';
+require_once __DIR__ . '/controllers/ParametrosController.php';
+require_once __DIR__ . '/controllers/MenusController.php';
+require_once __DIR__ . '/controllers/RespostasController.php';
+require_once __DIR__ . '/controllers/DepartamentosController.php';
+require_once __DIR__ . '/controllers/AvisosController.php';
+
 try {
     // Cria router
     $router = new Router();
@@ -272,6 +283,208 @@ try {
     // ============================================
     // ROTA - HEALTH CHECK
     // ============================================
+
+    // ============================================
+    // ROTAS - NOVOS ENDPOINTS (32 endpoints)
+    // ============================================
+
+    // ============================================
+    // CONTATOS (2 endpoints)
+    // ============================================
+
+    // Q1: POST - Exportar contatos
+    $router->post('/contatos/exportar', function () {
+        $controller = new ContatosController();
+        $controller->exportar();
+    });
+
+    // Q7: GET - Buscar nome do contato por telefone
+    $router->get('/contatos/buscar-nome', function () {
+        $controller = new ContatosController();
+        $controller->buscarNome();
+    });
+
+    // ============================================
+    // AGENDAMENTOS (1 endpoint)
+    // ============================================
+
+    // Q2: GET - Mensagens agendadas pendentes
+    $router->get('/agendamentos/pendentes', function () {
+        $controller = new AgendamentosController();
+        $controller->pendentes();
+    });
+
+    // ============================================
+    // ATENDIMENTOS (6 endpoints)
+    // ============================================
+
+    // Q3: GET - Verificar atendimento pendente
+    $router->get('/atendimentos/verificar-pendente', function () {
+        $controller = new AtendimentosController();
+        $controller->verificarPendente();
+    });
+
+    // P2: POST - Criar novo atendimento
+    $router->post('/atendimentos/criar', function () {
+        $controller = new AtendimentosController();
+        $controller->criar();
+    });
+
+    // P1: PUT - Finalizar atendimento
+    $router->put('/atendimentos/finalizar', function () {
+        $controller = new AtendimentosController();
+        $controller->finalizar();
+    });
+
+    // P3: POST - Gravar mensagem de atendimento
+    $router->post('/atendimentos/gravar-mensagem', function () {
+        $controller = new AtendimentosController();
+        $controller->gravarMensagem();
+    });
+
+    // P8: PUT - Atualizar setor do atendimento
+    $router->put('/atendimentos/atualizar-setor', function () {
+        $controller = new AtendimentosController();
+        $controller->atualizarSetor();
+    });
+
+    // Q16: GET - Buscar atendimentos inativos
+    $router->get('/atendimentos/inativos', function () {
+        $controller = new AtendimentosController();
+        $controller->inativos();
+    });
+
+    // ============================================
+    // MENSAGENS (8 endpoints)
+    // ============================================
+
+    // Q6: GET - Verificar se mensagem é duplicada
+    $router->get('/mensagens/verificar-duplicada', function () {
+        $controller = new MensagensController();
+        $controller->verificarDuplicada();
+    });
+
+    // Q8: GET - Status de múltiplas mensagens
+    $router->get('/mensagens/status-multiplas', function () {
+        $controller = new MensagensController();
+        $controller->statusMultiplas();
+    });
+
+    // Q13: GET - Mensagens pendentes de envio
+    $router->get('/mensagens/pendentes-envio', function () {
+        $controller = new MensagensController();
+        $controller->pendentesEnvio();
+    });
+
+    // Q17: GET - Próxima sequência
+    $router->get('/mensagens/proxima-sequencia', function () {
+        $controller = new MensagensController();
+        $controller->proximaSequencia();
+    });
+
+    // P5: PUT - Marcar mensagem como excluída
+    $router->put('/mensagens/marcar-excluida', function () {
+        $controller = new MensagensController();
+        $controller->marcarExcluida();
+    });
+
+    // P6: PUT - Marcar reação
+    $router->put('/mensagens/marcar-reacao', function () {
+        $controller = new MensagensController();
+        $controller->marcarReacao();
+    });
+
+    // P4: PUT - Marcar como enviada
+    $router->put('/mensagens/marcar-enviada', function () {
+        $controller = new MensagensController();
+        $controller->marcarEnviada();
+    });
+
+    // Q14: POST - Comparar duplicação
+    $router->post('/mensagens/comparar-duplicacao', function () {
+        $controller = new MensagensController();
+        $controller->compararDuplicacao();
+    });
+
+    // ============================================
+    // PARÂMETROS (2 endpoints)
+    // ============================================
+
+    // Q10: GET - Buscar parâmetros do sistema
+    $router->get('/parametros/sistema', function () {
+        $controller = new ParametrosController();
+        $controller->sistema();
+    });
+
+    // P9: GET - Verificar expediente
+    $router->get('/parametros/verificar-expediente', function () {
+        $controller = new ParametrosController();
+        $controller->verificarExpediente();
+    });
+
+    // ============================================
+    // MENUS (2 endpoints)
+    // ============================================
+
+    // Q11: GET - Menu principal
+    $router->get('/menus/principal', function () {
+        $controller = new MenusController();
+        $controller->principal();
+    });
+
+    // Q12: GET - Submenus
+    $router->get('/menus/submenus', function () {
+        $controller = new MenusController();
+        $controller->submenus();
+    });
+
+    // ============================================
+    // RESPOSTAS AUTOMÁTICAS (1 endpoint)
+    // ============================================
+
+    // Q4: GET - Buscar resposta automática
+    $router->get('/respostas-automaticas', function () {
+        $controller = new RespostasController();
+        $controller->buscar();
+    });
+
+    // ============================================
+    // DEPARTAMENTOS (1 endpoint)
+    // ============================================
+
+    // Q5: GET - Buscar departamento por menu
+    $router->get('/departamentos/por-menu', function () {
+        $controller = new DepartamentosController();
+        $controller->porMenu();
+    });
+
+    // ============================================
+    // AVISOS (4 endpoints)
+    // ============================================
+
+    // P7: POST - Registrar aviso sem expediente
+    $router->post('/avisos/registrar-sem-expediente', function () {
+        $controller = new AvisosController();
+        $controller->registrar();
+    });
+
+    // P11: DELETE - Limpar avisos antigos
+    $router->delete('/avisos/limpar-antigos', function () {
+        $controller = new AvisosController();
+        $controller->limparAntigos();
+    });
+
+    // P14: DELETE - Limpar avisos de número específico
+    $router->delete('/avisos/limpar-numero', function () {
+        $controller = new AvisosController();
+        $controller->limparNumero();
+    });
+
+    // P15: GET - Verificar aviso existente
+    $router->get('/avisos/verificar-existente', function () {
+        $controller = new AvisosController();
+        $controller->verificarExistente();
+    });
 
     $router->get('/', function () {
         Response::success([
