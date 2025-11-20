@@ -286,6 +286,10 @@ try {
     $router->dispatch();
 
 } catch (Exception $e) {
+    error_log("EXCEPTION: " . $e->getMessage() . " em " . $e->getFile() . ":" . $e->getLine());
+    Response::internalError($e->getMessage());
+} catch (Error $e) {
+    error_log("ERROR: " . $e->getMessage() . " em " . $e->getFile() . ":" . $e->getLine());
     Response::internalError($e->getMessage());
 } finally {
     Database::close();
