@@ -1029,10 +1029,16 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "id_msg": { "type": "integer", "description": "ID da mensagem" },
-                  "chatid": { "type": "string", "description": "ID da conversa (ex: '5585987654321@c.us')" },
-                  "novo_status": { 
-                    "type": "integer", 
+                  "id_msg": {
+                    "type": "integer",
+                    "description": "ID da mensagem"
+                  },
+                  "chatid": {
+                    "type": "string",
+                    "description": "ID da conversa (ex: '5585987654321@c.us')"
+                  },
+                  "novo_status": {
+                    "type": "integer",
                     "enum": [0, 1, 2, 3, 4],
                     "description": "0=Pendente, 1=Enviada, 2=Entregue, 3=Lida, 4=Erro"
                   }
@@ -1091,7 +1097,10 @@
                       "properties": {
                         "id_msg": { "type": "integer" },
                         "chatid": { "type": "string" },
-                        "novo_status": { "type": "integer", "enum": [0, 1, 2, 3, 4] }
+                        "novo_status": {
+                          "type": "integer",
+                          "enum": [0, 1, 2, 3, 4]
+                        }
                       },
                       "required": ["id_msg", "chatid", "novo_status"]
                     }
@@ -1183,9 +1192,18 @@
                         "por_status": {
                           "type": "object",
                           "properties": {
-                            "0": { "type": "integer", "description": "Pendentes" },
-                            "1": { "type": "integer", "description": "Enviadas" },
-                            "2": { "type": "integer", "description": "Entregues" },
+                            "0": {
+                              "type": "integer",
+                              "description": "Pendentes"
+                            },
+                            "1": {
+                              "type": "integer",
+                              "description": "Enviadas"
+                            },
+                            "2": {
+                              "type": "integer",
+                              "description": "Entregues"
+                            },
                             "3": { "type": "integer", "description": "Lidas" },
                             "4": { "type": "integer", "description": "Erros" }
                           }
