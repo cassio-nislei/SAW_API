@@ -24,7 +24,10 @@ interface
 
 uses
   System.SysUtils, System.JSON, System.Classes, System.Generics.Collections,
-  REST.Client, REST.Types, System.DateUtils;
+  REST.Client, REST.Types, System.DateUtils,REST.Authenticator.Basic,
+  REST.Utils, System.Net.HttpClient, System.IOUtils, System.StrUtils,
+  System.Net.HttpClientComponent,
+  System.Net.Mime;
 
 type
   // ============================================
@@ -133,6 +136,7 @@ type
     FOnTokenRefresh: TOnTokenRefresh;
     FOnError: TOnError;
     FOnRequestLog: TOnRequestLog;
+    FBaseURL: string;
 
     // Métodos privados
     function GetBaseURL: string;
@@ -142,6 +146,15 @@ type
     procedure CheckTokenExpiry;
     procedure LogRequest(const AMethod, AResource, AResponse: string);
     procedure RaiseError(const AError: string);
+    function AtualizarStatusMensagem(AIdMsg: Integer; const AChatID: string;
+      ANovoStatus: Integer): Boolean;
+    function ListarMensagensStatusPendentes(const ACanal: string;
+  AHorasAtras: Integer = 24; AMinutosFuturos: Integer = 10): TJSONValue;
+    function ObterRelatorioStatusMensagens(const ACanal: string;
+  ADataIni: TDate = 0; ADataFim: TDate = 0): TJSONValue;
+
+
+
   public
     // Construtor e destrutor
     constructor Create(const AUsername, APassword: string;
@@ -179,7 +192,7 @@ type
     function CriarAtendimento(const ANumero, ANome: string; AIDAtendente: Integer = 0;
       const ANomeAtendente: string = ''; const ASituacao: string = 'P';
       const ACanal: string = ''; const ASetor: string = ''): Integer;
-   function FinalizarAtendimento(AID: Integer; const AObservacao: string = ''): Boolean;
+   function FinalizarAtendimento(AID: Integer): Boolean;
 
     function GravarMensagemAtendimento(AAtendimentoID: Integer; const AMensagem: string): Boolean;
     function AtualizarSetorAtendimento(AAtendimentoID: Integer; const ASetor: string): Boolean;
@@ -202,6 +215,10 @@ type
   AAtendimentoID: Integer;
   const ACaminhoArquivo, ANomeArquivo, ATipoArquivo: string
 ): Boolean;
+
+    function ProcessarMultiplasAtualizacoesStatus(
+  const AAtualizacoes: TJSONArray
+    ): TJSONValue;
 
 
     // ============================================
@@ -258,7 +275,7 @@ type
     // Anexos
     // ============================================
 
-    function DownloadAnexo(AAnexoID: Integer; const ADestinationPath: string): Boolean;
+
     function ListarAnexosPendentes(const ACanal: string = 'WhatsApp'): TJSONValue;
     function BuscarAnexoPorPK(const APK: string): TJSONValue;
     function MarcarAnexoEnviado(const APK: string; AEnviado: Integer = 0): TJSONValue;
@@ -269,6 +286,9 @@ type
 
     function GetDashboardYearStats: TDashboard;
     function GetDashboardMonthlyStats(AAno: Integer = 0): TJSONValue;
+
+    procedure DownloadAnexo(const AAtendimentoID, ASeq: Integer;
+      const ADestinationPath: string);
 
     // ============================================
     // Configuração
@@ -378,7 +398,7 @@ begin
         LRequest.Client := FRESTClient;
         LRequest.Resource := '/mensagens/marcar-excluida';
         LRequest.Method := rmPUT;
-        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
 
@@ -412,6 +432,7 @@ var
   LRequest: TRESTRequest;
   LJSONValue: TJSONValue;
   LJSONObject: TJSONObject;
+  LBody: TJSONObject;
   LNewToken: string;
 begin
   try
@@ -421,9 +442,18 @@ begin
       LRequest.Resource := '/auth/refresh';
       LRequest.Method := rmPOST;
 
-      LRequest.AddHeader('Authorization', GetAuthHeader);
-      LRequest.AddParameter('refresh_token', FRefreshToken, pkJSONBODY);
+      // ---------- HEADERS ----------
+      LRequest.AddParameter('Content-Type', 'application/json', pkHTTPHEADER);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
 
+      // ---------- JSON BODY ----------
+      LBody := TJSONObject.Create;
+      LBody.AddPair('refresh_token', FRefreshToken);
+
+      LRequest.Body.ClearBody;
+      LRequest.Body.Add(LBody.ToString, TRESTContentType.ctAPPLICATION_JSON);
+
+      // ---------- EXECUTA ----------
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -433,7 +463,10 @@ begin
           if LJSONValue is TJSONObject then
           begin
             LJSONObject := TJSONObject(LJSONValue);
-            LNewToken := LJSONObject.GetValue('data').GetValue<string>('token');
+
+            LNewToken := LJSONObject
+              .GetValue('data')
+              .GetValue<string>('token');
 
             FAccessToken := LNewToken;
             FTokenExpiry := IncSecond(Now, 3600);
@@ -448,10 +481,12 @@ begin
         end;
       end
       else
-        raise Exception.Create('Erro ao renovar token: ' + LRequest.Response.StatusText);
+        raise Exception.Create('Erro ao renovar token: ' +
+                               LRequest.Response.StatusText);
     finally
       LRequest.Free;
     end;
+
   except
     on E: Exception do
     begin
@@ -482,6 +517,7 @@ var
   LRequest: TRESTRequest;
   LJSONValue: TJSONValue;
   LJSONObject: TJSONObject;
+  LBody: TJSONObject;
 begin
   try
     LRequest := TRESTRequest.Create(nil);
@@ -490,9 +526,18 @@ begin
       LRequest.Resource := '/auth/login';
       LRequest.Method := rmPOST;
 
-      LRequest.AddParameter('usuario', AUsername, pkJSONBODY);
-      LRequest.AddParameter('senha', APassword, pkJSONBODY);
+      // Headers obrigatórios
+      LRequest.AddParameter('Content-Type', 'application/json', pkHTTPHEADER);
 
+      // Corpo JSON
+      LBody := TJSONObject.Create;
+      LBody.AddPair('usuario', AUsername);
+      LBody.AddPair('senha', APassword);
+
+      LRequest.Body.ClearBody;
+      LRequest.Body.Add(LBody.ToString, TRESTContentType.ctAPPLICATION_JSON);
+
+      // Executa
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -515,9 +560,11 @@ begin
       end
       else
         raise Exception.Create('Login falhou: ' + LRequest.Response.StatusText);
+
     finally
       LRequest.Free;
     end;
+
   except
     on E: Exception do
     begin
@@ -526,6 +573,7 @@ begin
     end;
   end;
 end;
+
 
 procedure TSAWAPIClient.Logout;
 begin
@@ -549,7 +597,7 @@ begin
       LRequest.Resource := '/auth/validate';
       LRequest.Method := rmGET;
 
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
 
       LRequest.Execute;
 
@@ -603,7 +651,7 @@ begin
       LRequest.Resource := Format('/usuarios?page=%d&perPage=%d', [APage, APerPage]);
       LRequest.Method := rmGET;
 
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
 
       LRequest.Execute;
 
@@ -674,7 +722,7 @@ begin
       LRequest.Resource := '/usuarios/me';
       LRequest.Method := rmGET;
 
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
 
       LRequest.Execute;
 
@@ -733,7 +781,7 @@ begin
         LRequest.Resource := '/usuarios';
         LRequest.Method := rmPOST;
 
-        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
         LRequest.Body.Add(LData.ToString);
 
         LRequest.Execute;
@@ -788,7 +836,7 @@ begin
         LRequest.Resource := Format('/usuarios/%d', [AUsuario.ID]);
         LRequest.Method := rmPUT;
 
-        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
         LRequest.Body.Add(LData.ToString);
 
         LRequest.Execute;
@@ -836,7 +884,7 @@ begin
       LRequest.Resource := Format('/usuarios/%d', [AID]);
       LRequest.Method := rmDELETE;
 
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
 
       LRequest.Execute;
 
@@ -869,71 +917,76 @@ function TSAWAPIClient.EnviarArquivo(
   const ACaminhoArquivo, ANomeArquivo, ATipoArquivo: string
 ): Boolean;
 var
-  LResponse: IHTTPResponse;
-  LForm: TMultipartFormData;
+  HTTP: THTTPClient;
+  Resp: IHTTPResponse;
+  Form: TMultipartFormData;
 begin
   Result := False;
 
-  LForm := TMultipartFormData.Create;
+  HTTP := THTTPClient.Create;
+  Form := TMultipartFormData.Create;
   try
-    LForm.AddFile('arquivo', ACaminhoArquivo, ATipoArquivo);
+    // adiciona o arquivo corretamente
+    Form.AddFile('arquivo', ACaminhoArquivo);
 
-    LResponse :=
-      THTTPClient.Create.Post(
-        FBaseURL + Format('/atendimentos/%d/anexos', [AAtendimentoID]),
-        LForm
-      );
+    // executa o POST multipart
+    Resp := HTTP.Post(
+      FBaseURL + Format('/atendimentos/%d/anexos', [AAtendimentoID]),
+      Form
+    );
 
-    Result := (LResponse.StatusCode >= 200) and (LResponse.StatusCode < 300);
+    // confirma sucesso HTTP 2xx
+    Result := (Resp.StatusCode >= 200) and (Resp.StatusCode < 300);
+
   finally
-    LForm.Free;
+    Form.Free;
+    HTTP.Free;
   end;
 end;
-
 
 // ============================================
 // Atendimentos
 // ============================================
 
-function TSAWAPIClient.FinalizarAtendimento(AID: Integer; const AObservacao: string): Boolean;
-var
-  LRequest: TRESTRequest;
-  LBody: TJSONObject;
-begin
-  Result := False;
-
-  try
-    CheckTokenExpiry;
-
-    LBody := TJSONObject.Create;
-    try
-      if AObservacao <> '' then
-        LBody.AddPair('observacao', AObservacao);
-
-      LRequest := TRESTRequest.Create(nil);
-      try
-        LRequest.Client := FRESTClient;
-        LRequest.Resource := Format('/atendimentos/%d/finalizar', [AID]);
-        LRequest.Method := rmPOST;
-        LRequest.AddHeader('Authorization', GetAuthHeader);
-        LRequest.Body.Add(LBody.ToString);
-
-        LRequest.Execute;
-
-        Result := LRequest.Response.StatusCode in [200, 201];
-
-      finally
-        LRequest.Free;
-      end;
-    finally
-      LBody.Free;
-    end;
-
-  except
-    on E: Exception do
-      RaiseError('FinalizarAtendimento: ' + E.Message);
-  end;
-end;
+//function TSAWAPIClient.FinalizarAtendimento(AID: Integer; const AObservacao: string): Boolean;
+//var
+//  LRequest: TRESTRequest;
+//  LBody: TJSONObject;
+//begin
+//  Result := False;
+//
+//  try
+//    CheckTokenExpiry;
+//
+//    LBody := TJSONObject.Create;
+//    try
+//      if AObservacao <> '' then
+//        LBody.AddPair('observacao', AObservacao);
+//
+//      LRequest := TRESTRequest.Create(nil);
+//      try
+//        LRequest.Client := FRESTClient;
+//        LRequest.Resource := Format('/atendimentos/%d/finalizar', [AID]);
+//        LRequest.Method := rmPOST;
+//        LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
+//        LRequest.Body.Add(LBody.ToString);
+//
+//        LRequest.Execute;
+//
+//        Result := LRequest.Response.StatusCode in [200, 201];
+//
+//      finally
+//        LRequest.Free;
+//      end;
+//    finally
+//      LBody.Free;
+//    end;
+//
+//  except
+//    on E: Exception do
+//      RaiseError('FinalizarAtendimento: ' + E.Message);
+//  end;
+//end;
 
 
 function TSAWAPIClient.GetAtendimentoByPhone(const APhone: string): TAtendimento;
@@ -953,7 +1006,7 @@ begin
       LRequest.Resource := Format('/atendimentos/por-numero/%s', [APhone]);
       LRequest.Method := rmGET;
 
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
 
       LRequest.Execute;
 
@@ -1007,7 +1060,7 @@ begin
       LRequest.Resource := Format('/atendimentos/%d/anexos', [AAtendimentoID]);
       LRequest.Method := rmGET;
 
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
 
       LRequest.Execute;
 
@@ -1059,44 +1112,31 @@ end;
 // Anexos
 // ============================================
 
-function TSAWAPIClient.DownloadAnexo(AAnexoID: Integer;
-  const ADestinationPath: string): Boolean;
+procedure TSAWAPIClient.DownloadAnexo(
+  const AAtendimentoID: Integer;
+  const ASeq: Integer;
+  const ADestinationPath: string);
 var
   LRequest: TRESTRequest;
 begin
-  Result := False;
-
+  LRequest := TRESTRequest.Create(nil);
   try
-    CheckTokenExpiry;
+    LRequest.Client := FRESTClient;
+    LRequest.Resource := Format('/atendimentos/%d/anexos/%d', [AAtendimentoID, ASeq]);
+    LRequest.Method := rmGET;
 
-    LRequest := TRESTRequest.Create(nil);
-    try
-      LRequest.Client := FRESTClient;
-      LRequest.Resource := Format('/anexos/%d/download', [AAnexoID]);
-      LRequest.Method := rmGET;
+    LRequest.Execute;
 
-      LRequest.AddHeader('Authorization', GetAuthHeader);
-
-      LRequest.Execute;
-
-      if LRequest.Response.StatusCode = 200 then
-      begin
-        LRequest.Response.RawBytes.SaveToFile(ADestinationPath);
-        Result := True;
-        LogRequest('GET', Format('/anexos/%d/download', [AAnexoID]),
-          'Arquivo baixado: ' + ADestinationPath);
-      end
-      else
-        raise Exception.Create('Erro ao baixar anexo: ' + LRequest.Response.StatusText);
-    finally
-      LRequest.Free;
-    end;
-  except
-    on E: Exception do
+    if LRequest.Response.StatusCode = 200 then
     begin
-      RaiseError('Erro ao baixar anexo: ' + E.Message);
-      Result := False;
-    end;
+      // RAWBYTES → salvar arquivo
+      TFile.WriteAllBytes(ADestinationPath, LRequest.Response.RawBytes);
+    end
+    else
+      raise Exception.Create('Erro ao baixar anexo: ' + LRequest.Response.StatusText);
+
+  finally
+    LRequest.Free;
   end;
 end;
 
@@ -1112,13 +1152,13 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := Format('/anexos/pendentes?canal=%s', [ACanal]);
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
-        LogRequest('GET', Format('/anexos/pendentes?canal=%s', [ACanal]), 
+        LogRequest('GET', Format('/anexos/pendentes?canal=%s', [ACanal]),
           'Anexos pendentes listados');
       end
       else
@@ -1147,9 +1187,9 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := Format('/anexos/%s', [APK]);
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -1183,20 +1223,20 @@ begin
     try
       LData.AddPair('pk', TJSONString.Create(APK));
       LData.AddPair('enviado', TJSONNumber.Create(AEnviado));
-      
+
       LRequest := TRESTRequest.Create(nil);
       try
         LRequest.Client := FRESTClient;
         LRequest.Resource := Format('/anexos/%s/marcar-enviado', [APK]);
         LRequest.Method := rmPUT;
-        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
-        
+
         if LRequest.Response.StatusCode = 200 then
         begin
           Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
-          LogRequest('PUT', Format('/anexos/%s/marcar-enviado', [APK]), 
+          LogRequest('PUT', Format('/anexos/%s/marcar-enviado', [APK]),
             'Anexo marcado como ' + IfThen(AEnviado = 0, 'enviado', 'pendente'));
         end
         else
@@ -1237,7 +1277,7 @@ begin
       LRequest.Resource := '/dashboard/ano-atual';
       LRequest.Method := rmGET;
 
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
 
       LRequest.Execute;
 
@@ -1296,7 +1336,7 @@ begin
       LRequest.Resource := LResource;
       LRequest.Method := rmGET;
 
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
 
       LRequest.Execute;
 
@@ -1355,7 +1395,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := Format('/atendimentos/verificar-pendente?numero=%s', [ANumero]);
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -1412,7 +1452,7 @@ begin
         LRequest.Client := FRESTClient;
         LRequest.Resource := '/atendimentos';
         LRequest.Method := rmPOST;
-        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
 
@@ -1455,7 +1495,7 @@ begin
         LRequest.Client := FRESTClient;
         LRequest.Resource := '/atendimentos/finalizar';
         LRequest.Method := rmPUT;
-        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
 
@@ -1494,7 +1534,7 @@ begin
         LRequest.Client := FRESTClient;
         LRequest.Resource := '/atendimentos/gravar-mensagem';
         LRequest.Method := rmPOST;
-        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
 
@@ -1532,7 +1572,7 @@ begin
         LRequest.Client := FRESTClient;
         LRequest.Resource := '/atendimentos/atualizar-setor';
         LRequest.Method := rmPUT;
-        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
 
@@ -1569,7 +1609,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := Format('/atendimentos/inativos?tempo_minutos=%d', [ATempoMinutos]);
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -1619,7 +1659,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := Format('/mensagens/verificar-duplicada?chatid=%s', [AChatID]);
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -1652,7 +1692,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := '/mensagens/status-multiplas';
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -1683,7 +1723,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := '/mensagens/pendentes-envio';
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -1731,7 +1771,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := Format('/mensagens/proxima-sequencia?id_atendimento=%d', [AAtendimentoID]);
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -1752,40 +1792,40 @@ begin
   end;
 end;
 
-function TSAWAPIClient.MarcarMensagemExcluida(const AChatID: string): Boolean;
-var
-  LRequest: TRESTRequest;
-  LData: TJSONObject;
-begin
-  Result := False;
-  try
-    CheckTokenExpiry;
-    LData := TJSONObject.Create;
-    try
-      LData.AddPair('chatid', TJSONString.Create(AChatID));
-      LRequest := TRESTRequest.Create(nil);
-      try
-        LRequest.Client := FRESTClient;
-        LRequest.Resource := '/mensagens/marcar-excluida';
-        LRequest.Method := rmPUT;
-        LRequest.AddHeader('Authorization', GetAuthHeader);
-        LRequest.Body.Add(LData.ToString);
-        LRequest.Execute;
-        Result := LRequest.Response.StatusCode = 200;
-      finally
-        LRequest.Free;
-      end;
-    finally
-      LData.Free;
-    end;
-  except
-    on E: Exception do
-    begin
-      RaiseError('MarcarMensagemExcluida: ' + E.Message);
-      Result := False;
-    end;
-  end;
-end;
+//function TSAWAPIClient.MarcarMensagemExcluida(const AChatID: string): Boolean;
+//var
+//  LRequest: TRESTRequest;
+//  LData: TJSONObject;
+//begin
+//  Result := False;
+//  try
+//    CheckTokenExpiry;
+//    LData := TJSONObject.Create;
+//    try
+//      LData.AddPair('chatid', TJSONString.Create(AChatID));
+//      LRequest := TRESTRequest.Create(nil);
+//      try
+//        LRequest.Client := FRESTClient;
+//        LRequest.Resource := '/mensagens/marcar-excluida';
+//        LRequest.Method := rmPUT;
+//        LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
+//        LRequest.Body.Add(LData.ToString);
+//        LRequest.Execute;
+//        Result := LRequest.Response.StatusCode = 200;
+//      finally
+//        LRequest.Free;
+//      end;
+//    finally
+//      LData.Free;
+//    end;
+//  except
+//    on E: Exception do
+//    begin
+//      RaiseError('MarcarMensagemExcluida: ' + E.Message);
+//      Result := False;
+//    end;
+//  end;
+//end;
 
 function TSAWAPIClient.MarcarMensagemReacao(const AChatID, AReacao: string): Boolean;
 var
@@ -1804,7 +1844,7 @@ begin
         LRequest.Client := FRESTClient;
         LRequest.Resource := '/mensagens/marcar-reacao';
         LRequest.Method := rmPUT;
-        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
         Result := LRequest.Response.StatusCode = 200;
@@ -1839,7 +1879,7 @@ begin
         LRequest.Client := FRESTClient;
         LRequest.Resource := '/mensagens/marcar-enviada';
         LRequest.Method := rmPUT;
-        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
         Result := LRequest.Response.StatusCode = 200;
@@ -1876,7 +1916,7 @@ begin
         LRequest.Client := FRESTClient;
         LRequest.Resource := '/mensagens/comparar-duplicacao';
         LRequest.Method := rmPOST;
-        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
 
@@ -1923,7 +1963,7 @@ begin
         LRequest.Client := FRESTClient;
         LRequest.Resource := '/mensagens/atualizar-envio';
         LRequest.Method := rmPUT;
-        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
 
@@ -1971,7 +2011,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := Format('/contatos/exportar?pagina=%d&limite=%d', [APagina, ALimite]);
       LRequest.Method := rmPOST;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -2019,7 +2059,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := Format('/contatos/buscar-nome?numero=%s', [ANumero]);
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -2056,7 +2096,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := '/agendamentos/pendentes';
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -2086,7 +2126,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := '/parametros/sistema';
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -2112,7 +2152,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := '/parametros/verificar-expediente';
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -2146,7 +2186,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := '/menus/principal';
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -2196,7 +2236,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := '/menus/submenus';
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -2246,7 +2286,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := Format('/respostas-automaticas?id_menu=%d', [AIDMenu]);
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -2276,7 +2316,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := Format('/departamentos/por-menu?id_menu=%d', [AIDMenu]);
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -2312,7 +2352,7 @@ begin
         LRequest.Client := FRESTClient;
         LRequest.Resource := '/avisos/registrar-sem-expediente';
         LRequest.Method := rmPOST;
-        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
 
@@ -2350,7 +2390,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := '/avisos/limpar-antigos';
       LRequest.Method := rmDELETE;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -2384,7 +2424,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := Format('/avisos/limpar-numero?numero=%s', [ANumero]);
       LRequest.Method := rmDELETE;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -2418,7 +2458,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := Format('/avisos/verificar-existente?numero=%s', [ANumero]);
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -2451,7 +2491,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := Format('/avisos/buscar-por-numero?numero=%s', [ANumero]);
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -2480,13 +2520,13 @@ end;
 
 { Listar mensagens pendentes de verificação de status
   O Delphi chama WPPConnect.getMessageById() para cada mensagem e recebe os status reais
-  
+
   Parâmetros:
   - ACanal: Canal de atendimento (ex: 'whatsapp')
   - AHorasAtras: Horas retroativas (padrão: 24)
   - AMinutosFuturos: Minutos para frente (padrão: 10)
 }
-function TSAWAPIClient.ListarMensagensStatusPendentes(const ACanal: string; 
+function TSAWAPIClient.ListarMensagensStatusPendentes(const ACanal: string;
   AHorasAtras: Integer = 24; AMinutosFuturos: Integer = 10): TJSONValue;
 var
   LRequest: TRESTRequest;
@@ -2502,7 +2542,7 @@ begin
         [ACanal, AHorasAtras, AMinutosFuturos]);
       LRequest.Resource := LResource;
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
@@ -2522,13 +2562,13 @@ begin
 end;
 
 { Atualizar status de uma mensagem após WPPConnect verificar
-  
+
   Parâmetros:
   - AIdMsg: ID da mensagem
   - AChatID: ID da conversa
   - ANovoStatus: Novo status obtido do WPPConnect (0=Pendente, 1=Enviada, 2=Entregue, 3=Lida, 4=Erro)
 }
-function TSAWAPIClient.AtualizarStatusMensagem(AIdMsg: Integer; 
+function TSAWAPIClient.AtualizarStatusMensagem(AIdMsg: Integer;
   const AChatID: string; ANovoStatus: Integer): Boolean;
 var
   LRequest: TRESTRequest;
@@ -2542,7 +2582,7 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := '/mensagens/status/atualizar';
       LRequest.Method := rmPOST;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
 
       LJSONBody := TJSONObject.Create;
       try
@@ -2573,11 +2613,11 @@ end;
 
 { Processar múltiplas atualizações de status em lote
   Útil quando o Delphi verifica várias mensagens via WPPConnect e precisa atualizar múltiplas de uma vez
-  
+
   Parâmetros:
   - AAtualizacoes: Array de objects com {id_msg, chatid, novo_status}
-  
-  Exemplo:
+
+ { Exemplo:
   var
     Atualizacoes: TJSONArray;
     Item: TJSONObject;
@@ -2588,53 +2628,49 @@ end;
     Item.AddPair('chatid', '5585987654321@c.us');
     Item.AddPair('novo_status', TJSONNumber.Create(2));
     Atualizacoes.Add(Item);
-    
+
     Result := API.ProcessarMultiplasAtualizacoesStatus(Atualizacoes);
   end;
 }
-function TSAWAPIClient.ProcessarMultiplasAtualizacoesStatus(const AAtualizacoes: TJSONArray): TJSONValue;
+function TSAWAPIClient.ProcessarMultiplasAtualizacoesStatus(
+  const AAtualizacoes: TJSONArray
+): TJSONValue;
 var
   LRequest: TRESTRequest;
-  LJSONBody: TJSONObject;
 begin
   Result := nil;
+
   try
     CheckTokenExpiry;
+
     LRequest := TRESTRequest.Create(nil);
     try
       LRequest.Client := FRESTClient;
       LRequest.Resource := '/mensagens/status/processar-mult';
       LRequest.Method := rmPOST;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
+      LRequest.AddParameter('Content-Type', 'application/json', pkHTTPHEADER);
 
-      LJSONBody := TJSONObject.Create;
-      try
-        LJSONBody.AddPair('atualizacoes', AAtualizacoes);
 
-        LRequest.Body.Add(LJSONBody.ToString);
-        LRequest.Execute;
+      LRequest.Body.Add(AAtualizacoes.ToString, TRESTContentType.ctAPPLICATION_JSON);
 
-        if LRequest.Response.StatusCode = 200 then
-          Result := TJSONObject.ParseJSONValue(LRequest.Response.Content)
-        else
-          RaiseError(Format('Erro ao processar múltiplas atualizações: %d', [LRequest.Response.StatusCode]));
-      finally
-        LJSONBody.Free;
-      end;
+      LRequest.Execute;
+
+      if LRequest.Response.StatusCode in [200, 201] then
+        Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+
     finally
       LRequest.Free;
     end;
+
   except
     on E: Exception do
-    begin
       RaiseError('ProcessarMultiplasAtualizacoesStatus: ' + E.Message);
-      Result := nil;
-    end;
   end;
 end;
 
 { Obter relatório de mensagens por status
-  
+
   Parâmetros:
   - ACanal: Canal de atendimento
   - ADataIni: Data inicial (formato: YYYY-MM-DD)
@@ -2666,7 +2702,7 @@ begin
         [ACanal, LDataIniStr, LDataFimStr]);
       LRequest.Resource := LResource;
       LRequest.Method := rmGET;
-      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
       LRequest.Execute;
 
       if LRequest.Response.StatusCode = 200 then
