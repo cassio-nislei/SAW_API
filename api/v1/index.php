@@ -74,6 +74,7 @@ require_once __DIR__ . '/controllers/MenusController.php';
 require_once __DIR__ . '/controllers/RespostasController.php';
 require_once __DIR__ . '/controllers/DepartamentosController.php';
 require_once __DIR__ . '/controllers/AvisosController.php';
+require_once __DIR__ . '/controllers/AnexosController.php';
 
 try {
     // Cria router
@@ -518,6 +519,53 @@ try {
     $router->put('/anexos/{pk}/marcar-enviado', function ($pk) {
         $controller = new AnexosController();
         $controller->marcarEnviado($pk);
+    });
+
+    // ============================================
+    // SWAGGER JSON
+    // ============================================
+    $router->get('/swagger.json', function () {
+        // Headers CORS
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, HEAD');
+        header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization');
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
+
+        $swaggerFile = __DIR__ . '/../swagger.json';
+        
+        if (!file_exists($swaggerFile)) {
+            Response::notFound('Swagger specification not found');
+            return;
+        }
+
+        $content = file_get_contents($swaggerFile);
+        $decoded = json_decode($content, true);
+
+        if ($decoded === null) {
+            Response::internalError('Invalid JSON in swagger.json');
+            return;
+        }
+
+        // Detectar URL do servidor atual
+        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost:7080';
+        $basePath = '/api/v1';
+        $currentServerUrl = $protocol . '://' . $host . $basePath;
+
+        // Atualizar servers dinamicamente
+        if (isset($decoded['servers']) && is_array($decoded['servers'])) {
+            foreach ($decoded['servers'] as &$server) {
+                if (strpos($currentServerUrl, 'localhost') !== false || strpos($currentServerUrl, '127.0.0.1') !== false) {
+                    if (strpos($server['description'] ?? '', 'Desenvolvimento') !== false || 
+                        strpos($server['description'] ?? '', 'Development') !== false) {
+                        $server['url'] = $currentServerUrl;
+                    }
+                }
+            }
+        }
+
+        echo json_encode($decoded, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     });
 
     $router->get('/', function () {

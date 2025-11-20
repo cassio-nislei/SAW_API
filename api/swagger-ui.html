@@ -76,7 +76,7 @@
     <script src="https://unpkg.com/swagger-ui-dist@3/swagger-ui-standalone-preset.js"></script>
     <script>
       window.onload = function () {
-        // Detectar URL do swagger.json
+        // Detectar URL do swagger.json via rota da API
         const protocol = window.location.protocol;
         const host = window.location.host;
         const pathname = window.location.pathname;
@@ -85,13 +85,12 @@
 
         // Melhor detecção baseada no path
         if (pathname.includes("/SAW-main/api")) {
-          swaggerUrl =
-            protocol + "//" + host + "/SAW-main/api/swagger-json.php";
+          swaggerUrl = protocol + "//" + host + "/SAW-main/api/v1/swagger.json";
         } else if (pathname.includes("/api")) {
-          swaggerUrl = protocol + "//" + host + "/api/swagger-json.php";
+          swaggerUrl = protocol + "//" + host + "/api/v1/swagger.json";
         } else {
-          // Fallback
-          swaggerUrl = protocol + "//" + host + "/api/swagger-json.php";
+          // Fallback para caminho comum
+          swaggerUrl = protocol + "//" + host + "/SAW-main/api/v1/swagger.json";
         }
 
         console.log("📍 Current URL:", window.location.href);
