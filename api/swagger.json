@@ -954,6 +954,263 @@
           "500": { "description": "Erro ao marcar anexo" }
         }
       }
+    },
+    "/mensagens/pendentes-status": {
+      "get": {
+        "tags": ["Mensagens"],
+        "summary": "Listar mensagens pendentes de verificação de status",
+        "operationId": "listarMensagensStatusPendentes",
+        "description": "Lista mensagens que precisam de verificação de status via WPPConnect. Baseado em VerificaStatusMessage_Mult",
+        "parameters": [
+          {
+            "name": "canal",
+            "in": "query",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "Canal de atendimento (ex: 'whatsapp')"
+          },
+          {
+            "name": "horas_atras",
+            "in": "query",
+            "schema": { "type": "integer", "default": 24 },
+            "description": "Quantidade de horas para buscar (padrão: 24)"
+          },
+          {
+            "name": "minutos_futuros",
+            "in": "query",
+            "schema": { "type": "integer", "default": 10 },
+            "description": "Minutos para frente (padrão: 10)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de mensagens pendentes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": { "type": "boolean" },
+                    "dados": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id_msg": { "type": "integer" },
+                          "chatid": { "type": "string" },
+                          "dt_msg": { "type": "string" },
+                          "id_atend": { "type": "integer" },
+                          "situacao": { "type": "string" },
+                          "status_msg": { "type": "integer" },
+                          "canal": { "type": "string" }
+                        }
+                      }
+                    },
+                    "mensagem": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Parâmetro 'canal' obrigatório" }
+        }
+      }
+    },
+    "/mensagens/status/atualizar": {
+      "post": {
+        "tags": ["Mensagens"],
+        "summary": "Atualizar status de mensagem",
+        "operationId": "atualizarStatusMensagem",
+        "description": "Atualiza o status de uma mensagem após WPPConnect verificar",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_msg": { "type": "integer", "description": "ID da mensagem" },
+                  "chatid": { "type": "string", "description": "ID da conversa (ex: '5585987654321@c.us')" },
+                  "novo_status": { 
+                    "type": "integer", 
+                    "enum": [0, 1, 2, 3, 4],
+                    "description": "0=Pendente, 1=Enviada, 2=Entregue, 3=Lida, 4=Erro"
+                  }
+                },
+                "required": ["id_msg", "chatid", "novo_status"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status atualizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": { "type": "boolean" },
+                    "dados": {
+                      "type": "object",
+                      "properties": {
+                        "id_msg": { "type": "integer" },
+                        "status_anterior": { "type": "integer" },
+                        "status_novo": { "type": "integer" },
+                        "atualizado_em": { "type": "string" }
+                      }
+                    },
+                    "mensagem": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Parâmetros inválidos" },
+          "404": { "description": "Mensagem não encontrada" }
+        }
+      }
+    },
+    "/mensagens/status/processar-mult": {
+      "post": {
+        "tags": ["Mensagens"],
+        "summary": "Processar múltiplas atualizações de status em lote",
+        "operationId": "processarMultiplasAtualizacoes",
+        "description": "Atualiza múltiplas mensagens de uma vez para melhor performance",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "atualizacoes": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id_msg": { "type": "integer" },
+                        "chatid": { "type": "string" },
+                        "novo_status": { "type": "integer", "enum": [0, 1, 2, 3, 4] }
+                      },
+                      "required": ["id_msg", "chatid", "novo_status"]
+                    }
+                  }
+                },
+                "required": ["atualizacoes"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Atualizações processadas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": { "type": "boolean" },
+                    "dados": {
+                      "type": "object",
+                      "properties": {
+                        "processadas": { "type": "integer" },
+                        "atualizadas": { "type": "integer" },
+                        "erros": { "type": "integer" },
+                        "detalhes": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id_msg": { "type": "integer" },
+                              "status_novo": { "type": "integer" },
+                              "sucesso": { "type": "boolean" },
+                              "erro": { "type": "string" }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Campo 'atualizacoes' obrigatório" }
+        }
+      }
+    },
+    "/mensagens/status/relatorio": {
+      "get": {
+        "tags": ["Mensagens"],
+        "summary": "Relatório de mensagens por status",
+        "operationId": "relatorioStatusMensagens",
+        "description": "Gera relatório de mensagens agrupadas por status em um período",
+        "parameters": [
+          {
+            "name": "canal",
+            "in": "query",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "Canal de atendimento (ex: 'whatsapp')"
+          },
+          {
+            "name": "data_ini",
+            "in": "query",
+            "schema": { "type": "string", "format": "date" },
+            "description": "Data inicial (padrão: 7 dias atrás)"
+          },
+          {
+            "name": "data_fim",
+            "in": "query",
+            "schema": { "type": "string", "format": "date" },
+            "description": "Data final (padrão: hoje)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Relatório gerado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": { "type": "boolean" },
+                    "dados": {
+                      "type": "object",
+                      "properties": {
+                        "total": { "type": "integer" },
+                        "por_status": {
+                          "type": "object",
+                          "properties": {
+                            "0": { "type": "integer", "description": "Pendentes" },
+                            "1": { "type": "integer", "description": "Enviadas" },
+                            "2": { "type": "integer", "description": "Entregues" },
+                            "3": { "type": "integer", "description": "Lidas" },
+                            "4": { "type": "integer", "description": "Erros" }
+                          }
+                        },
+                        "pendentes": { "type": "integer" },
+                        "enviadas": { "type": "integer" },
+                        "entregues": { "type": "integer" },
+                        "lidas": { "type": "integer" },
+                        "periodo": {
+                          "type": "object",
+                          "properties": {
+                            "inicio": { "type": "string", "format": "date" },
+                            "fim": { "type": "string", "format": "date" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Parâmetro 'canal' obrigatório" }
+        }
+      }
     }
   },
   "components": {
