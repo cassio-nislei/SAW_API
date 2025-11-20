@@ -124,13 +124,24 @@ class UsuariosController {
      * Extrai token do header Authorization
      */
     private static function extractToken() {
-        $header = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-        
-        if (empty($header) || !preg_match('/Bearer\s+(.+)/i', $header, $matches)) {
-            return null;
+        // Tentar getallheaders() primeiro (mais compatível com Apache)
+        if (function_exists('getallheaders')) {
+            $headers = getallheaders();
+            if (isset($headers['Authorization'])) {
+                $header = $headers['Authorization'];
+                if (preg_match('/Bearer\s+(.+)/i', $header, $matches)) {
+                    return trim($matches[1]);
+                }
+            }
         }
         
-        return trim($matches[1]);
+        // Fallback para $_SERVER
+        $header = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        if (!empty($header) && preg_match('/Bearer\s+(.+)/i', $header, $matches)) {
+            return trim($matches[1]);
+        }
+        
+        return null;
     }
 }
 ?>
