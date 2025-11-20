@@ -2473,4 +2473,216 @@ begin
     end;
   end;
 end;
+
+// ============================================
+// MÉTODOS - MENSAGENS STATUS (SINCRONIZAÇÃO)
+// ============================================
+
+{ Listar mensagens pendentes de verificação de status
+  O Delphi chama WPPConnect.getMessageById() para cada mensagem e recebe os status reais
+  
+  Parâmetros:
+  - ACanal: Canal de atendimento (ex: 'whatsapp')
+  - AHorasAtras: Horas retroativas (padrão: 24)
+  - AMinutosFuturos: Minutos para frente (padrão: 10)
+}
+function TSAWAPIClient.ListarMensagensStatusPendentes(const ACanal: string; 
+  AHorasAtras: Integer = 24; AMinutosFuturos: Integer = 10): TJSONValue;
+var
+  LRequest: TRESTRequest;
+  LResource: string;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LResource := Format('/mensagens/pendentes-status?canal=%s&horas_atras=%d&minutos_futuros=%d',
+        [ACanal, AHorasAtras, AMinutosFuturos]);
+      LRequest.Resource := LResource;
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+
+      if LRequest.Response.StatusCode = 200 then
+        Result := TJSONObject.ParseJSONValue(LRequest.Response.Content)
+      else
+        RaiseError(Format('Erro ao listar mensagens pendentes: %d', [LRequest.Response.StatusCode]));
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('ListarMensagensStatusPendentes: ' + E.Message);
+      Result := nil;
+    end;
+  end;
+end;
+
+{ Atualizar status de uma mensagem após WPPConnect verificar
+  
+  Parâmetros:
+  - AIdMsg: ID da mensagem
+  - AChatID: ID da conversa
+  - ANovoStatus: Novo status obtido do WPPConnect (0=Pendente, 1=Enviada, 2=Entregue, 3=Lida, 4=Erro)
+}
+function TSAWAPIClient.AtualizarStatusMensagem(AIdMsg: Integer; 
+  const AChatID: string; ANovoStatus: Integer): Boolean;
+var
+  LRequest: TRESTRequest;
+  LJSONBody: TJSONObject;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/mensagens/status/atualizar';
+      LRequest.Method := rmPOST;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+
+      LJSONBody := TJSONObject.Create;
+      try
+        LJSONBody.AddPair('id_msg', TJSONNumber.Create(AIdMsg));
+        LJSONBody.AddPair('chatid', AChatID);
+        LJSONBody.AddPair('novo_status', TJSONNumber.Create(ANovoStatus));
+
+        LRequest.Body.Add(LJSONBody.ToString);
+        LRequest.Execute;
+
+        Result := LRequest.Response.StatusCode = 200;
+        if not Result then
+          RaiseError(Format('Erro ao atualizar status: %d', [LRequest.Response.StatusCode]));
+      finally
+        LJSONBody.Free;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('AtualizarStatusMensagem: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
+{ Processar múltiplas atualizações de status em lote
+  Útil quando o Delphi verifica várias mensagens via WPPConnect e precisa atualizar múltiplas de uma vez
+  
+  Parâmetros:
+  - AAtualizacoes: Array de objects com {id_msg, chatid, novo_status}
+  
+  Exemplo:
+  var
+    Atualizacoes: TJSONArray;
+    Item: TJSONObject;
+  begin
+    Atualizacoes := TJSONArray.Create;
+    Item := TJSONObject.Create;
+    Item.AddPair('id_msg', TJSONNumber.Create(1));
+    Item.AddPair('chatid', '5585987654321@c.us');
+    Item.AddPair('novo_status', TJSONNumber.Create(2));
+    Atualizacoes.Add(Item);
+    
+    Result := API.ProcessarMultiplasAtualizacoesStatus(Atualizacoes);
+  end;
+}
+function TSAWAPIClient.ProcessarMultiplasAtualizacoesStatus(const AAtualizacoes: TJSONArray): TJSONValue;
+var
+  LRequest: TRESTRequest;
+  LJSONBody: TJSONObject;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/mensagens/status/processar-mult';
+      LRequest.Method := rmPOST;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+
+      LJSONBody := TJSONObject.Create;
+      try
+        LJSONBody.AddPair('atualizacoes', AAtualizacoes);
+
+        LRequest.Body.Add(LJSONBody.ToString);
+        LRequest.Execute;
+
+        if LRequest.Response.StatusCode = 200 then
+          Result := TJSONObject.ParseJSONValue(LRequest.Response.Content)
+        else
+          RaiseError(Format('Erro ao processar múltiplas atualizações: %d', [LRequest.Response.StatusCode]));
+      finally
+        LJSONBody.Free;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('ProcessarMultiplasAtualizacoesStatus: ' + E.Message);
+      Result := nil;
+    end;
+  end;
+end;
+
+{ Obter relatório de mensagens por status
+  
+  Parâmetros:
+  - ACanal: Canal de atendimento
+  - ADataIni: Data inicial (formato: YYYY-MM-DD)
+  - ADataFim: Data final (formato: YYYY-MM-DD)
+}
+function TSAWAPIClient.ObterRelatorioStatusMensagens(const ACanal: string;
+  ADataIni: TDate = 0; ADataFim: TDate = 0): TJSONValue;
+var
+  LRequest: TRESTRequest;
+  LResource: string;
+  LDataIniStr, LDataFimStr: string;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      // Usar datas padrão se não informadas
+      if ADataIni = 0 then
+        ADataIni := IncDay(Now, -7);
+      if ADataFim = 0 then
+        ADataFim := Now;
+
+      LDataIniStr := FormatDateTime('YYYY-MM-DD', ADataIni);
+      LDataFimStr := FormatDateTime('YYYY-MM-DD', ADataFim);
+
+      LRequest.Client := FRESTClient;
+      LResource := Format('/mensagens/status/relatorio?canal=%s&data_ini=%s&data_fim=%s',
+        [ACanal, LDataIniStr, LDataFimStr]);
+      LRequest.Resource := LResource;
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+
+      if LRequest.Response.StatusCode = 200 then
+        Result := TJSONObject.ParseJSONValue(LRequest.Response.Content)
+      else
+        RaiseError(Format('Erro ao obter relatório: %d', [LRequest.Response.StatusCode]));
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('ObterRelatorioStatusMensagens: ' + E.Message);
+      Result := nil;
+    end;
+  end;
+end;
+
 end.

@@ -69,6 +69,7 @@ require_once __DIR__ . '/controllers/ContatosController.php';
 require_once __DIR__ . '/controllers/AgendamentosController.php';
 require_once __DIR__ . '/controllers/AtendimentosController.php';
 require_once __DIR__ . '/controllers/MensagensController.php';
+require_once __DIR__ . '/controllers/MensagensStatusController.php';
 require_once __DIR__ . '/controllers/ParametrosController.php';
 require_once __DIR__ . '/controllers/MenusController.php';
 require_once __DIR__ . '/controllers/RespostasController.php';
@@ -519,6 +520,30 @@ try {
     $router->put('/anexos/{pk}/marcar-enviado', function ($pk) {
         $controller = new AnexosController();
         $controller->marcarEnviado($pk);
+    });
+
+    // ============================================
+    // MENSAGENS - STATUS E SINCRONIZAÇÃO
+    // ============================================
+
+    // GET - Listar mensagens pendentes de verificação (para o Delphi verificar via WPPConnect)
+    $router->get('/mensagens/pendentes-status', function () {
+        MensagensStatusController::listarPendentes();
+    });
+
+    // POST - Atualizar status após WPPConnect verificar
+    $router->post('/mensagens/status/atualizar', function () {
+        MensagensStatusController::atualizarStatus();
+    });
+
+    // POST - Processar múltiplas atualizações de status em lote
+    $router->post('/mensagens/status/processar-mult', function () {
+        MensagensStatusController::processarMultiplasAtualizacoes();
+    });
+
+    // GET - Relatório de mensagens por status
+    $router->get('/mensagens/status/relatorio', function () {
+        MensagensStatusController::relatorioStatus();
     });
 
     // ============================================
