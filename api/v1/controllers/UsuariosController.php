@@ -88,21 +88,30 @@ class UsuariosController {
                 return;
             }
             
-            // Buscar usuário atualizado
-            $db = Database::getInstance();
-            $stmt = $db->prepare("
-                SELECT 
-                    id,
-                    nome,
-                    email,
-                    login,
-                    situacao
-                FROM tbusuario
-                WHERE id = ?
-                LIMIT 1
-            ");
-            $stmt->execute([$decoded['id']]);
-            $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+            // Buscar usuário atualizado (MySQLi)
+            $conn = Database::connect();
+            if (!$conn) {
+                Response::error('Erro de conexão com banco', 500);
+                return;
+            }
+            
+            $query = "SELECT id, nome, email, login, situacao FROM tbusuario WHERE id = ? LIMIT 1";
+            $stmt = $conn->prepare($query);
+            
+            if (!$stmt) {
+                Response::error('Erro ao preparar query', 500);
+                return;
+            }
+            
+            $stmt->bind_param('i', $decoded['id']);
+            if (!$stmt->execute()) {
+                Response::error('Erro ao executar query', 500);
+                return;
+            }
+            
+            $result = $stmt->get_result();
+            $usuario = $result->fetch_assoc();
+            $stmt->close();
             
             if (!$usuario) {
                 Response::notFound('Usuário não encontrado');
