@@ -176,7 +176,9 @@ type
     function GetAtendimentoByPhone(const APhone: string): TAtendimento;
     function GetAtendimentoAnexos(AAtendimentoID: Integer): TList<TAnexo>;
     function VerificarAtendimentoPendente(const ANumero: string): Boolean;
-    function CriarAtendimento(const ANumero, ANome, ASituacao: string): Integer;
+    function CriarAtendimento(const ANumero, ANome: string; AIDAtendente: Integer = 0; 
+      const ANomeAtendente: string = ''; const ASituacao: string = 'P'; 
+      const ACanal: string = ''; const ASetor: string = ''): Integer;
     function FinalizarAtendimento(AID: Integer): Boolean;
     function GravarMensagemAtendimento(AAtendimentoID: Integer; const AMensagem: string): Boolean;
     function AtualizarSetorAtendimento(AAtendimentoID: Integer; const ASetor: string): Boolean;
@@ -194,7 +196,9 @@ type
     function MarcarMensagemReacao(const AChatID, AReacao: string): Boolean;
     function MarcarMensagemEnviada(AID: Integer): Boolean;
     function CompararDuplicacaoMensagem(AID: Integer; const AMensagem: string): Boolean;
-
+    function AtualizarEnvioMensagem(AIDAgendamento: Integer; AEnviado: Integer; ATempoEnvio: Integer): Boolean;
+    function EnviarArquivo(AAtendimentoID: Integer; const ACaminhoArquivo: string): Boolean;
+    
     // ============================================
     // Contatos
     // ============================================
@@ -1132,7 +1136,9 @@ begin
   end;
 end;
 
-function TSAWAPIClient.CriarAtendimento(const ANumero, ANome, ASituacao: string): Integer;
+function TSAWAPIClient.CriarAtendimento(const ANumero, ANome: string; AIDAtendente: Integer = 0; 
+  const ANomeAtendente: string = ''; const ASituacao: string = 'P'; 
+  const ACanal: string = ''; const ASetor: string = ''): Integer;
 var
   LRequest: TRESTRequest;
   LData: TJSONObject;
@@ -1145,12 +1151,26 @@ begin
     try
       LData.AddPair('numero', TJSONString.Create(ANumero));
       LData.AddPair('nome', TJSONString.Create(ANome));
-      LData.AddPair('situacao', TJSONString.Create(ASituacao));
+      
+      if AIDAtendente > 0 then
+        LData.AddPair('id_atendente', TJSONNumber.Create(AIDAtendente));
+      
+      if ANomeAtendente <> '' then
+        LData.AddPair('nome_atendente', TJSONString.Create(ANomeAtendente));
+      
+      if ASituacao <> 'P' then
+        LData.AddPair('situacao', TJSONString.Create(ASituacao));
+      
+      if ACanal <> '' then
+        LData.AddPair('canal', TJSONString.Create(ACanal));
+      
+      if ASetor <> '' then
+        LData.AddPair('setor', TJSONString.Create(ASetor));
       
       LRequest := TRESTRequest.Create(nil);
       try
         LRequest.Client := FRESTClient;
-        LRequest.Resource := '/atendimentos/criar';
+        LRequest.Resource := '/atendimentos';
         LRequest.Method := rmPOST;
         LRequest.AddHeader('Authorization', GetAuthHeader);
         LRequest.Body.Add(LData.ToString);
@@ -1161,7 +1181,7 @@ begin
           LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
           try
             Result := TJSONObject(LJSONValue).GetValue('data').GetValue<Integer>('id');
-            LogRequest('POST', '/atendimentos/criar', 'Atendimento ID: ' + IntToStr(Result));
+            LogRequest('POST', '/atendimentos', 'Atendimento ID: ' + IntToStr(Result));
           finally
             LJSONValue.Free;
           end;
@@ -1644,6 +1664,53 @@ begin
   end;
 end;
 
+function TSAWAPIClient.AtualizarEnvioMensagem(AIDAgendamento: Integer; AEnviado: Integer; ATempoEnvio: Integer): Boolean;
+var
+  LRequest: TRESTRequest;
+  LData: TJSONObject;
+  LJSONValue: TJSONValue;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LData := TJSONObject.Create;
+    try
+      LData.AddPair('id_agendamento', TJSONNumber.Create(AIDAgendamento));
+      LData.AddPair('enviado', TJSONNumber.Create(AEnviado));
+      LData.AddPair('tempo_envio', TJSONNumber.Create(ATempoEnvio));
+      LRequest := TRESTRequest.Create(nil);
+      try
+        LRequest.Client := FRESTClient;
+        LRequest.Resource := '/mensagens/atualizar-envio';
+        LRequest.Method := rmPUT;
+        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.Body.Add(LData.ToString);
+        LRequest.Execute;
+        
+        if LRequest.Response.StatusCode = 200 then
+        begin
+          LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+          try
+            Result := TJSONObject(LJSONValue).GetValue<Boolean>('sucesso');
+          finally
+            LJSONValue.Free;
+          end;
+        end;
+      finally
+        LRequest.Free;
+      end;
+    finally
+      LData.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('AtualizarEnvioMensagem: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
 // ============================================
 // Novos Endpoints - Contatos
 // ============================================
@@ -1816,6 +1883,28 @@ begin
   except
     on E: Exception do
       RaiseError('VerificarExpediente: ' + E.Message);
+  end;
+end;
+
+function TSAWAPIClient.EnviarArquivo(AAtendimentoID: Integer; const ACaminhoArquivo: string): Boolean;
+var
+  LResponse: IHTTPResponse;
+  LForm: TMultipartFormData;
+begin
+  Result := False;
+
+  LForm := TMultipartFormData.Create;
+  try
+    LForm.AddFile('arquivo', ACaminhoArquivo);
+
+    LResponse := THTTPClient.Create.Post(
+      FBaseURL + Format('/atendimentos/%d/anexos', [AAtendimentoID]),
+      LForm
+    );
+
+    Result := (LResponse.StatusCode >= 200) and (LResponse.StatusCode < 300);
+  finally
+    LForm.Free;
   end;
 end;
 

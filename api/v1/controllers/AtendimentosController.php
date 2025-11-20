@@ -57,8 +57,8 @@ class AtendimentosController
 
     /**
      * P2: Criar novo atendimento
-     * POST /atendimentos/criar
-     * Body: { numero, nome, situacao, canal, setor }
+     * POST /atendimentos
+     * Body: { numero, nome, id_atendente, nome_atendente, situacao, canal, setor }
      */
     public function criar()
     {
@@ -70,19 +70,37 @@ class AtendimentosController
                 return;
             }
 
-            $sql = "INSERT INTO tbatendimento (login, nome, situacao, data_criacao)
-                    VALUES (?, ?, ?, NOW())";
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute([
-                $data['numero'],
-                $data['nome'],
-                $data['situacao'] ?? 'P'
-            ]);
+            $numero = $data['numero'];
+            $nome = $data['nome'];
+            $idAtendente = (int)($data['id_atendente'] ?? 0);
+            $nomeAtendente = $data['nome_atendente'] ?? '';
+            $situacao = $data['situacao'] ?? 'P';
+            $canal = $data['canal'] ?? '';
+            $setor = $data['setor'] ?? '';
 
-            $id = $this->db->lastInsertId();
-            Response::success(['id' => $id], 'Atendimento criado', 201);
+            $sql = "CALL sprGeraNovoAtendimento(:pNumero, :pNome, :pIdAtendente, :pNomeAtendente, :pSituacao, :pCanal, :pSetor)";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':pNumero', $numero, \PDO::PARAM_STR);
+            $stmt->bindParam(':pNome', $nome, \PDO::PARAM_STR);
+            $stmt->bindParam(':pIdAtendente', $idAtendente, \PDO::PARAM_INT);
+            $stmt->bindParam(':pNomeAtendente', $nomeAtendente, \PDO::PARAM_STR);
+            $stmt->bindParam(':pSituacao', $situacao, \PDO::PARAM_STR);
+            $stmt->bindParam(':pCanal', $canal, \PDO::PARAM_STR);
+            $stmt->bindParam(':pSetor', $setor, \PDO::PARAM_STR);
+            $stmt->execute();
+
+            // Buscar o atendimento criado
+            $sqlSelect = "SELECT * FROM tbatendimento WHERE login = ? ORDER BY id DESC LIMIT 1";
+            $stmtSelect = $this->db->prepare($sqlSelect);
+            $stmtSelect->execute([$numero]);
+            $atendimento = $stmtSelect->fetch(\PDO::FETCH_ASSOC);
+
+            Response::success([
+                'id' => $atendimento['id'] ?? null,
+                'atendimento' => $atendimento
+            ], 'Atendimento criado com sucesso', 201);
         } catch (\PDOException $e) {
-            Response::error('Erro: ' . $e->getMessage(), 500);
+            Response::error('Erro ao criar atendimento: ' . $e->getMessage(), 500);
         }
     }
 
