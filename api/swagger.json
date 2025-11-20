@@ -751,13 +751,22 @@
                               "id": { "type": "integer" },
                               "numero": { "type": "string" },
                               "mensagem": { "type": "string" },
-                              "dt_aviso": { "type": "string", "format": "date-time" }
+                              "dt_aviso": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
                             }
                           }
                         },
                         "total_avisos": { "type": "integer" },
-                        "linhas_limpas_gerais": { "type": "integer", "description": "Avisos antigos removidos" },
-                        "linhas_limpas_numero": { "type": "integer", "description": "Avisos do número removidos" }
+                        "linhas_limpas_gerais": {
+                          "type": "integer",
+                          "description": "Avisos antigos removidos"
+                        },
+                        "linhas_limpas_numero": {
+                          "type": "integer",
+                          "description": "Avisos do número removidos"
+                        }
                       }
                     },
                     "mensagem": { "type": "string" }
