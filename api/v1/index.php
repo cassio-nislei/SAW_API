@@ -34,6 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // Carrega configurações
 require_once __DIR__ . '/config.php';
 
+// Cache do input uma única vez
+if (!isset($GLOBALS['_php_input_cache'])) {
+    $GLOBALS['_php_input_cache'] = file_get_contents('php://input');
+}
+
 // Carrega classes base
 require_once __DIR__ . '/Database.php';
 require_once __DIR__ . '/Response.php';

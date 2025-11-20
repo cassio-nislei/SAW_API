@@ -16,7 +16,8 @@ class AuthController {
      */
     public static function login() {
         try {
-            $input = file_get_contents('php://input');
+            // Usar cache global de php://input
+            $input = $GLOBALS['_php_input_cache'] ?? file_get_contents('php://input');
             $data = json_decode($input, true);
             
             // Validação
