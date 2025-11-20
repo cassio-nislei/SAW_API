@@ -525,20 +525,8 @@ try {
     // SWAGGER JSON - Com suporte completo a CORS
     // ============================================
     
-    // GET /swagger.json
     $router->get('/swagger.json', function () {
         serveSwaggerJson();
-    });
-    
-    // OPTIONS /swagger.json (CORS preflight)
-    $router->options('/swagger.json', function () {
-        // Headers CORS
-        header('Access-Control-Allow-Origin: *', true);
-        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH', true);
-        header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, Content-Length', true);
-        header('Access-Control-Max-Age: 86400', true);
-        http_response_code(200);
-        exit;
     });
 
     // Função para servir Swagger JSON

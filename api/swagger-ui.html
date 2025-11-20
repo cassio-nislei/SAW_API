@@ -83,17 +83,23 @@
 
         let swaggerUrl = "";
 
-        // Melhor detecção baseada no path
-        if (pathname.includes("/SAW-main/api")) {
+        // Melhor detecção baseada no path do arquivo HTML
+        // O swagger-ui.html está em /api/ então deve buscar em /api/v1/swagger.json
+        if (pathname.includes("/SAW-main/api/swagger-ui.html")) {
+          swaggerUrl = protocol + "//" + host + "/SAW-main/api/v1/swagger.json";
+        } else if (pathname.includes("/api/swagger-ui.html")) {
+          swaggerUrl = protocol + "//" + host + "/api/v1/swagger.json";
+        } else if (pathname.includes("/SAW-main/api")) {
           swaggerUrl = protocol + "//" + host + "/SAW-main/api/v1/swagger.json";
         } else if (pathname.includes("/api")) {
           swaggerUrl = protocol + "//" + host + "/api/v1/swagger.json";
         } else {
-          // Fallback para caminho comum
+          // Fallback
           swaggerUrl = protocol + "//" + host + "/SAW-main/api/v1/swagger.json";
         }
 
-        console.log("📍 Current URL:", window.location.href);
+        console.log("📍 HTML Location:", window.location.href);
+        console.log("📍 HTML Pathname:", pathname);
         console.log("🔗 Swagger JSON URL:", swaggerUrl);
 
         // Display info
