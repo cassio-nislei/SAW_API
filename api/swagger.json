@@ -779,6 +779,181 @@
           "500": { "description": "Erro ao buscar avisos" }
         }
       }
+    },
+    "/anexos/pendentes": {
+      "get": {
+        "tags": ["Anexos"],
+        "summary": "Listar anexos pendentes (Q19)",
+        "operationId": "listarAnexosPendentes",
+        "description": "Retorna lista de anexos com enviado=1 para serem processados",
+        "parameters": [
+          {
+            "name": "canal",
+            "in": "query",
+            "schema": { "type": "string", "default": "WhatsApp" },
+            "description": "Canal de comunicação (WhatsApp, Telegram, etc)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Anexos pendentes retornados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "canal": { "type": "string" },
+                        "anexos": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "pk": {
+                                "type": "string",
+                                "description": "CONCAT(id, seq, numero)"
+                              },
+                              "id": { "type": "integer" },
+                              "seq": { "type": "integer" },
+                              "numero": { "type": "string" },
+                              "nome_arquivo": { "type": "string" },
+                              "enviado": { "type": "integer" },
+                              "msg": { "type": "string" },
+                              "canal": { "type": "string" }
+                            }
+                          }
+                        },
+                        "total": { "type": "integer" }
+                      }
+                    },
+                    "mensagem": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "500": { "description": "Erro ao listar anexos" }
+        }
+      }
+    },
+    "/anexos/{pk}": {
+      "get": {
+        "tags": ["Anexos"],
+        "summary": "Buscar anexo por PK (Q20)",
+        "operationId": "buscarAnexoPorPK",
+        "description": "Retorna detalhes completos de um anexo específico",
+        "parameters": [
+          {
+            "name": "pk",
+            "in": "path",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "PK no formato CONCAT(id, seq, numero)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Anexo encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "pk": { "type": "string" },
+                        "id": { "type": "integer" },
+                        "seq": { "type": "integer" },
+                        "numero": { "type": "string" },
+                        "nome_arquivo": { "type": "string" },
+                        "enviado": { "type": "integer" },
+                        "tamanho_arquivo": { "type": "integer" },
+                        "msg": { "type": "string" },
+                        "canal": { "type": "string" },
+                        "data_msg": { "type": "string", "format": "date-time" }
+                      }
+                    },
+                    "mensagem": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Anexo não encontrado" },
+          "500": { "description": "Erro ao buscar anexo" }
+        }
+      }
+    },
+    "/anexos/{pk}/marcar-enviado": {
+      "put": {
+        "tags": ["Anexos"],
+        "summary": "Marcar anexo como enviado (P16)",
+        "operationId": "marcarAnexoEnviado",
+        "description": "Atualiza o status enviado do anexo (0=enviado, 1=pendente)",
+        "parameters": [
+          {
+            "name": "pk",
+            "in": "path",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "PK no formato CONCAT(id, seq, numero)"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "enviado": {
+                    "type": "integer",
+                    "enum": [0, 1],
+                    "default": 0,
+                    "description": "0=enviado, 1=pendente"
+                  }
+                },
+                "required": ["enviado"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Anexo marcado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "pk": { "type": "string" },
+                        "id": { "type": "integer" },
+                        "seq": { "type": "integer" },
+                        "numero": { "type": "string" },
+                        "enviado": { "type": "integer" },
+                        "linhas_atualizadas": { "type": "integer" }
+                      }
+                    },
+                    "mensagem": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "PK obrigatório" },
+          "404": { "description": "Anexo não encontrado" },
+          "500": { "description": "Erro ao marcar anexo" }
+        }
+      }
     }
   },
   "components": {

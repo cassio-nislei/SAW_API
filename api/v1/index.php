@@ -498,6 +498,28 @@ try {
         $controller->buscarPorNumero();
     });
 
+    // ============================================
+    // ANEXOS (3 endpoints)
+    // ============================================
+
+    // Q19: GET - Listar anexos pendentes
+    $router->get('/anexos/pendentes', function () {
+        $controller = new AnexosController();
+        $controller->listarPendentes();
+    });
+
+    // Q20: GET - Buscar anexo por PK
+    $router->get('/anexos/{pk}', function ($pk) {
+        $controller = new AnexosController();
+        $controller->buscarPorPK($pk);
+    });
+
+    // P16: PUT - Marcar anexo como enviado
+    $router->put('/anexos/{pk}/marcar-enviado', function ($pk) {
+        $controller = new AnexosController();
+        $controller->marcarEnviado($pk);
+    });
+
     $router->get('/', function () {
         Response::success([
             'api' => 'SAW API',

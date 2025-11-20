@@ -3,18 +3,18 @@ unit SAWAPIClient;
 {
   SAW API Client - Unit simplificada para integração rápida
   Desenvolvido para Delphi 10.3+
-  
+
   Uso básico:
-  
+
     var
       API: TSAW API;
     begin
       // Inicializar
       API := TSAWAPIClient.Create('admin', '123456');
-      
+
       // Usar
       ShowMessage(API.GetUsuario(1).Nome);
-      
+
       // Liberar
       API.Free;
     end;
@@ -30,7 +30,7 @@ type
   // ============================================
   // Tipos de Dados
   // ============================================
-  
+
   TUsuario = record
     ID: Integer;
     Nome: string;
@@ -133,7 +133,7 @@ type
     FOnTokenRefresh: TOnTokenRefresh;
     FOnError: TOnError;
     FOnRequestLog: TOnRequestLog;
-    
+
     // Métodos privados
     function GetBaseURL: string;
     function GetAuthHeader: string;
@@ -176,10 +176,11 @@ type
     function GetAtendimentoByPhone(const APhone: string): TAtendimento;
     function GetAtendimentoAnexos(AAtendimentoID: Integer): TList<TAnexo>;
     function VerificarAtendimentoPendente(const ANumero: string): Boolean;
-    function CriarAtendimento(const ANumero, ANome: string; AIDAtendente: Integer = 0; 
-      const ANomeAtendente: string = ''; const ASituacao: string = 'P'; 
+    function CriarAtendimento(const ANumero, ANome: string; AIDAtendente: Integer = 0;
+      const ANomeAtendente: string = ''; const ASituacao: string = 'P';
       const ACanal: string = ''; const ASetor: string = ''): Integer;
-    function FinalizarAtendimento(AID: Integer): Boolean;
+   function FinalizarAtendimento(AID: Integer; const AObservacao: string = ''): Boolean;
+
     function GravarMensagemAtendimento(AAtendimentoID: Integer; const AMensagem: string): Boolean;
     function AtualizarSetorAtendimento(AAtendimentoID: Integer; const ASetor: string): Boolean;
     function ListarAtendimentosInativos(ATempoMinutos: Integer = 5): TList<TAtendimento>;
@@ -197,10 +198,12 @@ type
     function MarcarMensagemEnviada(AID: Integer): Boolean;
     function CompararDuplicacaoMensagem(AID: Integer; const AMensagem: string): Boolean;
     function AtualizarEnvioMensagem(AIDAgendamento: Integer; AEnviado: Integer; ATempoEnvio: Integer): Boolean;
-    function EnviarArquivo(AAtendimentoID: Integer; const ACaminhoArquivo: string): Boolean;
-    function FinalizarAtendimento(AID: Integer; const AObservacao: string = ''): Boolean;
+    function EnviarArquivo(
+  AAtendimentoID: Integer;
+  const ACaminhoArquivo, ANomeArquivo, ATipoArquivo: string
+): Boolean;
 
-    
+
     // ============================================
     // Contatos
     // ============================================
@@ -247,14 +250,18 @@ type
     function RegistrarAvisoSemExpediente(const ANumero, AMensagem: string): Integer;
     function LimparAvisoAntigos: Integer;
     function LimparAvisoNumero(const ANumero: string): Integer;
-    function VerificarAvisoExistente(const ANumero: string): Boolean;
+        function VerificarAvisoExistente(const ANumero: string): Boolean;
     function BuscarAvisosPorNumero(const ANumero: string): TJSONValue;
+
 
     // ============================================
     // Anexos
     // ============================================
 
     function DownloadAnexo(AAnexoID: Integer; const ADestinationPath: string): Boolean;
+    function ListarAnexosPendentes(const ACanal: string = 'WhatsApp'): TJSONValue;
+    function BuscarAnexoPorPK(const APK: string): TJSONValue;
+    function MarcarAnexoEnviado(const APK: string; AEnviado: Integer = 0): TJSONValue;
 
     // ============================================
     // Dashboard
@@ -269,12 +276,12 @@ type
 
     procedure SetTimeout(AMilliseconds: Integer);
     procedure SetDebugMode(AEnabled: Boolean);
-    
+
     property BaseURL: string read GetBaseURL;
     property IsAuthenticated: Boolean read IsTokenValid;
     property CurrentToken: string read FAccessToken;
     property DebugMode: Boolean read FDebugMode write SetDebugMode;
-    
+
     // Eventos
     property OnTokenRefresh: TOnTokenRefresh read FOnTokenRefresh write FOnTokenRefresh;
     property OnError: TOnError read FOnError write FOnError;
@@ -291,7 +298,7 @@ constructor TSAWAPIClient.Create(const AUsername, APassword: string;
   const AHost: string = '104.234.173.105'; APort: Integer = 7080);
 begin
   inherited Create;
-  
+
   FHost := AHost;
   FPort := APort;
   FProtocol := 'http';
@@ -299,12 +306,12 @@ begin
   FPassword := APassword;
   FTimeout := 30000;
   FDebugMode := False;
-  
+
   // Criar cliente REST
   FRESTClient := TRESTClient.Create(GetBaseURL);
   FRESTClient.ConnectTimeout := FTimeout;
   FRESTClient.ReadTimeout := FTimeout;
-  
+
   // Fazer login
   try
     Login(AUsername, APassword);
@@ -354,6 +361,52 @@ begin
   end;
 end;
 
+function TSAWAPIClient.MarcarMensagemExcluida(const AChatID: string): Boolean;
+var
+  LRequest: TRESTRequest;
+  LData: TJSONObject;
+  LJSONValue: TJSONValue;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LData := TJSONObject.Create;
+    try
+      LData.AddPair('chatid', TJSONString.Create(AChatID));
+      LRequest := TRESTRequest.Create(nil);
+      try
+        LRequest.Client := FRESTClient;
+        LRequest.Resource := '/mensagens/marcar-excluida';
+        LRequest.Method := rmPUT;
+        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.Body.Add(LData.ToString);
+        LRequest.Execute;
+
+        if LRequest.Response.StatusCode = 200 then
+        begin
+          LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+          try
+            Result := TJSONObject(LJSONValue).GetValue<Boolean>('sucesso');
+          finally
+            LJSONValue.Free;
+          end;
+        end;
+      finally
+        LRequest.Free;
+      end;
+    finally
+      LData.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('MarcarMensagemExcluida: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
+
 procedure TSAWAPIClient.RefreshToken;
 var
   LRequest: TRESTRequest;
@@ -367,12 +420,12 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := '/auth/refresh';
       LRequest.Method := rmPOST;
-      
+
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.AddParameter('refresh_token', FRefreshToken, pkJSONBODY);
-      
+
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -381,12 +434,12 @@ begin
           begin
             LJSONObject := TJSONObject(LJSONValue);
             LNewToken := LJSONObject.GetValue('data').GetValue<string>('token');
-            
+
             FAccessToken := LNewToken;
             FTokenExpiry := IncSecond(Now, 3600);
-            
+
             LogRequest('POST', '/auth/refresh', 'Token renovado com sucesso');
-            
+
             if Assigned(FOnTokenRefresh) then
               FOnTokenRefresh(Self, LNewToken);
           end;
@@ -436,12 +489,12 @@ begin
       LRequest.Client := FRESTClient;
       LRequest.Resource := '/auth/login';
       LRequest.Method := rmPOST;
-      
+
       LRequest.AddParameter('usuario', AUsername, pkJSONBODY);
       LRequest.AddParameter('senha', APassword, pkJSONBODY);
-      
+
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -449,11 +502,11 @@ begin
           if LJSONValue is TJSONObject then
           begin
             LJSONObject := TJSONObject(LJSONValue);
-            
+
             FAccessToken := LJSONObject.GetValue('data').GetValue<string>('token');
             FRefreshToken := LJSONObject.GetValue('data').GetValue<string>('refresh_token');
             FTokenExpiry := IncSecond(Now, 3600);
-            
+
             LogRequest('POST', '/auth/login', 'Login realizado com sucesso');
           end;
         finally
@@ -486,20 +539,20 @@ var
   LRequest: TRESTRequest;
 begin
   Result := False;
-  
+
   try
     CheckTokenExpiry;
-    
+
     LRequest := TRESTRequest.Create(nil);
     try
       LRequest.Client := FRESTClient;
       LRequest.Resource := '/auth/validate';
       LRequest.Method := rmGET;
-      
+
       LRequest.AddHeader('Authorization', GetAuthHeader);
-      
+
       LRequest.Execute;
-      
+
       Result := LRequest.Response.StatusCode = 200;
       LogRequest('GET', '/auth/validate', 'Token validado: ' + BoolToStr(Result));
     finally
@@ -540,20 +593,20 @@ var
   LUsuario: TUsuario;
 begin
   Result := TList<TUsuario>.Create;
-  
+
   try
     CheckTokenExpiry;
-    
+
     LRequest := TRESTRequest.Create(nil);
     try
       LRequest.Client := FRESTClient;
       LRequest.Resource := Format('/usuarios?page=%d&perPage=%d', [APage, APerPage]);
       LRequest.Method := rmGET;
-      
+
       LRequest.AddHeader('Authorization', GetAuthHeader);
-      
+
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -562,7 +615,7 @@ begin
           begin
             LArray := TJSONObject(LJSONValue).GetValue('data')
               .FindValue('usuarios') as TJSONArray;
-            
+
             for LItem in LArray do
             begin
               if LItem is TJSONObject then
@@ -572,11 +625,11 @@ begin
                 LUsuario.Email := TJSONObject(LItem).GetValue<string>('email');
                 LUsuario.Login := TJSONObject(LItem).GetValue<string>('login');
                 LUsuario.Situacao := TJSONObject(LItem).GetValue<string>('situacao');
-                
+
                 Result.Add(LUsuario);
               end;
             end;
-            
+
             LogRequest('GET', '/usuarios', Format('Retornados %d usuários', [Result.Count]));
           end;
         finally
@@ -611,20 +664,20 @@ var
   LJSONObject: TJSONObject;
 begin
   FillChar(Result, SizeOf(TUsuario), 0);
-  
+
   try
     CheckTokenExpiry;
-    
+
     LRequest := TRESTRequest.Create(nil);
     try
       LRequest.Client := FRESTClient;
       LRequest.Resource := '/usuarios/me';
       LRequest.Method := rmGET;
-      
+
       LRequest.AddHeader('Authorization', GetAuthHeader);
-      
+
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -632,13 +685,13 @@ begin
           if LJSONValue is TJSONObject then
           begin
             LJSONObject := TJSONObject(LJSONValue).GetValue('data') as TJSONObject;
-            
+
             Result.ID := LJSONObject.GetValue<Integer>('id');
             Result.Nome := LJSONObject.GetValue<string>('nome');
             Result.Email := LJSONObject.GetValue<string>('email');
             Result.Login := LJSONObject.GetValue<string>('login');
             Result.Situacao := LJSONObject.GetValue<string>('situacao');
-            
+
             LogRequest('GET', '/usuarios/me', 'Usuário: ' + Result.Nome);
           end;
         finally
@@ -663,28 +716,28 @@ var
   LJSONValue: TJSONValue;
 begin
   Result := 0;
-  
+
   try
     CheckTokenExpiry;
-    
+
     LData := TJSONObject.Create;
     try
       LData.AddPair('nome', TJSONString.Create(AUsuario.Nome));
       LData.AddPair('email', TJSONString.Create(AUsuario.Email));
       LData.AddPair('login', TJSONString.Create(AUsuario.Login));
       LData.AddPair('situacao', TJSONString.Create(AUsuario.Situacao));
-      
+
       LRequest := TRESTRequest.Create(nil);
       try
         LRequest.Client := FRESTClient;
         LRequest.Resource := '/usuarios';
         LRequest.Method := rmPOST;
-        
+
         LRequest.AddHeader('Authorization', GetAuthHeader);
         LRequest.Body.Add(LData.ToString);
-        
+
         LRequest.Execute;
-        
+
         if LRequest.Response.StatusCode in [200, 201] then
         begin
           LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -719,27 +772,27 @@ var
   LJSONValue: TJSONValue;
 begin
   Result := False;
-  
+
   try
     CheckTokenExpiry;
-    
+
     LData := TJSONObject.Create;
     try
       LData.AddPair('nome', TJSONString.Create(AUsuario.Nome));
       LData.AddPair('email', TJSONString.Create(AUsuario.Email));
       LData.AddPair('situacao', TJSONString.Create(AUsuario.Situacao));
-      
+
       LRequest := TRESTRequest.Create(nil);
       try
         LRequest.Client := FRESTClient;
         LRequest.Resource := Format('/usuarios/%d', [AUsuario.ID]);
         LRequest.Method := rmPUT;
-        
+
         LRequest.AddHeader('Authorization', GetAuthHeader);
         LRequest.Body.Add(LData.ToString);
-        
+
         LRequest.Execute;
-        
+
         if LRequest.Response.StatusCode = 200 then
         begin
           LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -773,20 +826,20 @@ var
   LJSONValue: TJSONValue;
 begin
   Result := False;
-  
+
   try
     CheckTokenExpiry;
-    
+
     LRequest := TRESTRequest.Create(nil);
     try
       LRequest.Client := FRESTClient;
       LRequest.Resource := Format('/usuarios/%d', [AID]);
       LRequest.Method := rmDELETE;
-      
+
       LRequest.AddHeader('Authorization', GetAuthHeader);
-      
+
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -811,9 +864,77 @@ begin
   end;
 end;
 
+function TSAWAPIClient.EnviarArquivo(
+  AAtendimentoID: Integer;
+  const ACaminhoArquivo, ANomeArquivo, ATipoArquivo: string
+): Boolean;
+var
+  LResponse: IHTTPResponse;
+  LForm: TMultipartFormData;
+begin
+  Result := False;
+
+  LForm := TMultipartFormData.Create;
+  try
+    LForm.AddFile('arquivo', ACaminhoArquivo, ATipoArquivo);
+
+    LResponse :=
+      THTTPClient.Create.Post(
+        FBaseURL + Format('/atendimentos/%d/anexos', [AAtendimentoID]),
+        LForm
+      );
+
+    Result := (LResponse.StatusCode >= 200) and (LResponse.StatusCode < 300);
+  finally
+    LForm.Free;
+  end;
+end;
+
+
 // ============================================
 // Atendimentos
 // ============================================
+
+function TSAWAPIClient.FinalizarAtendimento(AID: Integer; const AObservacao: string): Boolean;
+var
+  LRequest: TRESTRequest;
+  LBody: TJSONObject;
+begin
+  Result := False;
+
+  try
+    CheckTokenExpiry;
+
+    LBody := TJSONObject.Create;
+    try
+      if AObservacao <> '' then
+        LBody.AddPair('observacao', AObservacao);
+
+      LRequest := TRESTRequest.Create(nil);
+      try
+        LRequest.Client := FRESTClient;
+        LRequest.Resource := Format('/atendimentos/%d/finalizar', [AID]);
+        LRequest.Method := rmPOST;
+        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.Body.Add(LBody.ToString);
+
+        LRequest.Execute;
+
+        Result := LRequest.Response.StatusCode in [200, 201];
+
+      finally
+        LRequest.Free;
+      end;
+    finally
+      LBody.Free;
+    end;
+
+  except
+    on E: Exception do
+      RaiseError('FinalizarAtendimento: ' + E.Message);
+  end;
+end;
+
 
 function TSAWAPIClient.GetAtendimentoByPhone(const APhone: string): TAtendimento;
 var
@@ -822,20 +943,20 @@ var
   LJSONObject: TJSONObject;
 begin
   FillChar(Result, SizeOf(TAtendimento), 0);
-  
+
   try
     CheckTokenExpiry;
-    
+
     LRequest := TRESTRequest.Create(nil);
     try
       LRequest.Client := FRESTClient;
       LRequest.Resource := Format('/atendimentos/por-numero/%s', [APhone]);
       LRequest.Method := rmGET;
-      
+
       LRequest.AddHeader('Authorization', GetAuthHeader);
-      
+
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -843,13 +964,13 @@ begin
           if LJSONValue is TJSONObject then
           begin
             LJSONObject := TJSONObject(LJSONValue).GetValue('data') as TJSONObject;
-            
+
             Result.ID := LJSONObject.GetValue<Integer>('id');
             Result.Cliente := LJSONObject.GetValue<string>('cliente');
             Result.Setor := LJSONObject.GetValue<string>('setor');
             Result.Assunto := LJSONObject.GetValue<string>('assunto');
             Result.Status := LJSONObject.GetValue<string>('status');
-            
+
             LogRequest('GET', Format('/atendimentos/por-numero/%s', [APhone]), 'Atendimento encontrado');
           end;
         finally
@@ -876,20 +997,20 @@ var
   LAnexo: TAnexo;
 begin
   Result := TList<TAnexo>.Create;
-  
+
   try
     CheckTokenExpiry;
-    
+
     LRequest := TRESTRequest.Create(nil);
     try
       LRequest.Client := FRESTClient;
       LRequest.Resource := Format('/atendimentos/%d/anexos', [AAtendimentoID]);
       LRequest.Method := rmGET;
-      
+
       LRequest.AddHeader('Authorization', GetAuthHeader);
-      
+
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -898,7 +1019,7 @@ begin
           begin
             LArray := TJSONObject(LJSONValue).GetValue('data')
               .FindValue('anexos') as TJSONArray;
-            
+
             for LItem in LArray do
             begin
               if LItem is TJSONObject then
@@ -908,12 +1029,12 @@ begin
                 LAnexo.NomeArquivo := TJSONObject(LItem).GetValue<string>('nome_arquivo');
                 LAnexo.TamanhoBytes := TJSONObject(LItem).GetValue<Integer>('tamanho_bytes');
                 LAnexo.Downloads := TJSONObject(LItem).GetValue<Integer>('downloads');
-                
+
                 Result.Add(LAnexo);
               end;
             end;
-            
-            LogRequest('GET', Format('/atendimentos/%d/anexos', [AAtendimentoID]), 
+
+            LogRequest('GET', Format('/atendimentos/%d/anexos', [AAtendimentoID]),
               Format('Retornados %d anexos', [Result.Count]));
           end;
         finally
@@ -938,31 +1059,31 @@ end;
 // Anexos
 // ============================================
 
-function TSAWAPIClient.DownloadAnexo(AAnexoID: Integer; 
+function TSAWAPIClient.DownloadAnexo(AAnexoID: Integer;
   const ADestinationPath: string): Boolean;
 var
   LRequest: TRESTRequest;
 begin
   Result := False;
-  
+
   try
     CheckTokenExpiry;
-    
+
     LRequest := TRESTRequest.Create(nil);
     try
       LRequest.Client := FRESTClient;
       LRequest.Resource := Format('/anexos/%d/download', [AAnexoID]);
       LRequest.Method := rmGET;
-      
+
       LRequest.AddHeader('Authorization', GetAuthHeader);
-      
+
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LRequest.Response.RawBytes.SaveToFile(ADestinationPath);
         Result := True;
-        LogRequest('GET', Format('/anexos/%d/download', [AAnexoID]), 
+        LogRequest('GET', Format('/anexos/%d/download', [AAnexoID]),
           'Arquivo baixado: ' + ADestinationPath);
       end
       else
@@ -979,6 +1100,122 @@ begin
   end;
 end;
 
+function TSAWAPIClient.ListarAnexosPendentes(const ACanal: string = 'WhatsApp'): TJSONValue;
+var
+  LRequest: TRESTRequest;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := Format('/anexos/pendentes?canal=%s', [ACanal]);
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+      begin
+        Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+        LogRequest('GET', Format('/anexos/pendentes?canal=%s', [ACanal]), 
+          'Anexos pendentes listados');
+      end
+      else
+        raise Exception.Create('Erro ao listar anexos: ' + LRequest.Response.StatusText);
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('ListarAnexosPendentes: ' + E.Message);
+      Result := nil;
+    end;
+  end;
+end;
+
+function TSAWAPIClient.BuscarAnexoPorPK(const APK: string): TJSONValue;
+var
+  LRequest: TRESTRequest;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := Format('/anexos/%s', [APK]);
+      LRequest.Method := rmGET;
+      LRequest.AddHeader('Authorization', GetAuthHeader);
+      LRequest.Execute;
+      
+      if LRequest.Response.StatusCode = 200 then
+      begin
+        Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+        LogRequest('GET', Format('/anexos/%s', [APK]), 'Anexo encontrado');
+      end
+      else if LRequest.Response.StatusCode = 404 then
+        raise Exception.Create('Anexo não encontrado')
+      else
+        raise Exception.Create('Erro ao buscar anexo: ' + LRequest.Response.StatusText);
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('BuscarAnexoPorPK: ' + E.Message);
+      Result := nil;
+    end;
+  end;
+end;
+
+function TSAWAPIClient.MarcarAnexoEnviado(const APK: string; AEnviado: Integer = 0): TJSONValue;
+var
+  LRequest: TRESTRequest;
+  LData: TJSONObject;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LData := TJSONObject.Create;
+    try
+      LData.AddPair('pk', TJSONString.Create(APK));
+      LData.AddPair('enviado', TJSONNumber.Create(AEnviado));
+      
+      LRequest := TRESTRequest.Create(nil);
+      try
+        LRequest.Client := FRESTClient;
+        LRequest.Resource := Format('/anexos/%s/marcar-enviado', [APK]);
+        LRequest.Method := rmPUT;
+        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.Body.Add(LData.ToString);
+        LRequest.Execute;
+        
+        if LRequest.Response.StatusCode = 200 then
+        begin
+          Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+          LogRequest('PUT', Format('/anexos/%s/marcar-enviado', [APK]), 
+            'Anexo marcado como ' + IfThen(AEnviado = 0, 'enviado', 'pendente'));
+        end
+        else
+          raise Exception.Create('Erro ao marcar anexo: ' + LRequest.Response.StatusText);
+      finally
+        LRequest.Free;
+      end;
+    finally
+      LData.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('MarcarAnexoEnviado: ' + E.Message);
+      Result := nil;
+    end;
+  end;
+end;
+
 // ============================================
 // Dashboard
 // ============================================
@@ -990,20 +1227,20 @@ var
   LJSONObject: TJSONObject;
 begin
   FillChar(Result, SizeOf(TDashboard), 0);
-  
+
   try
     CheckTokenExpiry;
-    
+
     LRequest := TRESTRequest.Create(nil);
     try
       LRequest.Client := FRESTClient;
       LRequest.Resource := '/dashboard/ano-atual';
       LRequest.Method := rmGET;
-      
+
       LRequest.AddHeader('Authorization', GetAuthHeader);
-      
+
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -1011,7 +1248,7 @@ begin
           if LJSONValue is TJSONObject then
           begin
             LJSONObject := TJSONObject(LJSONValue).GetValue('data') as TJSONObject;
-            
+
             Result.Ano := LJSONObject.GetValue<Integer>('ano');
             Result.TotalAtendimentos := LJSONObject.GetValue<Integer>('total_atendimentos');
             Result.EmTriagem := LJSONObject.GetValue<Integer>('em_triagem');
@@ -1020,7 +1257,7 @@ begin
             Result.Finalizados := LJSONObject.GetValue<Integer>('finalizados');
             Result.TaxaConclusao := LJSONObject.GetValue<Double>('taxa_conclusao_percentual');
             Result.TempoMedioAtendimento := LJSONObject.GetValue<Double>('tempo_medio_atendimento_minutos');
-            
+
             LogRequest('GET', '/dashboard/ano-atual', 'Estatísticas obtidas');
           end;
         finally
@@ -1044,25 +1281,25 @@ var
   LResource: string;
 begin
   Result := nil;
-  
+
   try
     CheckTokenExpiry;
-    
+
     LResource := '/dashboard/atendimentos-mensais';
-    
+
     if AAno > 0 then
       LResource := LResource + Format('?ano=%d', [AAno]);
-    
+
     LRequest := TRESTRequest.Create(nil);
     try
       LRequest.Client := FRESTClient;
       LRequest.Resource := LResource;
       LRequest.Method := rmGET;
-      
+
       LRequest.AddHeader('Authorization', GetAuthHeader);
-      
+
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -1120,7 +1357,7 @@ begin
       LRequest.Method := rmGET;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -1139,8 +1376,8 @@ begin
   end;
 end;
 
-function TSAWAPIClient.CriarAtendimento(const ANumero, ANome: string; AIDAtendente: Integer = 0; 
-  const ANomeAtendente: string = ''; const ASituacao: string = 'P'; 
+function TSAWAPIClient.CriarAtendimento(const ANumero, ANome: string; AIDAtendente: Integer = 0;
+  const ANomeAtendente: string = ''; const ASituacao: string = 'P';
   const ACanal: string = ''; const ASetor: string = ''): Integer;
 var
   LRequest: TRESTRequest;
@@ -1154,22 +1391,22 @@ begin
     try
       LData.AddPair('numero', TJSONString.Create(ANumero));
       LData.AddPair('nome', TJSONString.Create(ANome));
-      
+
       if AIDAtendente > 0 then
         LData.AddPair('id_atendente', TJSONNumber.Create(AIDAtendente));
-      
+
       if ANomeAtendente <> '' then
         LData.AddPair('nome_atendente', TJSONString.Create(ANomeAtendente));
-      
+
       if ASituacao <> 'P' then
         LData.AddPair('situacao', TJSONString.Create(ASituacao));
-      
+
       if ACanal <> '' then
         LData.AddPair('canal', TJSONString.Create(ACanal));
-      
+
       if ASetor <> '' then
         LData.AddPair('setor', TJSONString.Create(ASetor));
-      
+
       LRequest := TRESTRequest.Create(nil);
       try
         LRequest.Client := FRESTClient;
@@ -1178,7 +1415,7 @@ begin
         LRequest.AddHeader('Authorization', GetAuthHeader);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
-        
+
         if LRequest.Response.StatusCode in [200, 201] then
         begin
           LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -1212,7 +1449,7 @@ begin
     LData := TJSONObject.Create;
     try
       LData.AddPair('id_atendimento', TJSONNumber.Create(AID));
-      
+
       LRequest := TRESTRequest.Create(nil);
       try
         LRequest.Client := FRESTClient;
@@ -1221,7 +1458,7 @@ begin
         LRequest.AddHeader('Authorization', GetAuthHeader);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
-        
+
         Result := LRequest.Response.StatusCode = 200;
         LogRequest('PUT', '/atendimentos/finalizar', 'Status: ' + IntToStr(LRequest.Response.StatusCode));
       finally
@@ -1251,7 +1488,7 @@ begin
     try
       LData.AddPair('id_atendimento', TJSONNumber.Create(AAtendimentoID));
       LData.AddPair('mensagem', TJSONString.Create(AMensagem));
-      
+
       LRequest := TRESTRequest.Create(nil);
       try
         LRequest.Client := FRESTClient;
@@ -1260,7 +1497,7 @@ begin
         LRequest.AddHeader('Authorization', GetAuthHeader);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
-        
+
         Result := LRequest.Response.StatusCode in [200, 201];
       finally
         LRequest.Free;
@@ -1289,7 +1526,7 @@ begin
     try
       LData.AddPair('id_atendimento', TJSONNumber.Create(AAtendimentoID));
       LData.AddPair('setor', TJSONString.Create(ASetor));
-      
+
       LRequest := TRESTRequest.Create(nil);
       try
         LRequest.Client := FRESTClient;
@@ -1298,7 +1535,7 @@ begin
         LRequest.AddHeader('Authorization', GetAuthHeader);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
-        
+
         Result := LRequest.Response.StatusCode = 200;
       finally
         LRequest.Free;
@@ -1326,7 +1563,7 @@ begin
   Result := TList<TAtendimento>.Create;
   try
     CheckTokenExpiry;
-    
+
     LRequest := TRESTRequest.Create(nil);
     try
       LRequest.Client := FRESTClient;
@@ -1334,7 +1571,7 @@ begin
       LRequest.Method := rmGET;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -1384,7 +1621,7 @@ begin
       LRequest.Method := rmGET;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -1417,7 +1654,7 @@ begin
       LRequest.Method := rmGET;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
         Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
     finally
@@ -1440,7 +1677,7 @@ begin
   Result := TList<TMensagem>.Create;
   try
     CheckTokenExpiry;
-    
+
     LRequest := TRESTRequest.Create(nil);
     try
       LRequest.Client := FRESTClient;
@@ -1448,7 +1685,7 @@ begin
       LRequest.Method := rmGET;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -1496,7 +1733,7 @@ begin
       LRequest.Method := rmGET;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -1519,7 +1756,6 @@ function TSAWAPIClient.MarcarMensagemExcluida(const AChatID: string): Boolean;
 var
   LRequest: TRESTRequest;
   LData: TJSONObject;
-  LJSONValue: TJSONValue;
 begin
   Result := False;
   try
@@ -1535,16 +1771,7 @@ begin
         LRequest.AddHeader('Authorization', GetAuthHeader);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
-        
-        if LRequest.Response.StatusCode = 200 then
-        begin
-          LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
-          try
-            Result := TJSONObject(LJSONValue).GetValue<Boolean>('sucesso');
-          finally
-            LJSONValue.Free;
-          end;
-        end;
+        Result := LRequest.Response.StatusCode = 200;
       finally
         LRequest.Free;
       end;
@@ -1595,47 +1822,6 @@ begin
     end;
   end;
 end;
-
-function TSAWAPIClient.FinalizarAtendimento(AID: Integer; const AObservacao: string): Boolean;
-var
-  LRequest: TRESTRequest;
-  LBody: TJSONObject;
-begin
-  Result := False;
-
-  try
-    CheckTokenExpiry;
-
-    LBody := TJSONObject.Create;
-    try
-      if AObservacao <> '' then
-        LBody.AddPair('observacao', AObservacao);
-
-      LRequest := TRESTRequest.Create(nil);
-      try
-        LRequest.Client := FRESTClient;
-        LRequest.Resource := Format('/atendimentos/%d/finalizar', [AID]);
-        LRequest.Method := rmPOST;
-        LRequest.AddHeader('Authorization', GetAuthHeader);
-        LRequest.Body.Add(LBody.ToString);
-
-        LRequest.Execute;
-
-        Result := LRequest.Response.StatusCode in [200, 201];
-
-      finally
-        LRequest.Free;
-      end;
-    finally
-      LBody.Free;
-    end;
-
-  except
-    on E: Exception do
-      RaiseError('FinalizarAtendimento: ' + E.Message);
-  end;
-end;
-
 
 function TSAWAPIClient.MarcarMensagemEnviada(AID: Integer): Boolean;
 var
@@ -1693,7 +1879,7 @@ begin
         LRequest.AddHeader('Authorization', GetAuthHeader);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
-        
+
         if LRequest.Response.StatusCode = 200 then
         begin
           LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -1740,7 +1926,7 @@ begin
         LRequest.AddHeader('Authorization', GetAuthHeader);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
-        
+
         if LRequest.Response.StatusCode = 200 then
         begin
           LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -1787,7 +1973,7 @@ begin
       LRequest.Method := rmPOST;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -1835,7 +2021,7 @@ begin
       LRequest.Method := rmGET;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -1872,7 +2058,7 @@ begin
       LRequest.Method := rmGET;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
         Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
     finally
@@ -1902,7 +2088,7 @@ begin
       LRequest.Method := rmGET;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
         Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
     finally
@@ -1928,7 +2114,7 @@ begin
       LRequest.Method := rmGET;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
         Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
     finally
@@ -1937,28 +2123,6 @@ begin
   except
     on E: Exception do
       RaiseError('VerificarExpediente: ' + E.Message);
-  end;
-end;
-
-function TSAWAPIClient.EnviarArquivo(AAtendimentoID: Integer; const ACaminhoArquivo: string): Boolean;
-var
-  LResponse: IHTTPResponse;
-  LForm: TMultipartFormData;
-begin
-  Result := False;
-
-  LForm := TMultipartFormData.Create;
-  try
-    LForm.AddFile('arquivo', ACaminhoArquivo);
-
-    LResponse := THTTPClient.Create.Post(
-      FBaseURL + Format('/atendimentos/%d/anexos', [AAtendimentoID]),
-      LForm
-    );
-
-    Result := (LResponse.StatusCode >= 200) and (LResponse.StatusCode < 300);
-  finally
-    LForm.Free;
   end;
 end;
 
@@ -1984,7 +2148,7 @@ begin
       LRequest.Method := rmGET;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -2034,7 +2198,7 @@ begin
       LRequest.Method := rmGET;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -2084,7 +2248,7 @@ begin
       LRequest.Method := rmGET;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
         Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
     finally
@@ -2114,7 +2278,7 @@ begin
       LRequest.Method := rmGET;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
         Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
     finally
@@ -2151,7 +2315,7 @@ begin
         LRequest.AddHeader('Authorization', GetAuthHeader);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
-        
+
         if LRequest.Response.StatusCode in [200, 201] then
         begin
           LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -2188,7 +2352,7 @@ begin
       LRequest.Method := rmDELETE;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -2222,7 +2386,7 @@ begin
       LRequest.Method := rmDELETE;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -2256,7 +2420,7 @@ begin
       LRequest.Method := rmGET;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
@@ -2289,11 +2453,11 @@ begin
       LRequest.Method := rmGET;
       LRequest.AddHeader('Authorization', GetAuthHeader);
       LRequest.Execute;
-      
+
       if LRequest.Response.StatusCode = 200 then
       begin
         Result := TJSONObject.ParseJSONValue(LRequest.Response.Content);
-        LogRequest('GET', Format('/avisos/buscar-por-numero?numero=%s', [ANumero]), 
+        LogRequest('GET', Format('/avisos/buscar-por-numero?numero=%s', [ANumero]),
           'Avisos retornados');
       end
       else
@@ -2309,3 +2473,4 @@ begin
     end;
   end;
 end;
+end.
