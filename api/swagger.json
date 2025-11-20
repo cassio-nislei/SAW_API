@@ -99,7 +99,7 @@
       },
       "post": {
         "tags": ["Atendimentos"],
-        "summary": "Criar atendimento",
+        "summary": "Criar novo atendimento (P2: sprGeraNovoAtendimento)",
         "operationId": "createAtendimento",
         "requestBody": {
           "required": true,
@@ -108,9 +108,13 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "numero": {"type": "string"},
-                  "nome": {"type": "string"},
-                  "canal": {"type": "string"}
+                  "numero": {"type": "string", "description": "Número de telefone/identificador"},
+                  "nome": {"type": "string", "description": "Nome do cliente"},
+                  "id_atendente": {"type": "integer", "description": "ID do atendente (opcional)"},
+                  "nome_atendente": {"type": "string", "description": "Nome do atendente (opcional)"},
+                  "situacao": {"type": "string", "enum": ["P", "A", "T", "F"], "description": "Pendente, Atendendo, Triagem, Finalizado (padrão: P)"},
+                  "canal": {"type": "string", "description": "Canal de comunicação: WhatsApp, Telegram, Chat, Email (opcional)"},
+                  "setor": {"type": "string", "description": "Setor responsável (opcional)"}
                 },
                 "required": ["numero", "nome"]
               }
@@ -118,8 +122,9 @@
           }
         },
         "responses": {
-          "201": {"description": "Atendimento criado"},
-          "400": {"description": "Dados inválidos"}
+          "201": {"description": "Atendimento criado com sucesso", "content": {"application/json": {"schema": {"type": "object", "properties": {"sucesso": {"type": "boolean"}, "data": {"type": "object", "properties": {"id": {"type": "integer"}, "login": {"type": "string"}, "nome": {"type": "string"}, "situacao": {"type": "string"}}}, "mensagem": {"type": "string"}}}}},
+          "400": {"description": "Parâmetros obrigatórios ausentes"},
+          "500": {"description": "Erro ao criar atendimento"}
         }
       }
     },
