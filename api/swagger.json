@@ -27,19 +27,22 @@
     }
   ],
   "tags": [
-    {"name": "Health", "description": "Status e verificação da API"},
-    {"name": "Autenticação", "description": "Endpoints de autenticação"},
-    {"name": "Atendimentos", "description": "Gerenciamento de atendimentos"},
-    {"name": "Mensagens", "description": "Gerenciamento de mensagens"},
-    {"name": "Anexos", "description": "Upload e gerenciamento de anexos"},
-    {"name": "Contatos", "description": "Gerenciamento de contatos"},
-    {"name": "Agendamentos", "description": "Gerenciamento de agendamentos"},
-    {"name": "Parâmetros", "description": "Configurações do sistema"},
-    {"name": "Menus", "description": "Gerenciamento de menus"},
-    {"name": "Respostas", "description": "Respostas automáticas"},
-    {"name": "Horários", "description": "Horários de funcionamento"},
-    {"name": "Departamentos", "description": "Gerenciamento de departamentos"},
-    {"name": "Avisos", "description": "Gerenciamento de avisos"}
+    { "name": "Health", "description": "Status e verificação da API" },
+    { "name": "Autenticação", "description": "Endpoints de autenticação" },
+    { "name": "Atendimentos", "description": "Gerenciamento de atendimentos" },
+    { "name": "Mensagens", "description": "Gerenciamento de mensagens" },
+    { "name": "Anexos", "description": "Upload e gerenciamento de anexos" },
+    { "name": "Contatos", "description": "Gerenciamento de contatos" },
+    { "name": "Agendamentos", "description": "Gerenciamento de agendamentos" },
+    { "name": "Parâmetros", "description": "Configurações do sistema" },
+    { "name": "Menus", "description": "Gerenciamento de menus" },
+    { "name": "Respostas", "description": "Respostas automáticas" },
+    { "name": "Horários", "description": "Horários de funcionamento" },
+    {
+      "name": "Departamentos",
+      "description": "Gerenciamento de departamentos"
+    },
+    { "name": "Avisos", "description": "Gerenciamento de avisos" }
   ],
   "paths": {
     "/": {
@@ -51,7 +54,11 @@
         "responses": {
           "200": {
             "description": "API operacional",
-            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/SuccessResponse"}}}
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SuccessResponse" }
+              }
+            }
           }
         }
       }
@@ -69,8 +76,8 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "login": {"type": "string", "example": "admin"},
-                  "senha": {"type": "string", "example": "123456"}
+                  "login": { "type": "string", "example": "admin" },
+                  "senha": { "type": "string", "example": "123456" }
                 },
                 "required": ["login", "senha"]
               }
@@ -78,8 +85,15 @@
           }
         },
         "responses": {
-          "200": {"description": "Login bem-sucedido", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/LoginResponse"}}}},
-          "401": {"description": "Credenciais inválidas"}
+          "200": {
+            "description": "Login bem-sucedido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LoginResponse" }
+              }
+            }
+          },
+          "401": { "description": "Credenciais inválidas" }
         }
       }
     },
@@ -89,12 +103,29 @@
         "summary": "Listar atendimentos",
         "operationId": "listAtendimentos",
         "parameters": [
-          {"name": "page", "in": "query", "schema": {"type": "integer", "default": 1}},
-          {"name": "perPage", "in": "query", "schema": {"type": "integer", "default": 20}},
-          {"name": "situacao", "in": "query", "schema": {"type": "string"}}
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "default": 1 }
+          },
+          {
+            "name": "perPage",
+            "in": "query",
+            "schema": { "type": "integer", "default": 20 }
+          },
+          { "name": "situacao", "in": "query", "schema": { "type": "string" } }
         ],
         "responses": {
-          "200": {"description": "Lista de atendimentos", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/AtendimentoListResponse"}}}}
+          "200": {
+            "description": "Lista de atendimentos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AtendimentoListResponse"
+                }
+              }
+            }
+          }
         }
       },
       "post": {
@@ -108,13 +139,35 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "numero": {"type": "string", "description": "Número de telefone/identificador"},
-                  "nome": {"type": "string", "description": "Nome do cliente"},
-                  "id_atendente": {"type": "integer", "description": "ID do atendente (opcional)"},
-                  "nome_atendente": {"type": "string", "description": "Nome do atendente (opcional)"},
-                  "situacao": {"type": "string", "enum": ["P", "A", "T", "F"], "description": "Pendente, Atendendo, Triagem, Finalizado (padrão: P)"},
-                  "canal": {"type": "string", "description": "Canal de comunicação: WhatsApp, Telegram, Chat, Email (opcional)"},
-                  "setor": {"type": "string", "description": "Setor responsável (opcional)"}
+                  "numero": {
+                    "type": "string",
+                    "description": "Número de telefone/identificador"
+                  },
+                  "nome": {
+                    "type": "string",
+                    "description": "Nome do cliente"
+                  },
+                  "id_atendente": {
+                    "type": "integer",
+                    "description": "ID do atendente (opcional)"
+                  },
+                  "nome_atendente": {
+                    "type": "string",
+                    "description": "Nome do atendente (opcional)"
+                  },
+                  "situacao": {
+                    "type": "string",
+                    "enum": ["P", "A", "T", "F"],
+                    "description": "Pendente, Atendendo, Triagem, Finalizado (padrão: P)"
+                  },
+                  "canal": {
+                    "type": "string",
+                    "description": "Canal de comunicação: WhatsApp, Telegram, Chat, Email (opcional)"
+                  },
+                  "setor": {
+                    "type": "string",
+                    "description": "Setor responsável (opcional)"
+                  }
                 },
                 "required": ["numero", "nome"]
               }
@@ -122,9 +175,31 @@
           }
         },
         "responses": {
-          "201": {"description": "Atendimento criado com sucesso", "content": {"application/json": {"schema": {"type": "object", "properties": {"sucesso": {"type": "boolean"}, "data": {"type": "object", "properties": {"id": {"type": "integer"}, "login": {"type": "string"}, "nome": {"type": "string"}, "situacao": {"type": "string"}}}, "mensagem": {"type": "string"}}}}},
-          "400": {"description": "Parâmetros obrigatórios ausentes"},
-          "500": {"description": "Erro ao criar atendimento"}
+          "201": {
+            "description": "Atendimento criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "integer" },
+                        "login": { "type": "string" },
+                        "nome": { "type": "string" },
+                        "situacao": { "type": "string" }
+                      }
+                    },
+                    "mensagem": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Parâmetros obrigatórios ausentes" },
+          "500": { "description": "Erro ao criar atendimento" }
         }
       }
     },
@@ -140,7 +215,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "numero": {"type": "string"}
+                  "numero": { "type": "string" }
                 },
                 "required": ["numero"]
               }
@@ -148,7 +223,7 @@
           }
         },
         "responses": {
-          "200": {"description": "Verificação concluída"}
+          "200": { "description": "Verificação concluída" }
         }
       }
     },
@@ -164,8 +239,8 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "id": {"type": "integer"},
-                  "observacao": {"type": "string"}
+                  "id": { "type": "integer" },
+                  "observacao": { "type": "string" }
                 },
                 "required": ["id"]
               }
@@ -173,8 +248,8 @@
           }
         },
         "responses": {
-          "200": {"description": "Atendimento finalizado"},
-          "404": {"description": "Atendimento não encontrado"}
+          "200": { "description": "Atendimento finalizado" },
+          "404": { "description": "Atendimento não encontrado" }
         }
       }
     },
@@ -190,9 +265,9 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "id_atendimento": {"type": "integer"},
-                  "mensagem": {"type": "string"},
-                  "arquivo": {"type": "string", "format": "binary"}
+                  "id_atendimento": { "type": "integer" },
+                  "mensagem": { "type": "string" },
+                  "arquivo": { "type": "string", "format": "binary" }
                 },
                 "required": ["id_atendimento", "mensagem"]
               }
@@ -200,8 +275,8 @@
           }
         },
         "responses": {
-          "201": {"description": "Mensagem gravada"},
-          "400": {"description": "Dados inválidos"}
+          "201": { "description": "Mensagem gravada" },
+          "400": { "description": "Dados inválidos" }
         }
       }
     },
@@ -217,8 +292,8 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "id": {"type": "integer"},
-                  "setor": {"type": "string"}
+                  "id": { "type": "integer" },
+                  "setor": { "type": "string" }
                 },
                 "required": ["id", "setor"]
               }
@@ -226,7 +301,7 @@
           }
         },
         "responses": {
-          "200": {"description": "Setor atualizado"}
+          "200": { "description": "Setor atualizado" }
         }
       }
     },
@@ -236,7 +311,7 @@
         "summary": "Listar atendimentos inativos",
         "operationId": "listarAtendimentosInativos",
         "responses": {
-          "200": {"description": "Lista de atendimentos inativos"}
+          "200": { "description": "Lista de atendimentos inativos" }
         }
       }
     },
@@ -252,8 +327,8 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "conteudo": {"type": "string"},
-                  "remetente": {"type": "string"}
+                  "conteudo": { "type": "string" },
+                  "remetente": { "type": "string" }
                 },
                 "required": ["conteudo"]
               }
@@ -261,7 +336,7 @@
           }
         },
         "responses": {
-          "200": {"description": "Verificação concluída"}
+          "200": { "description": "Verificação concluída" }
         }
       }
     },
@@ -277,7 +352,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "ids": {"type": "array", "items": {"type": "integer"}}
+                  "ids": { "type": "array", "items": { "type": "integer" } }
                 },
                 "required": ["ids"]
               }
@@ -285,7 +360,7 @@
           }
         },
         "responses": {
-          "200": {"description": "Status retornado"}
+          "200": { "description": "Status retornado" }
         }
       }
     },
@@ -295,7 +370,7 @@
         "summary": "Listar mensagens pendentes de envio",
         "operationId": "listMensagensParaEnviar",
         "responses": {
-          "200": {"description": "Lista de mensagens pendentes"}
+          "200": { "description": "Lista de mensagens pendentes" }
         }
       }
     },
@@ -305,10 +380,15 @@
         "summary": "Obter próxima sequência de mensagem",
         "operationId": "proximaSequenciaMensagem",
         "parameters": [
-          {"name": "id_atendimento", "in": "query", "schema": {"type": "integer"}, "required": true}
+          {
+            "name": "id_atendimento",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "required": true
+          }
         ],
         "responses": {
-          "200": {"description": "Próxima sequência retornada"}
+          "200": { "description": "Próxima sequência retornada" }
         }
       }
     },
@@ -324,7 +404,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "id": {"type": "integer"}
+                  "id": { "type": "integer" }
                 },
                 "required": ["id"]
               }
@@ -332,7 +412,7 @@
           }
         },
         "responses": {
-          "200": {"description": "Mensagem marcada como excluída"}
+          "200": { "description": "Mensagem marcada como excluída" }
         }
       }
     },
@@ -348,8 +428,8 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "id": {"type": "integer"},
-                  "reacao": {"type": "integer"}
+                  "id": { "type": "integer" },
+                  "reacao": { "type": "integer" }
                 },
                 "required": ["id", "reacao"]
               }
@@ -357,7 +437,7 @@
           }
         },
         "responses": {
-          "200": {"description": "Reação marcada"}
+          "200": { "description": "Reação marcada" }
         }
       }
     },
@@ -373,7 +453,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "id": {"type": "integer"}
+                  "id": { "type": "integer" }
                 },
                 "required": ["id"]
               }
@@ -381,7 +461,7 @@
           }
         },
         "responses": {
-          "200": {"description": "Mensagem marcada como enviada"}
+          "200": { "description": "Mensagem marcada como enviada" }
         }
       }
     },
@@ -397,8 +477,8 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "mensagem1": {"type": "string"},
-                  "mensagem2": {"type": "string"}
+                  "mensagem1": { "type": "string" },
+                  "mensagem2": { "type": "string" }
                 },
                 "required": ["mensagem1", "mensagem2"]
               }
@@ -406,7 +486,7 @@
           }
         },
         "responses": {
-          "200": {"description": "Comparação concluída"}
+          "200": { "description": "Comparação concluída" }
         }
       }
     },
@@ -416,10 +496,15 @@
         "summary": "Exportar contatos",
         "operationId": "exportarContatos",
         "parameters": [
-          {"name": "formato", "in": "query", "schema": {"type": "string", "enum": ["json", "csv", "xlsx"]}, "description": "Formato de exportação"}
+          {
+            "name": "formato",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["json", "csv", "xlsx"] },
+            "description": "Formato de exportação"
+          }
         ],
         "responses": {
-          "200": {"description": "Contatos exportados"}
+          "200": { "description": "Contatos exportados" }
         }
       }
     },
@@ -429,10 +514,15 @@
         "summary": "Buscar contato por nome",
         "operationId": "buscarNomeContato",
         "parameters": [
-          {"name": "nome", "in": "query", "schema": {"type": "string"}, "required": true}
+          {
+            "name": "nome",
+            "in": "query",
+            "schema": { "type": "string" },
+            "required": true
+          }
         ],
         "responses": {
-          "200": {"description": "Contatos encontrados"}
+          "200": { "description": "Contatos encontrados" }
         }
       }
     },
@@ -442,7 +532,7 @@
         "summary": "Listar agendamentos pendentes",
         "operationId": "listarAgendamentosPendentes",
         "responses": {
-          "200": {"description": "Agendamentos pendentes"}
+          "200": { "description": "Agendamentos pendentes" }
         }
       }
     },
@@ -452,7 +542,7 @@
         "summary": "Obter parâmetros do sistema",
         "operationId": "getParametrosSistema",
         "responses": {
-          "200": {"description": "Parâmetros do sistema"}
+          "200": { "description": "Parâmetros do sistema" }
         }
       }
     },
@@ -462,7 +552,7 @@
         "summary": "Verificar expediente",
         "operationId": "verificarExpediente",
         "responses": {
-          "200": {"description": "Status do expediente"}
+          "200": { "description": "Status do expediente" }
         }
       }
     },
@@ -472,7 +562,7 @@
         "summary": "Obter menu principal",
         "operationId": "getMenuPrincipal",
         "responses": {
-          "200": {"description": "Menu principal"}
+          "200": { "description": "Menu principal" }
         }
       }
     },
@@ -482,10 +572,15 @@
         "summary": "Obter submenus",
         "operationId": "getSubmenus",
         "parameters": [
-          {"name": "id_menu", "in": "query", "schema": {"type": "integer"}, "required": false}
+          {
+            "name": "id_menu",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "required": false
+          }
         ],
         "responses": {
-          "200": {"description": "Submenus"}
+          "200": { "description": "Submenus" }
         }
       }
     },
@@ -495,7 +590,7 @@
         "summary": "Obter respostas automáticas",
         "operationId": "getRespostasAutomaticas",
         "responses": {
-          "200": {"description": "Respostas automáticas"}
+          "200": { "description": "Respostas automáticas" }
         }
       }
     },
@@ -505,10 +600,15 @@
         "summary": "Obter departamentos por menu",
         "operationId": "getDepartamentoPorMenu",
         "parameters": [
-          {"name": "id_menu", "in": "query", "schema": {"type": "integer"}, "required": true}
+          {
+            "name": "id_menu",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "required": true
+          }
         ],
         "responses": {
-          "200": {"description": "Departamentos"}
+          "200": { "description": "Departamentos" }
         }
       }
     },
@@ -524,8 +624,8 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "numero": {"type": "string"},
-                  "mensagem": {"type": "string"}
+                  "numero": { "type": "string" },
+                  "mensagem": { "type": "string" }
                 },
                 "required": ["numero", "mensagem"]
               }
@@ -533,7 +633,7 @@
           }
         },
         "responses": {
-          "201": {"description": "Aviso registrado"}
+          "201": { "description": "Aviso registrado" }
         }
       }
     },
@@ -543,10 +643,14 @@
         "summary": "Limpar avisos antigos",
         "operationId": "limparAvisoAntigos",
         "parameters": [
-          {"name": "dias", "in": "query", "schema": {"type": "integer", "default": 30}}
+          {
+            "name": "dias",
+            "in": "query",
+            "schema": { "type": "integer", "default": 30 }
+          }
         ],
         "responses": {
-          "200": {"description": "Avisos antigos removidos"}
+          "200": { "description": "Avisos antigos removidos" }
         }
       }
     },
@@ -556,10 +660,15 @@
         "summary": "Limpar avisos por número",
         "operationId": "limparAvisoNumero",
         "parameters": [
-          {"name": "numero", "in": "query", "schema": {"type": "string"}, "required": true}
+          {
+            "name": "numero",
+            "in": "query",
+            "schema": { "type": "string" },
+            "required": true
+          }
         ],
         "responses": {
-          "200": {"description": "Avisos removidos"}
+          "200": { "description": "Avisos removidos" }
         }
       }
     },
@@ -569,10 +678,15 @@
         "summary": "Verificar aviso existente",
         "operationId": "verificarAvisoExistente",
         "parameters": [
-          {"name": "numero", "in": "query", "schema": {"type": "string"}, "required": true}
+          {
+            "name": "numero",
+            "in": "query",
+            "schema": { "type": "string" },
+            "required": true
+          }
         ],
         "responses": {
-          "200": {"description": "Aviso verificado"}
+          "200": { "description": "Aviso verificado" }
         }
       }
     }
@@ -582,21 +696,21 @@
       "SuccessResponse": {
         "type": "object",
         "properties": {
-          "sucesso": {"type": "boolean", "example": true},
-          "mensagem": {"type": "string"},
-          "dados": {"type": "object"}
+          "sucesso": { "type": "boolean", "example": true },
+          "mensagem": { "type": "string" },
+          "dados": { "type": "object" }
         }
       },
       "LoginResponse": {
         "type": "object",
         "properties": {
-          "sucesso": {"type": "boolean", "example": true},
+          "sucesso": { "type": "boolean", "example": true },
           "dados": {
             "type": "object",
             "properties": {
-              "token": {"type": "string"},
-              "refresh_token": {"type": "string"},
-              "usuario": {"type": "object"}
+              "token": { "type": "string" },
+              "refresh_token": { "type": "string" },
+              "usuario": { "type": "object" }
             }
           }
         }
@@ -604,17 +718,17 @@
       "AtendimentoListResponse": {
         "type": "object",
         "properties": {
-          "sucesso": {"type": "boolean"},
+          "sucesso": { "type": "boolean" },
           "dados": {
             "type": "array",
             "items": {
               "type": "object",
               "properties": {
-                "id": {"type": "integer"},
-                "numero": {"type": "string"},
-                "nome": {"type": "string"},
-                "situacao": {"type": "string"},
-                "canal": {"type": "string"}
+                "id": { "type": "integer" },
+                "numero": { "type": "string" },
+                "nome": { "type": "string" },
+                "situacao": { "type": "string" },
+                "canal": { "type": "string" }
               }
             }
           }
