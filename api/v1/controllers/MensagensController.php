@@ -125,7 +125,7 @@ class MensagensController
     }
 
     /**
-     * P5: Marcar mensagem como excluída
+     * P5: Marcar mensagem como excluída (spAtualizaExcluida)
      * PUT /mensagens/marcar-excluida
      * Body: { chatid }
      */
@@ -139,13 +139,19 @@ class MensagensController
                 return;
             }
 
-            $sql = "UPDATE tbmsgatendimento SET situacao = 'X' WHERE email = ?";
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute([$data['chatid']]);
+            $chatid = $data['chatid'];
 
-            Response::success(null, 'Mensagem marcada como excluída');
+            $sql = "CALL spAtualizaExcluida(:pChatId)";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':pChatId', $chatid, \PDO::PARAM_STR);
+            $stmt->execute();
+
+            Response::success([
+                'chatid' => $chatid,
+                'executado' => true
+            ], 'Mensagem marcada como excluída com sucesso');
         } catch (\PDOException $e) {
-            Response::error('Erro: ' . $e->getMessage(), 500);
+            Response::error('Erro ao marcar mensagem como excluída: ' . $e->getMessage(), 500);
         }
     }
 

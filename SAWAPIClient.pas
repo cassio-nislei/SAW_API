@@ -198,6 +198,8 @@ type
     function CompararDuplicacaoMensagem(AID: Integer; const AMensagem: string): Boolean;
     function AtualizarEnvioMensagem(AIDAgendamento: Integer; AEnviado: Integer; ATempoEnvio: Integer): Boolean;
     function EnviarArquivo(AAtendimentoID: Integer; const ACaminhoArquivo: string): Boolean;
+    function FinalizarAtendimento(AID: Integer; const AObservacao: string = ''): Boolean;
+
     
     // ============================================
     // Contatos
@@ -1516,6 +1518,7 @@ function TSAWAPIClient.MarcarMensagemExcluida(const AChatID: string): Boolean;
 var
   LRequest: TRESTRequest;
   LData: TJSONObject;
+  LJSONValue: TJSONValue;
 begin
   Result := False;
   try
@@ -1531,7 +1534,16 @@ begin
         LRequest.AddHeader('Authorization', GetAuthHeader);
         LRequest.Body.Add(LData.ToString);
         LRequest.Execute;
-        Result := LRequest.Response.StatusCode = 200;
+        
+        if LRequest.Response.StatusCode = 200 then
+        begin
+          LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+          try
+            Result := TJSONObject(LJSONValue).GetValue<Boolean>('sucesso');
+          finally
+            LJSONValue.Free;
+          end;
+        end;
       finally
         LRequest.Free;
       end;
@@ -1582,6 +1594,47 @@ begin
     end;
   end;
 end;
+
+function TSAWAPIClient.FinalizarAtendimento(AID: Integer; const AObservacao: string): Boolean;
+var
+  LRequest: TRESTRequest;
+  LBody: TJSONObject;
+begin
+  Result := False;
+
+  try
+    CheckTokenExpiry;
+
+    LBody := TJSONObject.Create;
+    try
+      if AObservacao <> '' then
+        LBody.AddPair('observacao', AObservacao);
+
+      LRequest := TRESTRequest.Create(nil);
+      try
+        LRequest.Client := FRESTClient;
+        LRequest.Resource := Format('/atendimentos/%d/finalizar', [AID]);
+        LRequest.Method := rmPOST;
+        LRequest.AddHeader('Authorization', GetAuthHeader);
+        LRequest.Body.Add(LBody.ToString);
+
+        LRequest.Execute;
+
+        Result := LRequest.Response.StatusCode in [200, 201];
+
+      finally
+        LRequest.Free;
+      end;
+    finally
+      LBody.Free;
+    end;
+
+  except
+    on E: Exception do
+      RaiseError('FinalizarAtendimento: ' + E.Message);
+  end;
+end;
+
 
 function TSAWAPIClient.MarcarMensagemEnviada(AID: Integer): Boolean;
 var

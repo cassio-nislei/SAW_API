@@ -395,7 +395,7 @@
     "/mensagens/marcar-excluida": {
       "put": {
         "tags": ["Mensagens"],
-        "summary": "Marcar mensagem como excluída",
+        "summary": "Marcar mensagem como excluída (P5: spAtualizaExcluida)",
         "operationId": "marcarMensagemExcluida",
         "requestBody": {
           "required": true,
@@ -404,15 +404,40 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "id": { "type": "integer" }
+                  "chatid": {
+                    "type": "string",
+                    "description": "Identificador único do chat"
+                  }
                 },
-                "required": ["id"]
+                "required": ["chatid"]
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Mensagem marcada como excluída" }
+          "200": {
+            "description": "Mensagem marcada como excluída com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "chatid": { "type": "string" },
+                        "executado": { "type": "boolean" }
+                      }
+                    },
+                    "mensagem": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "chatid obrigatório" },
+          "500": { "description": "Erro ao marcar mensagem como excluída" }
         }
       }
     },
