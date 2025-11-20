@@ -25,18 +25,29 @@ class AuthController {
                 return Response::error('Usuário e senha são obrigatórios', 400);
             }
             
-            // Buscar usuário no banco
-            $db = Database::getInstance();
-            $stmt = $db->prepare("
-                SELECT id, nome, email, login, situacao, senha
-                FROM tbusuario 
-                WHERE login = ? AND situacao = 'A'
-                LIMIT 1
-            ");
-            $stmt->execute([$data['usuario']]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            // Buscar usuário no banco (MySQLi)
+            $conn = Database::connect();
+            if (!$conn) {
+                return Response::error('Erro de conexão com banco', 500);
+            }
             
-            // Validar credenciais (comparação simples ou hash)
+            $query = "SELECT id, login, nome, email, situacao, senha FROM tbusuario WHERE login = ? AND situacao = 'A' LIMIT 1";
+            $stmt = $conn->prepare($query);
+            
+            if (!$stmt) {
+                return Response::error('Erro ao preparar query', 500);
+            }
+            
+            $stmt->bind_param('s', $data['usuario']);
+            if (!$stmt->execute()) {
+                return Response::error('Erro ao executar query', 500);
+            }
+            
+            $result = $stmt->get_result();
+            $user = $result->fetch_assoc();
+            $stmt->close();
+            
+            // Validar credenciais
             if (!$user || ($user['senha'] !== $data['senha'] && !password_verify($data['senha'], $user['senha']))) {
                 return Response::error('Usuário ou senha incorretos', 401);
             }
@@ -104,15 +115,26 @@ class AuthController {
             }
             
             // Buscar usuário
-            $db = Database::getInstance();
-            $stmt = $db->prepare("
-                SELECT id, nome, email, login
-                FROM tbusuario 
-                WHERE id = ? 
-                LIMIT 1
-            ");
-            $stmt->execute([$decoded['id']]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $conn = Database::connect();
+            if (!$conn) {
+                return Response::error('Erro de conexão com banco', 500);
+            }
+            
+            $query = "SELECT id, nome, email, login FROM tbusuario WHERE id = ? LIMIT 1";
+            $stmt = $conn->prepare($query);
+            
+            if (!$stmt) {
+                return Response::error('Erro ao preparar query', 500);
+            }
+            
+            $stmt->bind_param('i', $decoded['id']);
+            if (!$stmt->execute()) {
+                return Response::error('Erro ao executar query', 500);
+            }
+            
+            $result = $stmt->get_result();
+            $user = $result->fetch_assoc();
+            $stmt->close();
             
             if (!$user) {
                 return Response::error('Usuário não encontrado', 404);
