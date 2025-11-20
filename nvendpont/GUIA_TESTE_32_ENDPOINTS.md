@@ -11,6 +11,7 @@
 Antes de testar qualquer endpoint, obtenha um token JWT:
 
 ### 1. Login
+
 ```
 POST /api/v1/auth/login
 Content-Type: application/json
@@ -44,6 +45,7 @@ Copie o `token` para usar nos testes.
 ### CONTATOS (2 Endpoints)
 
 #### Q1: Exportar Contatos
+
 ```
 POST /api/v1/contatos/exportar
 Content-Type: application/json
@@ -76,6 +78,7 @@ Resposta Esperada:
 ```
 
 #### Q7: Buscar Nome por Telefone
+
 ```
 GET /api/v1/contatos/buscar-nome?numero=11999999999
 Authorization: Bearer [seu_token]
@@ -95,6 +98,7 @@ Resposta Esperada:
 ### AGENDAMENTOS (1 Endpoint)
 
 #### Q2: Mensagens Pendentes
+
 ```
 GET /api/v1/agendamentos/pendentes?canal=1
 Authorization: Bearer [seu_token]
@@ -122,6 +126,7 @@ Resposta Esperada:
 ### ATENDIMENTOS (6 Endpoints)
 
 #### Q3: Verificar Pendente
+
 ```
 GET /api/v1/atendimentos/verificar-pendente?numero=11999999999&canal=WhatsApp
 Authorization: Bearer [seu_token]
@@ -142,6 +147,7 @@ Resposta Esperada:
 ```
 
 #### P2: Criar Atendimento
+
 ```
 POST /api/v1/atendimentos/criar
 Content-Type: application/json
@@ -166,6 +172,7 @@ Resposta Esperada:
 ```
 
 #### P1: Finalizar Atendimento
+
 ```
 PUT /api/v1/atendimentos/finalizar
 Content-Type: application/json
@@ -185,6 +192,7 @@ Resposta Esperada:
 ```
 
 #### P3: Gravar Mensagem
+
 ```
 POST /api/v1/atendimentos/gravar-mensagem
 Content-Type: multipart/form-data
@@ -205,6 +213,7 @@ Resposta Esperada:
 ```
 
 #### P8: Atualizar Setor
+
 ```
 PUT /api/v1/atendimentos/atualizar-setor
 Content-Type: application/json
@@ -223,6 +232,7 @@ Resposta Esperada:
 ```
 
 #### Q16: Atendimentos Inativos
+
 ```
 GET /api/v1/atendimentos/inativos?tempo_minutos=5
 Authorization: Bearer [seu_token]
@@ -248,6 +258,7 @@ Resposta Esperada:
 ### MENSAGENS (8 Endpoints)
 
 #### Q6: Verificar Duplicada
+
 ```
 GET /api/v1/mensagens/verificar-duplicada?chatid=msg_123456
 Authorization: Bearer [seu_token]
@@ -263,6 +274,7 @@ Resposta Esperada:
 ```
 
 #### Q8: Status Múltiplas
+
 ```
 GET /api/v1/mensagens/status-multiplas?canal=WhatsApp
 Authorization: Bearer [seu_token]
@@ -284,6 +296,7 @@ Resposta Esperada:
 ```
 
 #### Q13: Pendentes de Envio
+
 ```
 GET /api/v1/mensagens/pendentes-envio?canal=WhatsApp
 Authorization: Bearer [seu_token]
@@ -304,6 +317,7 @@ Resposta Esperada:
 ```
 
 #### Q17: Próxima Sequência
+
 ```
 GET /api/v1/mensagens/proxima-sequencia?id_atendimento=457&numero=11988888888
 Authorization: Bearer [seu_token]
@@ -319,6 +333,7 @@ Resposta Esperada:
 ```
 
 #### P5: Marcar Excluída
+
 ```
 PUT /api/v1/mensagens/marcar-excluida
 Content-Type: application/json
@@ -336,6 +351,7 @@ Resposta Esperada:
 ```
 
 #### P6: Marcar Reação
+
 ```
 PUT /api/v1/mensagens/marcar-reacao
 Content-Type: application/json
@@ -354,6 +370,7 @@ Resposta Esperada:
 ```
 
 #### P4: Marcar Enviada
+
 ```
 PUT /api/v1/mensagens/marcar-enviada
 Content-Type: application/json
@@ -373,6 +390,7 @@ Resposta Esperada:
 ```
 
 #### Q14: Comparar Duplicação
+
 ```
 POST /api/v1/mensagens/comparar-duplicacao
 Content-Type: application/json
@@ -400,6 +418,7 @@ Resposta Esperada:
 ### PARÂMETROS (2 Endpoints)
 
 #### Q10: Sistema
+
 ```
 GET /api/v1/parametros/sistema
 Authorization: Bearer [seu_token]
@@ -417,6 +436,7 @@ Resposta Esperada:
 ```
 
 #### P9: Verificar Expediente
+
 ```
 GET /api/v1/parametros/verificar-expediente
 Authorization: Bearer [seu_token]
@@ -437,6 +457,7 @@ Resposta Esperada:
 ### MENUS (2 Endpoints)
 
 #### Q11: Principal
+
 ```
 GET /api/v1/menus/principal
 Authorization: Bearer [seu_token]
@@ -458,6 +479,7 @@ Resposta Esperada:
 ```
 
 #### Q12: Submenus
+
 ```
 GET /api/v1/menus/submenus
 Authorization: Bearer [seu_token]
@@ -483,6 +505,7 @@ Resposta Esperada:
 ### RESPOSTAS AUTOMÁTICAS (1 Endpoint)
 
 #### Q4: Buscar
+
 ```
 GET /api/v1/respostas-automaticas?id_menu=1
 Authorization: Bearer [seu_token]
@@ -504,6 +527,7 @@ Resposta Esperada:
 ### DEPARTAMENTOS (1 Endpoint)
 
 #### Q5: Por Menu
+
 ```
 GET /api/v1/departamentos/por-menu?id_menu=1
 Authorization: Bearer [seu_token]
@@ -525,6 +549,7 @@ Resposta Esperada:
 ### AVISOS (4 Endpoints)
 
 #### P7: Registrar
+
 ```
 POST /api/v1/avisos/registrar-sem-expediente
 Content-Type: application/json
@@ -547,6 +572,7 @@ Resposta Esperada:
 ```
 
 #### P11: Limpar Antigos
+
 ```
 DELETE /api/v1/avisos/limpar-antigos
 Authorization: Bearer [seu_token]
@@ -561,6 +587,7 @@ Resposta Esperada:
 ```
 
 #### P14: Limpar Número
+
 ```
 DELETE /api/v1/avisos/limpar-numero?numero=11988888888
 Authorization: Bearer [seu_token]
@@ -575,6 +602,7 @@ Resposta Esperada:
 ```
 
 #### P15: Verificar Existente
+
 ```
 GET /api/v1/avisos/verificar-existente?numero=11988888888
 Authorization: Bearer [seu_token]
@@ -629,13 +657,13 @@ Para cada endpoint testado, verifique:
 
 ## 🐛 Troubleshooting
 
-| Problema | Solução |
-|----------|---------|
-| 401 Unauthorized | Verifique se o token JWT é válido e está no header `Authorization: Bearer [token]` |
-| 404 Not Found | Verifique o caminho da rota e o método HTTP (GET/POST/PUT/DELETE) |
-| 400 Bad Request | Verifique se os parâmetros obrigatórios estão presentes |
-| 500 Internal Server | Verifique os logs da API e confirme se as tabelas existem no banco |
-| Resposta vazia | Verifique se há dados no banco para a consulta |
+| Problema            | Solução                                                                            |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| 401 Unauthorized    | Verifique se o token JWT é válido e está no header `Authorization: Bearer [token]` |
+| 404 Not Found       | Verifique o caminho da rota e o método HTTP (GET/POST/PUT/DELETE)                  |
+| 400 Bad Request     | Verifique se os parâmetros obrigatórios estão presentes                            |
+| 500 Internal Server | Verifique os logs da API e confirme se as tabelas existem no banco                 |
+| Resposta vazia      | Verifique se há dados no banco para a consulta                                     |
 
 ---
 
