@@ -16,11 +16,8 @@ class AuthController {
      */
     public static function login() {
         try {
-            $data = json_decode(file_get_contents('php://input'), true);
-            
-            // Debug
-            error_log("DEBUG: input data: " . print_r($data, true));
-            error_log("DEBUG: REQUEST_BODY: " . file_get_contents('php://input'));
+            $input = file_get_contents('php://input');
+            $data = json_decode($input, true);
             
             // Validação
             if (empty($data['usuario']) || empty($data['senha'])) {
