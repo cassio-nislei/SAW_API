@@ -1472,7 +1472,10 @@
                   "nome": { "type": "string" },
                   "tipo": { "type": "string" },
                   "permite_null": { "type": "boolean" },
-                  "apos": { "type": "string", "description": "Nome do campo anterior" }
+                  "apos": {
+                    "type": "string",
+                    "description": "Nome do campo anterior"
+                  }
                 },
                 "required": ["tabela", "nome", "tipo"]
               }
