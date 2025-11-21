@@ -2721,4 +2721,314 @@ begin
   end;
 end;
 
+// ============================================
+// MÉTODOS - BANCO DE DADOS
+// ============================================
+
+{ Listar todas as tabelas do banco de dados
+}
+function TSAWAPIClient.ListarTabelas: TJSONValue;
+var
+  LRequest: TRESTRequest;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/banco-dados/tabelas';
+      LRequest.Method := rmGET;
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
+      LRequest.Execute;
+
+      if LRequest.Response.StatusCode = 200 then
+        Result := TJSONObject.ParseJSONValue(LRequest.Response.Content)
+      else
+        RaiseError(Format('Erro ao listar tabelas: %d', [LRequest.Response.StatusCode]));
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('ListarTabelas: ' + E.Message);
+      Result := nil;
+    end;
+  end;
+end;
+
+{ Verificar se uma tabela existe no banco de dados
+  Equivalente a: TabelaExistenoMYSQL(NomeTabela, BancoDados)
+  
+  Parâmetros:
+  - ANomeTabela: Nome da tabela a verificar
+}
+function TSAWAPIClient.TabelaExiste(const ANomeTabela: string): Boolean;
+var
+  LRequest: TRESTRequest;
+  LJSONValue: TJSONValue;
+  LResource: string;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LResource := Format('/banco-dados/tabela/existe?tabela=%s', [ANomeTabela]);
+      LRequest.Resource := LResource;
+      LRequest.Method := rmGET;
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
+      LRequest.Execute;
+
+      if LRequest.Response.StatusCode = 200 then
+      begin
+        LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+        try
+          Result := TJSONObject(LJSONValue).GetValue('data').GetValue<Boolean>('existe');
+        finally
+          LJSONValue.Free;
+        end;
+      end
+      else
+        RaiseError(Format('Erro ao verificar tabela: %d', [LRequest.Response.StatusCode]));
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('TabelaExiste: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
+{ Verificar se um campo existe em uma tabela
+  Equivalente a: CampoExiste(NomeTabela, NomeCampo, Conexao)
+  
+  Parâmetros:
+  - ANomeTabela: Nome da tabela
+  - ANomeCampo: Nome do campo
+}
+function TSAWAPIClient.CampoExiste(const ANomeTabela, ANomeCampo: string): Boolean;
+var
+  LRequest: TRESTRequest;
+  LJSONValue: TJSONValue;
+  LResource: string;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LResource := Format('/banco-dados/campo/existe?tabela=%s&campo=%s', 
+        [ANomeTabela, ANomeCampo]);
+      LRequest.Resource := LResource;
+      LRequest.Method := rmGET;
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
+      LRequest.Execute;
+
+      if LRequest.Response.StatusCode = 200 then
+      begin
+        LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+        try
+          Result := TJSONObject(LJSONValue).GetValue('data').GetValue<Boolean>('existe');
+        finally
+          LJSONValue.Free;
+        end;
+      end
+      else
+        RaiseError(Format('Erro ao verificar campo: %d', [LRequest.Response.StatusCode]));
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('CampoExiste: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
+{ Obter estrutura completa de uma tabela
+  
+  Parâmetros:
+  - ANomeTabela: Nome da tabela
+}
+function TSAWAPIClient.ObterEstruturatTabela(const ANomeTabela: string): TJSONValue;
+var
+  LRequest: TRESTRequest;
+  LResource: string;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LResource := Format('/banco-dados/tabela/estrutura?tabela=%s', [ANomeTabela]);
+      LRequest.Resource := LResource;
+      LRequest.Method := rmGET;
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
+      LRequest.Execute;
+
+      if LRequest.Response.StatusCode = 200 then
+        Result := TJSONObject.ParseJSONValue(LRequest.Response.Content)
+      else
+        RaiseError(Format('Erro ao obter estrutura: %d', [LRequest.Response.StatusCode]));
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('ObterEstruturatTabela: ' + E.Message);
+      Result := nil;
+    end;
+  end;
+end;
+
+{ Obter informações detalhadas de um campo
+  
+  Parâmetros:
+  - ANomeTabela: Nome da tabela
+  - ANomeCampo: Nome do campo
+}
+function TSAWAPIClient.ObterInfoCampo(const ANomeTabela, ANomeCampo: string): TJSONValue;
+var
+  LRequest: TRESTRequest;
+  LResource: string;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LResource := Format('/banco-dados/campo/info?tabela=%s&campo=%s', 
+        [ANomeTabela, ANomeCampo]);
+      LRequest.Resource := LResource;
+      LRequest.Method := rmGET;
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
+      LRequest.Execute;
+
+      if LRequest.Response.StatusCode = 200 then
+        Result := TJSONObject.ParseJSONValue(LRequest.Response.Content)
+      else
+        RaiseError(Format('Erro ao obter info do campo: %d', [LRequest.Response.StatusCode]));
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('ObterInfoCampo: ' + E.Message);
+      Result := nil;
+    end;
+  end;
+end;
+
+{ Criar nova tabela (ADMIN ONLY)
+  
+  Parâmetros:
+  - ANome: Nome da tabela
+  - ACampos: TJSONArray com definição dos campos
+}
+function TSAWAPIClient.CriarTabela(const ANome: string; const ACampos: TJSONArray): Boolean;
+var
+  LRequest: TRESTRequest;
+  LJSONBody: TJSONObject;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/banco-dados/tabela/criar';
+      LRequest.Method := rmPOST;
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
+
+      LJSONBody := TJSONObject.Create;
+      try
+        LJSONBody.AddPair('nome', ANome);
+        LJSONBody.AddPair('campos', ACampos);
+
+        LRequest.Body.Add(LJSONBody.ToString);
+        LRequest.Execute;
+
+        Result := LRequest.Response.StatusCode = 200;
+        if not Result then
+          RaiseError(Format('Erro ao criar tabela: %d', [LRequest.Response.StatusCode]));
+      finally
+        LJSONBody.Free;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('CriarTabela: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
+{ Adicionar campo a uma tabela (ADMIN ONLY)
+  
+  Parâmetros:
+  - ATabela: Nome da tabela
+  - ANomeCampo: Nome do novo campo
+  - ATipo: Tipo do campo (ex: 'VARCHAR(255)', 'INT', etc)
+  - APermiteNull: Se permite NULL
+}
+function TSAWAPIClient.AdicionarCampo(const ATabela, ANomeCampo, ATipo: string; 
+  APermiteNull: Boolean = True): Boolean;
+var
+  LRequest: TRESTRequest;
+  LJSONBody: TJSONObject;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/banco-dados/campo/adicionar';
+      LRequest.Method := rmPOST;
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
+
+      LJSONBody := TJSONObject.Create;
+      try
+        LJSONBody.AddPair('tabela', ATabela);
+        LJSONBody.AddPair('nome', ANomeCampo);
+        LJSONBody.AddPair('tipo', ATipo);
+        LJSONBody.AddPair('permite_null', TJSONBool.Create(APermiteNull));
+
+        LRequest.Body.Add(LJSONBody.ToString);
+        LRequest.Execute;
+
+        Result := LRequest.Response.StatusCode = 200;
+        if not Result then
+          RaiseError(Format('Erro ao adicionar campo: %d', [LRequest.Response.StatusCode]));
+      finally
+        LJSONBody.Free;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('AdicionarCampo: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
 end.

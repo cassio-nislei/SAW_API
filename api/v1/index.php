@@ -76,6 +76,7 @@ require_once __DIR__ . '/controllers/RespostasController.php';
 require_once __DIR__ . '/controllers/DepartamentosController.php';
 require_once __DIR__ . '/controllers/AvisosController.php';
 require_once __DIR__ . '/controllers/AnexosController.php';
+require_once __DIR__ . '/controllers/BancoDadosController.php';
 
 try {
     // Cria router
@@ -544,6 +545,45 @@ try {
     // GET - Relatório de mensagens por status
     $router->get('/mensagens/status/relatorio', function () {
         MensagensStatusController::relatorioStatus();
+    });
+
+    // ============================================
+    // BANCO DE DADOS - ESTRUTURA E VERIFICAÇÃO
+    // ============================================
+
+    // GET - Listar todas as tabelas
+    $router->get('/banco-dados/tabelas', function () {
+        BancoDadosController::listarTabelas();
+    });
+
+    // GET - Verificar se tabela existe
+    $router->get('/banco-dados/tabela/existe', function () {
+        BancoDadosController::tabelaExiste();
+    });
+
+    // GET - Verificar se campo existe em tabela
+    $router->get('/banco-dados/campo/existe', function () {
+        BancoDadosController::campoExiste();
+    });
+
+    // GET - Obter estrutura completa da tabela
+    $router->get('/banco-dados/tabela/estrutura', function () {
+        BancoDadosController::estruturaTabela();
+    });
+
+    // GET - Obter informações detalhadas de um campo
+    $router->get('/banco-dados/campo/info', function () {
+        BancoDadosController::infoCampo();
+    });
+
+    // POST - Criar nova tabela (admin only)
+    $router->post('/banco-dados/tabela/criar', function () {
+        BancoDadosController::criarTabela();
+    });
+
+    // POST - Adicionar campo a tabela (admin only)
+    $router->post('/banco-dados/campo/adicionar', function () {
+        BancoDadosController::adicionarCampo();
     });
 
     // ============================================
