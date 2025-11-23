@@ -3031,4 +3031,335 @@ begin
   end;
 end;
 
+{ Listar todas as procedures do banco de dados
+}
+function TSAWAPIClient.ListarProcedures: TJSONValue;
+var
+  LRequest: TRESTRequest;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/procedures/listar';
+      LRequest.Method := rmGET;
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
+      LRequest.Execute;
+
+      if LRequest.Response.StatusCode = 200 then
+        Result := TJSONObject.ParseJSONValue(LRequest.Response.Content)
+      else
+        RaiseError(Format('Erro ao listar procedures: %d', [LRequest.Response.StatusCode]));
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('ListarProcedures: ' + E.Message);
+      Result := nil;
+    end;
+  end;
+end;
+
+{ Verificar se uma procedure existe
+  Equivalente a: ProcedureExists(db, 'sprGeraNovoAtendimento')
+  
+  Parâmetros:
+  - ANome: Nome da procedure
+}
+function TSAWAPIClient.ProcedureExists(const ANome: string): Boolean;
+var
+  LRequest: TRESTRequest;
+  LJSONValue: TJSONValue;
+  LResource: string;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LResource := Format('/procedures/existe?nome=%s', [ANome]);
+      LRequest.Resource := LResource;
+      LRequest.Method := rmGET;
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
+      LRequest.Execute;
+
+      if LRequest.Response.StatusCode = 200 then
+      begin
+        LJSONValue := TJSONObject.ParseJSONValue(LRequest.Response.Content);
+        try
+          Result := TJSONObject(LJSONValue).GetValue('data').GetValue<Boolean>('existe');
+        finally
+          LJSONValue.Free;
+        end;
+      end
+      else
+        RaiseError(Format('Erro ao verificar procedure: %d', [LRequest.Response.StatusCode]));
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('ProcedureExists: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
+{ Executar uma procedure com parâmetros
+  
+  Parâmetros:
+  - ANome: Nome da procedure
+  - AParametros: Array de valores dos parâmetros
+}
+function TSAWAPIClient.ExecutarProcedure(const ANome: string; 
+  const AParametros: TArray<Variant>): TJSONValue;
+var
+  LRequest: TRESTRequest;
+  LJSONBody: TJSONObject;
+  LJSONArray: TJSONArray;
+  i: Integer;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/procedures/executar';
+      LRequest.Method := rmPOST;
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
+
+      LJSONBody := TJSONObject.Create;
+      try
+        LJSONBody.AddPair('nome', ANome);
+        
+        LJSONArray := TJSONArray.Create;
+        for i := Low(AParametros) to High(AParametros) do
+          LJSONArray.Add(VarToStr(AParametros[i]));
+        
+        LJSONBody.AddPair('parametros', LJSONArray);
+
+        LRequest.Body.Add(LJSONBody.ToString);
+        LRequest.Execute;
+
+        if LRequest.Response.StatusCode = 200 then
+          Result := TJSONObject.ParseJSONValue(LRequest.Response.Content)
+        else
+          RaiseError(Format('Erro ao executar procedure: %d', [LRequest.Response.StatusCode]));
+      finally
+        LJSONBody.Free;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('ExecutarProcedure: ' + E.Message);
+      Result := nil;
+    end;
+  end;
+end;
+
+{ Criar nova procedure (ADMIN ONLY)
+  
+  Parâmetros:
+  - ANome: Nome da procedure
+  - ASQL: Código SQL completo da procedure
+}
+function TSAWAPIClient.CriarProcedure(const ANome, ASQL: string): Boolean;
+var
+  LRequest: TRESTRequest;
+  LJSONBody: TJSONObject;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/procedures/criar';
+      LRequest.Method := rmPOST;
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
+
+      LJSONBody := TJSONObject.Create;
+      try
+        LJSONBody.AddPair('nome', ANome);
+        LJSONBody.AddPair('sql', ASQL);
+
+        LRequest.Body.Add(LJSONBody.ToString);
+        LRequest.Execute;
+
+        Result := LRequest.Response.StatusCode = 200;
+        if not Result then
+          RaiseError(Format('Erro ao criar procedure: %d', [LRequest.Response.StatusCode]));
+      finally
+        LJSONBody.Free;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('CriarProcedure: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
+{ Remover procedure (ADMIN ONLY)
+  
+  Parâmetros:
+  - ANome: Nome da procedure a remover
+}
+function TSAWAPIClient.RemoverProcedure(const ANome: string): Boolean;
+var
+  LRequest: TRESTRequest;
+  LJSONBody: TJSONObject;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/procedures/droppar';
+      LRequest.Method := rmPOST;
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
+
+      LJSONBody := TJSONObject.Create;
+      try
+        LJSONBody.AddPair('nome', ANome);
+
+        LRequest.Body.Add(LJSONBody.ToString);
+        LRequest.Execute;
+
+        Result := LRequest.Response.StatusCode = 200;
+        if not Result then
+          RaiseError(Format('Erro ao remover procedure: %d', [LRequest.Response.StatusCode]));
+      finally
+        LJSONBody.Free;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('RemoverProcedure: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
+{ Executar SQL arbitrário (ADMIN ONLY - CUIDADO!)
+  
+  Parâmetros:
+  - ASQL: Código SQL a executar
+}
+function TSAWAPIClient.ExecutarSQL(const ASQL: string): Boolean;
+var
+  LRequest: TRESTRequest;
+  LJSONBody: TJSONObject;
+begin
+  Result := False;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/sql/executar';
+      LRequest.Method := rmPOST;
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
+
+      LJSONBody := TJSONObject.Create;
+      try
+        LJSONBody.AddPair('sql', ASQL);
+
+        LRequest.Body.Add(LJSONBody.ToString);
+        LRequest.Execute;
+
+        Result := LRequest.Response.StatusCode = 200;
+        if not Result then
+          RaiseError(Format('Erro ao executar SQL: %d', [LRequest.Response.StatusCode]));
+      finally
+        LJSONBody.Free;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('ExecutarSQL: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
+
+{ Sincronizar estrutura de tabelas e colunas
+  Substitui VerificaTabelaseColunas do Delphi original
+  
+  Parâmetros:
+  - ANomeTabela: Nome da tabela
+  - AColunas: TJSONArray com definição das colunas
+  - ASQLCriacao: SQL para criar a tabela se não existir
+  - ACriarSeNaoExiste: Se deve criar a tabela se ela não existir
+}
+function TSAWAPIClient.SincronizarEstrutura(const ANomeTabela: string;
+  const AColunas: TJSONArray; const ASQLCriacao: string = '';
+  ACriarSeNaoExiste: Boolean = True): TJSONValue;
+var
+  LRequest: TRESTRequest;
+  LJSONBody: TJSONObject;
+begin
+  Result := nil;
+  try
+    CheckTokenExpiry;
+    LRequest := TRESTRequest.Create(nil);
+    try
+      LRequest.Client := FRESTClient;
+      LRequest.Resource := '/tabelas/sincronizar-estrutura';
+      LRequest.Method := rmPOST;
+      LRequest.AddParameter('Authorization', GetAuthHeader, pkHTTPHEADER);
+
+      LJSONBody := TJSONObject.Create;
+      try
+        LJSONBody.AddPair('tabela', ANomeTabela);
+        LJSONBody.AddPair('colunas', AColunas);
+        
+        if not ASQLCriacao.IsEmpty then
+          LJSONBody.AddPair('sql_criacao', ASQLCriacao);
+        
+        LJSONBody.AddPair('criar_se_nao_existe', TJSONBool.Create(ACriarSeNaoExiste));
+
+        LRequest.Body.Add(LJSONBody.ToString);
+        LRequest.Execute;
+
+        if LRequest.Response.StatusCode = 200 then
+          Result := TJSONObject.ParseJSONValue(LRequest.Response.Content)
+        else
+          RaiseError(Format('Erro ao sincronizar estrutura: %d', [LRequest.Response.StatusCode]));
+      finally
+        LJSONBody.Free;
+      end;
+    finally
+      LRequest.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      RaiseError('SincronizarEstrutura: ' + E.Message);
+      Result := nil;
+    end;
+  end;
+end;
+
 end.

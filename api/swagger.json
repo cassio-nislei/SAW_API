@@ -42,7 +42,15 @@
       "name": "Departamentos",
       "description": "Gerenciamento de departamentos"
     },
-    { "name": "Avisos", "description": "Gerenciamento de avisos" }
+    { "name": "Avisos", "description": "Gerenciamento de avisos" },
+    {
+      "name": "Banco de Dados",
+      "description": "Operações de estrutura do banco de dados"
+    },
+    {
+      "name": "Procedures",
+      "description": "Gerenciamento e execução de stored procedures e SQL"
+    }
   ],
   "paths": {
     "/": {
@@ -1484,6 +1492,308 @@
         },
         "responses": {
           "200": { "description": "Campo adicionado com sucesso" }
+        }
+      }
+    },
+    "/procedures/listar": {
+      "get": {
+        "tags": ["Procedures"],
+        "summary": "Listar Procedures",
+        "description": "Lista todas as procedures do banco de dados MySQL",
+        "operationId": "listProcedures",
+        "security": [{ "BearerToken": [] }],
+        "responses": {
+          "200": {
+            "description": "Lista de procedures obtida com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "nome": {
+                            "type": "string",
+                            "example": "sprDashBoardAnoAtual"
+                          },
+                          "banco": { "type": "string", "example": "saw_db" }
+                        }
+                      }
+                    },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/procedures/existe": {
+      "get": {
+        "tags": ["Procedures"],
+        "summary": "Verificar Existência de Procedure",
+        "description": "Verifica se uma procedure existe no banco de dados. Substitui TabelaExistenoMYSQL do Delphi.",
+        "operationId": "procedureExists",
+        "security": [{ "BearerToken": [] }],
+        "parameters": [
+          {
+            "name": "nome",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "example": "sprDashBoardAnoAtual" },
+            "description": "Nome da procedure a verificar"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Verificação realizada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "existe": { "type": "boolean", "example": true },
+                        "nome": { "type": "string" }
+                      }
+                    },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/procedures/executar": {
+      "post": {
+        "tags": ["Procedures"],
+        "summary": "Executar Procedure",
+        "description": "Executa uma procedure com parâmetros opcionais",
+        "operationId": "executeProcedure",
+        "security": [{ "BearerToken": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "example": "sprDashBoardAnoAtual",
+                    "description": "Nome da procedure a executar"
+                  },
+                  "parametros": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "example": ["2024", "01"],
+                    "description": "Array com valores dos parâmetros"
+                  }
+                },
+                "required": ["nome"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Procedure executada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "data": {
+                      "type": "object",
+                      "description": "Resultado da procedure"
+                    },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/procedures/criar": {
+      "post": {
+        "tags": ["Procedures"],
+        "summary": "Criar Procedure (ADMIN)",
+        "description": "Cria uma nova procedure no banco de dados. Requer permissão de administrador.",
+        "operationId": "createProcedure",
+        "security": [{ "BearerToken": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "example": "sprNovaProc",
+                    "description": "Nome da nova procedure"
+                  },
+                  "sql": {
+                    "type": "string",
+                    "example": "CREATE PROCEDURE sprNovaProc() BEGIN SELECT 1; END",
+                    "description": "Código SQL completo da procedure"
+                  }
+                },
+                "required": ["nome", "sql"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Procedure criada com sucesso" },
+          "403": { "description": "Acesso negado (requer admin)" }
+        }
+      }
+    },
+    "/procedures/droppar": {
+      "post": {
+        "tags": ["Procedures"],
+        "summary": "Remover Procedure (ADMIN)",
+        "description": "Remove uma procedure do banco de dados. Requer permissão de administrador.",
+        "operationId": "dropProcedure",
+        "security": [{ "BearerToken": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "example": "sprNovaProc",
+                    "description": "Nome da procedure a remover"
+                  }
+                },
+                "required": ["nome"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Procedure removida com sucesso" },
+          "403": { "description": "Acesso negado (requer admin)" }
+        }
+      }
+    },
+    "/sql/executar": {
+      "post": {
+        "tags": ["Procedures"],
+        "summary": "Executar SQL Arbitrário (ADMIN)",
+        "description": "Executa código SQL arbitrário. CUIDADO: Requer permissão de administrador e deve ser usado com cautela.",
+        "operationId": "executeSQL",
+        "security": [{ "BearerToken": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sql": {
+                    "type": "string",
+                    "example": "UPDATE tbusuario SET em_almoco = 1 WHERE id = 123",
+                    "description": "Código SQL a executar"
+                  }
+                },
+                "required": ["sql"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "SQL executado com sucesso" },
+          "403": { "description": "Acesso negado (requer admin)" }
+        }
+      }
+    },
+    "/tabelas/sincronizar-estrutura": {
+      "post": {
+        "tags": ["Procedures"],
+        "summary": "Sincronizar Estrutura de Tabelas",
+        "description": "Cria tabelas e colunas se não existirem. Substitui VerificaTabelaseColunas do Delphi.",
+        "operationId": "syncTableStructure",
+        "security": [{ "BearerToken": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tabela": {
+                    "type": "string",
+                    "example": "tbusuario",
+                    "description": "Nome da tabela"
+                  },
+                  "colunas": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "nome": { "type": "string", "example": "em_almoco" },
+                        "tipo": { "type": "string", "example": "INT" },
+                        "permite_null": { "type": "boolean", "example": true }
+                      }
+                    },
+                    "description": "Array com definição das colunas"
+                  },
+                  "sql_criacao": {
+                    "type": "string",
+                    "description": "SQL para criar a tabela se não existir"
+                  },
+                  "criar_se_nao_existe": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Se deve criar a tabela quando ela não existir"
+                  }
+                },
+                "required": ["tabela", "colunas"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Estrutura sincronizada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "tabela_criada": { "type": "boolean" },
+                        "colunas_adicionadas": { "type": "array" },
+                        "total": { "type": "integer" }
+                      }
+                    },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

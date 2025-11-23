@@ -77,6 +77,7 @@ require_once __DIR__ . '/controllers/DepartamentosController.php';
 require_once __DIR__ . '/controllers/AvisosController.php';
 require_once __DIR__ . '/controllers/AnexosController.php';
 require_once __DIR__ . '/controllers/BancoDadosController.php';
+require_once __DIR__ . '/controllers/ProceduresController.php';
 
 try {
     // Cria router
@@ -584,6 +585,45 @@ try {
     // POST - Adicionar campo a tabela (admin only)
     $router->post('/banco-dados/campo/adicionar', function () {
         BancoDadosController::adicionarCampo();
+    });
+
+    // ============================================
+    // PROCEDURES - CRIAÇÃO E EXECUÇÃO
+    // ============================================
+
+    // GET - Listar todas as procedures
+    $router->get('/procedures/listar', function () {
+        ProceduresController::listar();
+    });
+
+    // GET - Verificar se procedure existe
+    $router->get('/procedures/existe', function () {
+        ProceduresController::existe();
+    });
+
+    // POST - Executar uma procedure
+    $router->post('/procedures/executar', function () {
+        ProceduresController::executar();
+    });
+
+    // POST - Criar nova procedure (admin only)
+    $router->post('/procedures/criar', function () {
+        ProceduresController::criar();
+    });
+
+    // POST - Remover procedure (admin only)
+    $router->post('/procedures/droppar', function () {
+        ProceduresController::droppar();
+    });
+
+    // POST - Executar SQL arbitrário (admin only)
+    $router->post('/sql/executar', function () {
+        ProceduresController::executarSQL();
+    });
+
+    // POST - Sincronizar estrutura de tabelas e colunas
+    $router->post('/tabelas/sincronizar-estrutura', function () {
+        ProceduresController::sincronizarEstrutura();
     });
 
     // ============================================
