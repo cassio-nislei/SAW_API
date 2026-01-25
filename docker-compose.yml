@@ -9,10 +9,10 @@ services:
     volumes:
       - ./:/var/www/html/
     environment:
-      DB_HOST: 104.234.173.105
-      DB_USER: root
-      DB_PASS: Ncm@647534
-      DB_NAME: saw15
+      DB_HOST: ${DB_HOST:-db}
+      DB_USER: ${DB_USER:-root}
+      DB_PASS: ${DB_PASS:-root}
+      DB_NAME: ${DB_NAME:-saw15}
     networks:
       - atende
     restart: unless-stopped

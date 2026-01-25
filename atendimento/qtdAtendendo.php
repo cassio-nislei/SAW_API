@@ -2,14 +2,14 @@
   	require_once("../includes/padrao.inc.php");
 
    	// Definições de Variáveis //
-		$id_usuario = isset($_POST["id"]) ? $_POST["id"] : "";
+		$id_usuario = isset($_POST["id"]) ? intval($_POST["id"]) : 0; // Sanitize input
 		if ($_SESSION["usuariosaw"]["perfil"] == 0 || $_SESSION["parametros"]["mostra_todos_chats"] == 1){
 			$permissaoAdmin = '';
 		}else{
-			$permissaoAdmin = " AND id_atend = '.$id_usuario.' AND setor IN(
+			$permissaoAdmin = " AND id_atend = '{$id_usuario}' AND setor IN(
 				SELECT id_departamento 
 					FROM tbusuariodepartamento 
-						WHERE id_usuario = '$id_usuario'
+						WHERE id_usuario = '{$id_usuario}'
 			)";
 		}
 
@@ -26,7 +26,7 @@
 		$conexao
 		, "SELECT id, numero
 			FROM tbatendimento 
-				WHERE situacao = 'A' ${permissaoAdmin}					
+				WHERE situacao = 'A' {$permissaoAdmin}					
 					ORDER BY dt_atend, hr_atend"
 	) or die("Erro ao verificar a quantidade de Conversas em Atendimento: " . mysqli_error($conexao));
 

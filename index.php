@@ -49,13 +49,13 @@
 				  //Verifico se possui parametros Cadastrado
 				  $parametros = mysqli_query($conexao, "select * from tbparametros limit 1" ) or die (mysqli_error($conexao));
 				  if (mysqli_num_rows( $parametros)<1){ //Se não possuir algum usuário
-					$insereParametro = mysqli_query($conexao, "INSERT INTO tbparametros (id, msg_inicio_atendimento, msg_aguardando_atendimento, msg_inicio_atendente, msg_fim_atendimento, msg_sem_expediente, msg_desc_inatividade, imagem_perfil, title, minutos_offline, color, nome_atendente, chat_operadores, atend_triagem, historico_conversas, iniciar_conversa, enviar_resprapida_aut, enviar_audio_aut, qrcode, op_naoenv_ultmsg, exibe_foto_perfil, alerta_sonoro, mostra_todos_chats, transferencia_offline) VALUES
+					$insereParametro = mysqli_query($conexao, "INSERT INTO tbparametros (id, msg_inicio_atendimento, msg_aguardando_atendimento, msg_inicio_atendente, msg_fim_atendimento, msg_sem_expediente, msg_desc_inatividade, imagem_perfil, title, minutos_offline, color, nome_atendente, chat_operadores, atend_triagem, historico_conversas, iniciar_conversa, enviar_resprapida_aut, enviar_audio_aut, qrcode, op_naoenv_ultmsg, exibe_foto_perfil, alerta_sonoro, mostra_todos_chats, transferencia_offline, id_atendente_triagem) VALUES
 					(1, 'Olá,seja bem-vindo(a) ao *Auto atendimento* 😄 _Selecione uma das opções a baixo para continuar o atendimento_ 😉', 
 					'Seu atendimento foi transferido para *<<setor>>*.', 
 					'Olá você está no setor *<<setor>>*, me chamo *<<atendente>>* em que posso lhe ajudar?*.', 
 					'O seu atendimento foi finalizado, agradecemos pelo seu contato, tenha um ótimo dia 😉*', 					
 					'Nosso horario de funcionamento é de segunda a sexta das 07:30 às 18:00 e aos sábados das 08:00 às 12:00, responderemos seu chamado assim que possivel!', '', 
-					'', 'Sistema de Atendimento', '5', '#ff9214', 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1);")or die (mysqli_error($conexao)); 
+					'', 'Sistema de Atendimento', '5', '#ff9214', 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0);")or die (mysqli_error($conexao)); 
 					 echo "<font color='red'>Parametros padrões configurados</font><br>";
 				  }
 
@@ -82,9 +82,7 @@
                      }
                      if (mysqli_num_rows($usuarios)==1){
                        $administrador = mysqli_fetch_assoc($usuarios);
-                       if ($administrador["login"]=='admin'){
-                          echo "<font color='red'>Usuário padrão:admin Senha: 123456 </font>";
-                       }
+                       // Default admin check removed for security
                      }
 				?>
 

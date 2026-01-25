@@ -26,7 +26,7 @@ uses
   System.SysUtils, System.JSON, System.Classes, System.Generics.Collections,
   REST.Client, REST.Types, System.DateUtils,REST.Authenticator.Basic,
   REST.Utils, System.Net.HttpClient, System.IOUtils, System.StrUtils,
-  System.Net.HttpClientComponent,
+  System.Net.HttpClientComponent,  Variants,
   System.Net.Mime;
 
 type
@@ -152,6 +152,26 @@ type
   AHorasAtras: Integer = 24; AMinutosFuturos: Integer = 10): TJSONValue;
     function ObterRelatorioStatusMensagens(const ACanal: string;
   ADataIni: TDate = 0; ADataFim: TDate = 0): TJSONValue;
+
+    function CampoExiste(const ANomeTabela, ANomeCampo: string): Boolean;
+    function CriarProcedure(const ANome, ASQL: string): Boolean;
+    function CriarTabela(const ANome: string;
+      const ACampos: TJSONArray): Boolean;
+    function ExecutarProcedure(const ANome: string;
+      const AParametros: TArray<Variant>): TJSONValue;
+    function ExecutarSQL(const ASQL: string): Boolean;
+    function ListarProcedures: TJSONValue;
+    function ListarTabelas: TJSONValue;
+    function ObterEstruturatTabela(const ANomeTabela: string): TJSONValue;
+    function ObterInfoCampo(const ANomeTabela, ANomeCampo: string): TJSONValue;
+    function ProcedureExists(const ANome: string): Boolean;
+    function RemoverProcedure(const ANome: string): Boolean;
+    function SincronizarEstrutura(const ANomeTabela: string;
+  const AColunas: TJSONArray; const ASQLCriacao: string = '';
+  ACriarSeNaoExiste: Boolean = True): TJSONValue;
+    function TabelaExiste(const ANomeTabela: string): Boolean;
+    function AdicionarCampo(const ATabela, ANomeCampo, ATipo: string;
+  APermiteNull: Boolean = True): Boolean;
 
 
 
@@ -2760,7 +2780,7 @@ end;
 
 { Verificar se uma tabela existe no banco de dados
   Equivalente a: TabelaExistenoMYSQL(NomeTabela, BancoDados)
-  
+
   Parâmetros:
   - ANomeTabela: Nome da tabela a verificar
 }
@@ -2807,7 +2827,7 @@ end;
 
 { Verificar se um campo existe em uma tabela
   Equivalente a: CampoExiste(NomeTabela, NomeCampo, Conexao)
-  
+
   Parâmetros:
   - ANomeTabela: Nome da tabela
   - ANomeCampo: Nome do campo
@@ -2824,7 +2844,7 @@ begin
     LRequest := TRESTRequest.Create(nil);
     try
       LRequest.Client := FRESTClient;
-      LResource := Format('/banco-dados/campo/existe?tabela=%s&campo=%s', 
+      LResource := Format('/banco-dados/campo/existe?tabela=%s&campo=%s',
         [ANomeTabela, ANomeCampo]);
       LRequest.Resource := LResource;
       LRequest.Method := rmGET;
@@ -2855,7 +2875,7 @@ begin
 end;
 
 { Obter estrutura completa de uma tabela
-  
+
   Parâmetros:
   - ANomeTabela: Nome da tabela
 }
@@ -2893,7 +2913,7 @@ begin
 end;
 
 { Obter informações detalhadas de um campo
-  
+
   Parâmetros:
   - ANomeTabela: Nome da tabela
   - ANomeCampo: Nome do campo
@@ -2909,7 +2929,7 @@ begin
     LRequest := TRESTRequest.Create(nil);
     try
       LRequest.Client := FRESTClient;
-      LResource := Format('/banco-dados/campo/info?tabela=%s&campo=%s', 
+      LResource := Format('/banco-dados/campo/info?tabela=%s&campo=%s',
         [ANomeTabela, ANomeCampo]);
       LRequest.Resource := LResource;
       LRequest.Method := rmGET;
@@ -2933,7 +2953,7 @@ begin
 end;
 
 { Criar nova tabela (ADMIN ONLY)
-  
+
   Parâmetros:
   - ANome: Nome da tabela
   - ACampos: TJSONArray com definição dos campos
@@ -2980,14 +3000,14 @@ begin
 end;
 
 { Adicionar campo a uma tabela (ADMIN ONLY)
-  
+
   Parâmetros:
   - ATabela: Nome da tabela
   - ANomeCampo: Nome do novo campo
   - ATipo: Tipo do campo (ex: 'VARCHAR(255)', 'INT', etc)
   - APermiteNull: Se permite NULL
 }
-function TSAWAPIClient.AdicionarCampo(const ATabela, ANomeCampo, ATipo: string; 
+function TSAWAPIClient.AdicionarCampo(const ATabela, ANomeCampo, ATipo: string;
   APermiteNull: Boolean = True): Boolean;
 var
   LRequest: TRESTRequest;
@@ -3066,7 +3086,7 @@ end;
 
 { Verificar se uma procedure existe
   Equivalente a: ProcedureExists(db, 'sprGeraNovoAtendimento')
-  
+
   Parâmetros:
   - ANome: Nome da procedure
 }
@@ -3112,12 +3132,12 @@ begin
 end;
 
 { Executar uma procedure com parâmetros
-  
+
   Parâmetros:
   - ANome: Nome da procedure
   - AParametros: Array de valores dos parâmetros
 }
-function TSAWAPIClient.ExecutarProcedure(const ANome: string; 
+function TSAWAPIClient.ExecutarProcedure(const ANome: string;
   const AParametros: TArray<Variant>): TJSONValue;
 var
   LRequest: TRESTRequest;
@@ -3138,11 +3158,11 @@ begin
       LJSONBody := TJSONObject.Create;
       try
         LJSONBody.AddPair('nome', ANome);
-        
+
         LJSONArray := TJSONArray.Create;
         for i := Low(AParametros) to High(AParametros) do
           LJSONArray.Add(VarToStr(AParametros[i]));
-        
+
         LJSONBody.AddPair('parametros', LJSONArray);
 
         LRequest.Body.Add(LJSONBody.ToString);
@@ -3168,7 +3188,7 @@ begin
 end;
 
 { Criar nova procedure (ADMIN ONLY)
-  
+
   Parâmetros:
   - ANome: Nome da procedure
   - ASQL: Código SQL completo da procedure
@@ -3215,7 +3235,7 @@ begin
 end;
 
 { Remover procedure (ADMIN ONLY)
-  
+
   Parâmetros:
   - ANome: Nome da procedure a remover
 }
@@ -3260,7 +3280,7 @@ begin
 end;
 
 { Executar SQL arbitrário (ADMIN ONLY - CUIDADO!)
-  
+
   Parâmetros:
   - ASQL: Código SQL a executar
 }
@@ -3306,7 +3326,7 @@ end;
 
 { Sincronizar estrutura de tabelas e colunas
   Substitui VerificaTabelaseColunas do Delphi original
-  
+
   Parâmetros:
   - ANomeTabela: Nome da tabela
   - AColunas: TJSONArray com definição das colunas
@@ -3334,10 +3354,10 @@ begin
       try
         LJSONBody.AddPair('tabela', ANomeTabela);
         LJSONBody.AddPair('colunas', AColunas);
-        
+
         if not ASQLCriacao.IsEmpty then
           LJSONBody.AddPair('sql_criacao', ASQLCriacao);
-        
+
         LJSONBody.AddPair('criar_se_nao_existe', TJSONBool.Create(ACriarSeNaoExiste));
 
         LRequest.Body.Add(LJSONBody.ToString);
