@@ -27,10 +27,11 @@ if (php_sapi_name() !== 'cli') {
 }
 
 // Constantes do Banco de Dados
-define('DB_HOST', '104.234.173.105');
-define('DB_USER', 'root');
-define('DB_PASS', 'Ncm@647534');
-define('DB_NAME', 'saw15');
+// Constantes do Banco de Dados
+define('DB_HOST', getenv('DB_HOST') ?: '104.234.173.105');
+define('DB_USER', getenv('DB_USER') ?: 'root');
+define('DB_PASS', getenv('DB_PASS') ?: 'Ncm@647534');
+define('DB_NAME', getenv('DB_NAME') ?: 'saw_quality');
 define('DB_CHARSET', 'utf8mb4');
 
 // Constantes de Resposta

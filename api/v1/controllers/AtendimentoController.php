@@ -58,7 +58,8 @@ class AtendimentoController
                 return;
             }
 
-            $situacao = $body['situacao'] ?? 'P';
+            // Enforce Triagem for new attendances
+            $situacao = 'T'; // T = Triagem
             $canal = (int)($body['canal'] ?? 1);
             $setor = (int)($body['setor'] ?? 1);
 
