@@ -120,6 +120,9 @@ class Database
     public static function execute($sql, $params = [])
     {
         $connection = self::connect();
+        
+        error_log("SQL: " . $sql);
+        error_log("Params: " . print_r($params, true));
 
         if (!$connection) {
             return false;

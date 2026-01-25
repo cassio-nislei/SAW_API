@@ -6,7 +6,7 @@
 class AtendimentoController
 {
     /**
-     * GET /api/v1/atendimentos
+     * GET /api/v1/atendimentos.
      * Lista atendimentos com filtros e paginação
      */
     public static function list()
@@ -61,7 +61,7 @@ class AtendimentoController
             // Enforce Triagem for new attendances
             $situacao = 'T'; // T = Triagem
             $canal = (int)($body['canal'] ?? 1);
-            $setor = (int)($body['setor'] ?? 1);
+            $setor = 0; // 0 = Sem setor (Triagem)
 
             $atendimento = Atendimento::create(
                 $body['numero'],

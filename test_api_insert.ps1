@@ -1,7 +1,7 @@
 $url = "http://localhost:8000/api/v1/atendimentos"
 $body = @{
-    numero     = "5511999999999"
-    nome       = "Teste API Local"
+    numero     = "5511999999997"
+    nome       = "Teste API Local 3"
     idAtende   = 1
     nomeAtende = "Admin"
     situacao   = "P"

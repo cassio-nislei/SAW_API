@@ -108,8 +108,8 @@ else{ $strMensagem  = ''; }
 
 // Antes a mensagem estava fixa agora adicionei a mensagem do Parametro
 if( trim($strMensagem) !== "" ){
-	$sqlInsert = "INSERT INTO tbmsgatendimento(id,seq,numero,msg,nome_chat,situacao,dt_msg,hr_msg,id_atend,canal)
-					VALUES('".$s_id_atendimento."','".$newSequence."','".$s_celular_atendimento."',(CONCAT_WS(REPLACE('\\\ n', ' ', ''), ".$strMensagem."),'".$s_nome."','E',CURDATE(),CURTIME(),'".$id_atend."','".$idCanal."')";
+	$sqlInsert = "INSERT INTO tbmsgatendimento(id,seq,numero,msg,nome_chat,situacao,dt_msg,hr_msg,id_atend,canal,chatid)
+					VALUES('".$s_id_atendimento."','".$newSequence."','".$s_celular_atendimento."',(CONCAT_WS(REPLACE('\\\ n', ' ', ''), ".$strMensagem."),'".$s_nome."','E',CURDATE(),CURTIME(),'".$id_atend."','".$idCanal."', '".uniqid()."')";
 	$qryaux = mysqli_query($conexao, $sqlInsert)
 		or die($sqlInsert ."<br/>".mysqli_error($conexao));
 }
@@ -192,8 +192,8 @@ if ($_POST["paramim"]=='S'){
 		//Faz o Insert da Mensagem
 		$qryaux = mysqli_query(
 			$conexao
-			, "INSERT INTO tbmsgatendimento(id, seq, numero, msg, nome_chat, situacao, dt_msg, hr_msg, id_atend, canal)
-				VALUES('".$newId."', '".$newSequence."', '".$s_celular_atendimento."', '".$strMensagem."', '".$nome_atend."', 'E', NOW(), CURTIME(), '".$id_atend."', '".$idCanal."')"
+			, "INSERT INTO tbmsgatendimento(id, seq, numero, msg, nome_chat, situacao, dt_msg, hr_msg, id_atend, canal, chatid)
+				VALUES('".$newId."', '".$newSequence."', '".$s_celular_atendimento."', '".$strMensagem."', '".$nome_atend."', 'E', NOW(), CURTIME(), '".$id_atend."', '".$idCanal."', '".uniqid()."')"
 		);
 	}
 

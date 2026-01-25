@@ -17,24 +17,27 @@ class Mensagem
         );
 
         $newSeq = $seqResult[0]['newSeq'] ?? 1;
+        
+        // Revert chatid to uniqid
+        $chatId = uniqid('API_');
 
-        $sql = "INSERT INTO tbmsgatendimento (id, seq, numero, msg, resp_msg, nome_chat, situacao, dt_msg, hr_msg, id_atend, canal, chatid_resposta) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), CURTIME(), ?, ?, ?)";
+        $db = Database::getInstance();
+        
+        $numero = $db->real_escape_string($numero);
+        $mensagem = $db->real_escape_string($mensagem);
+        $resposta = $db->real_escape_string($resposta);
+        $nomeChat = $db->real_escape_string($nomeChat);
+        $situacao = $db->real_escape_string($situacao);
+        $chatId = $db->real_escape_string($chatId);
+        $chatIdResposta = !empty($chatIdResposta) ? "'" . $db->real_escape_string($chatIdResposta) . "'" : "NULL";
 
-        $result = Database::execute($sql, [
-            $idAtendimento,
-            $newSeq,
-            $numero,
-            $mensagem,
-            $resposta,
-            $nomeChat,
-            $situacao,
-            $idAtende,
-            $canal,
-            $chatIdResposta
-        ]);
+        $sql = "INSERT INTO tbmsgatendimento (id, seq, numero, msg, resp_msg, nome_chat, situacao, dt_msg, hr_msg, id_atend, canal, chatid, chatid_resposta) 
+                VALUES ($idAtendimento, $newSeq, '$numero', '$mensagem', '$resposta', '$nomeChat', '$situacao', NOW(), CURTIME(), " . (int)$idAtende . ", " . (int)$canal . ", '$chatId', $chatIdResposta)";
+
+        $result = Database::execute($sql);
 
         if ($result === false) {
+            error_log("Erro ao criar mensagem: " . Database::getLastError());
             return false;
         }
 
