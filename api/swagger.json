@@ -18,31 +18,67 @@
       "description": "Servidor de Desenvolvimento"
     },
     {
-      "url": "http://104.234.173.105:7080/api/v1",
+      "url": "https://whatsaap.easilybr.com.br/api/v1",
       "description": "Servidor de Produção"
     },
     {
-      "url": "https://api.saw.local/v1",
+      "url": "https://whatsaap.easilybr.com.br/api/v1",
       "description": "Servidor de Produção HTTPS"
     }
   ],
   "tags": [
-    { "name": "Health", "description": "Status e verificação da API" },
-    { "name": "Autenticação", "description": "Endpoints de autenticação" },
-    { "name": "Atendimentos", "description": "Gerenciamento de atendimentos" },
-    { "name": "Mensagens", "description": "Gerenciamento de mensagens" },
-    { "name": "Anexos", "description": "Upload e gerenciamento de anexos" },
-    { "name": "Contatos", "description": "Gerenciamento de contatos" },
-    { "name": "Agendamentos", "description": "Gerenciamento de agendamentos" },
-    { "name": "Parâmetros", "description": "Configurações do sistema" },
-    { "name": "Menus", "description": "Gerenciamento de menus" },
-    { "name": "Respostas", "description": "Respostas automáticas" },
-    { "name": "Horários", "description": "Horários de funcionamento" },
+    {
+      "name": "Health",
+      "description": "Status e verificação da API"
+    },
+    {
+      "name": "Autenticação",
+      "description": "Endpoints de autenticação"
+    },
+    {
+      "name": "Atendimentos",
+      "description": "Gerenciamento de atendimentos"
+    },
+    {
+      "name": "Mensagens",
+      "description": "Gerenciamento de mensagens"
+    },
+    {
+      "name": "Anexos",
+      "description": "Upload e gerenciamento de anexos"
+    },
+    {
+      "name": "Contatos",
+      "description": "Gerenciamento de contatos"
+    },
+    {
+      "name": "Agendamentos",
+      "description": "Gerenciamento de agendamentos"
+    },
+    {
+      "name": "Parâmetros",
+      "description": "Configurações do sistema"
+    },
+    {
+      "name": "Menus",
+      "description": "Gerenciamento de menus"
+    },
+    {
+      "name": "Respostas",
+      "description": "Respostas automáticas"
+    },
+    {
+      "name": "Horários",
+      "description": "Horários de funcionamento"
+    },
     {
       "name": "Departamentos",
       "description": "Gerenciamento de departamentos"
     },
-    { "name": "Avisos", "description": "Gerenciamento de avisos" },
+    {
+      "name": "Avisos",
+      "description": "Gerenciamento de avisos"
+    },
     {
       "name": "Banco de Dados",
       "description": "Operações de estrutura do banco de dados"
@@ -55,7 +91,9 @@
   "paths": {
     "/": {
       "get": {
-        "tags": ["Health"],
+        "tags": [
+          "Health"
+        ],
         "summary": "Health Check",
         "description": "Verifica se a API está funcionando",
         "operationId": "healthCheck",
@@ -64,7 +102,9 @@
             "description": "API operacional",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/SuccessResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
               }
             }
           }
@@ -73,7 +113,9 @@
     },
     "/auth/login": {
       "post": {
-        "tags": ["Autenticação"],
+        "tags": [
+          "Autenticação"
+        ],
         "summary": "Login",
         "description": "Autentica usuário e retorna token JWT",
         "operationId": "authLogin",
@@ -84,10 +126,19 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "login": { "type": "string", "example": "admin" },
-                  "senha": { "type": "string", "example": "123456" }
+                  "login": {
+                    "type": "string",
+                    "example": "admin"
+                  },
+                  "senha": {
+                    "type": "string",
+                    "example": "123456"
+                  }
                 },
-                "required": ["login", "senha"]
+                "required": [
+                  "login",
+                  "senha"
+                ]
               }
             }
           }
@@ -97,31 +148,49 @@
             "description": "Login bem-sucedido",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/LoginResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
               }
             }
           },
-          "401": { "description": "Credenciais inválidas" }
+          "401": {
+            "description": "Credenciais inválidas"
+          }
         }
       }
     },
     "/atendimentos": {
       "get": {
-        "tags": ["Atendimentos"],
+        "tags": [
+          "Atendimentos"
+        ],
         "summary": "Listar atendimentos",
         "operationId": "listAtendimentos",
         "parameters": [
           {
             "name": "page",
             "in": "query",
-            "schema": { "type": "integer", "default": 1 }
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
           },
           {
             "name": "perPage",
             "in": "query",
-            "schema": { "type": "integer", "default": 20 }
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
           },
-          { "name": "situacao", "in": "query", "schema": { "type": "string" } }
+          {
+            "name": "situacao",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -137,7 +206,9 @@
         }
       },
       "post": {
-        "tags": ["Atendimentos"],
+        "tags": [
+          "Atendimentos"
+        ],
         "summary": "Criar novo atendimento (P2: sprGeraNovoAtendimento)",
         "operationId": "createAtendimento",
         "requestBody": {
@@ -165,7 +236,12 @@
                   },
                   "situacao": {
                     "type": "string",
-                    "enum": ["P", "A", "T", "F"],
+                    "enum": [
+                      "P",
+                      "A",
+                      "T",
+                      "F"
+                    ],
                     "description": "Pendente, Atendendo, Triagem, Finalizado (padrão: P)"
                   },
                   "canal": {
@@ -177,7 +253,10 @@
                     "description": "Setor responsável (opcional)"
                   }
                 },
-                "required": ["numero", "nome"]
+                "required": [
+                  "numero",
+                  "nome"
+                ]
               }
             }
           }
@@ -190,30 +269,48 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "sucesso": { "type": "boolean" },
+                    "sucesso": {
+                      "type": "boolean"
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
-                        "id": { "type": "integer" },
-                        "login": { "type": "string" },
-                        "nome": { "type": "string" },
-                        "situacao": { "type": "string" }
+                        "id": {
+                          "type": "integer"
+                        },
+                        "login": {
+                          "type": "string"
+                        },
+                        "nome": {
+                          "type": "string"
+                        },
+                        "situacao": {
+                          "type": "string"
+                        }
                       }
                     },
-                    "mensagem": { "type": "string" }
+                    "mensagem": {
+                      "type": "string"
+                    }
                   }
                 }
               }
             }
           },
-          "400": { "description": "Parâmetros obrigatórios ausentes" },
-          "500": { "description": "Erro ao criar atendimento" }
+          "400": {
+            "description": "Parâmetros obrigatórios ausentes"
+          },
+          "500": {
+            "description": "Erro ao criar atendimento"
+          }
         }
       }
     },
     "/atendimentos/verificar-pendente": {
       "post": {
-        "tags": ["Atendimentos"],
+        "tags": [
+          "Atendimentos"
+        ],
         "summary": "Verificar atendimento pendente",
         "operationId": "verificarAtendimentoPendente",
         "requestBody": {
@@ -223,21 +320,29 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "numero": { "type": "string" }
+                  "numero": {
+                    "type": "string"
+                  }
                 },
-                "required": ["numero"]
+                "required": [
+                  "numero"
+                ]
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Verificação concluída" }
+          "200": {
+            "description": "Verificação concluída"
+          }
         }
       }
     },
     "/atendimentos/finalizar": {
       "post": {
-        "tags": ["Atendimentos"],
+        "tags": [
+          "Atendimentos"
+        ],
         "summary": "Finalizar atendimento",
         "operationId": "finalizarAtendimento",
         "requestBody": {
@@ -247,23 +352,35 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "id": { "type": "integer" },
-                  "observacao": { "type": "string" }
+                  "id": {
+                    "type": "integer"
+                  },
+                  "observacao": {
+                    "type": "string"
+                  }
                 },
-                "required": ["id"]
+                "required": [
+                  "id"
+                ]
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Atendimento finalizado" },
-          "404": { "description": "Atendimento não encontrado" }
+          "200": {
+            "description": "Atendimento finalizado"
+          },
+          "404": {
+            "description": "Atendimento não encontrado"
+          }
         }
       }
     },
     "/atendimentos/gravar-mensagem": {
       "post": {
-        "tags": ["Mensagens"],
+        "tags": [
+          "Mensagens"
+        ],
         "summary": "Gravar mensagem em atendimento",
         "operationId": "gravarMensagemAtendimento",
         "requestBody": {
@@ -273,24 +390,40 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "id_atendimento": { "type": "integer" },
-                  "mensagem": { "type": "string" },
-                  "arquivo": { "type": "string", "format": "binary" }
+                  "id_atendimento": {
+                    "type": "integer"
+                  },
+                  "mensagem": {
+                    "type": "string"
+                  },
+                  "arquivo": {
+                    "type": "string",
+                    "format": "binary"
+                  }
                 },
-                "required": ["id_atendimento", "mensagem"]
+                "required": [
+                  "id_atendimento",
+                  "mensagem"
+                ]
               }
             }
           }
         },
         "responses": {
-          "201": { "description": "Mensagem gravada" },
-          "400": { "description": "Dados inválidos" }
+          "201": {
+            "description": "Mensagem gravada"
+          },
+          "400": {
+            "description": "Dados inválidos"
+          }
         }
       }
     },
     "/atendimentos/atualizar-setor": {
       "put": {
-        "tags": ["Atendimentos"],
+        "tags": [
+          "Atendimentos"
+        ],
         "summary": "Atualizar setor do atendimento",
         "operationId": "atualizarSetorAtendimento",
         "requestBody": {
@@ -300,32 +433,47 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "id": { "type": "integer" },
-                  "setor": { "type": "string" }
+                  "id": {
+                    "type": "integer"
+                  },
+                  "setor": {
+                    "type": "string"
+                  }
                 },
-                "required": ["id", "setor"]
+                "required": [
+                  "id",
+                  "setor"
+                ]
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Setor atualizado" }
+          "200": {
+            "description": "Setor atualizado"
+          }
         }
       }
     },
     "/atendimentos/inativos": {
       "get": {
-        "tags": ["Atendimentos"],
+        "tags": [
+          "Atendimentos"
+        ],
         "summary": "Listar atendimentos inativos",
         "operationId": "listarAtendimentosInativos",
         "responses": {
-          "200": { "description": "Lista de atendimentos inativos" }
+          "200": {
+            "description": "Lista de atendimentos inativos"
+          }
         }
       }
     },
     "/mensagens/verificar-duplicada": {
       "post": {
-        "tags": ["Mensagens"],
+        "tags": [
+          "Mensagens"
+        ],
         "summary": "Verificar mensagem duplicada",
         "operationId": "verificarMensagemDuplicada",
         "requestBody": {
@@ -335,22 +483,32 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "conteudo": { "type": "string" },
-                  "remetente": { "type": "string" }
+                  "conteudo": {
+                    "type": "string"
+                  },
+                  "remetente": {
+                    "type": "string"
+                  }
                 },
-                "required": ["conteudo"]
+                "required": [
+                  "conteudo"
+                ]
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Verificação concluída" }
+          "200": {
+            "description": "Verificação concluída"
+          }
         }
       }
     },
     "/mensagens/status-multiplas": {
       "post": {
-        "tags": ["Mensagens"],
+        "tags": [
+          "Mensagens"
+        ],
         "summary": "Obter status de múltiplas mensagens",
         "operationId": "getStatusMultiplasMensagens",
         "requestBody": {
@@ -360,49 +518,70 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "ids": { "type": "array", "items": { "type": "integer" } }
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  }
                 },
-                "required": ["ids"]
+                "required": [
+                  "ids"
+                ]
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Status retornado" }
+          "200": {
+            "description": "Status retornado"
+          }
         }
       }
     },
     "/mensagens/pendentes-envio": {
       "get": {
-        "tags": ["Mensagens"],
+        "tags": [
+          "Mensagens"
+        ],
         "summary": "Listar mensagens pendentes de envio",
         "operationId": "listMensagensParaEnviar",
         "responses": {
-          "200": { "description": "Lista de mensagens pendentes" }
+          "200": {
+            "description": "Lista de mensagens pendentes"
+          }
         }
       }
     },
     "/mensagens/proxima-sequencia": {
       "get": {
-        "tags": ["Mensagens"],
+        "tags": [
+          "Mensagens"
+        ],
         "summary": "Obter próxima sequência de mensagem",
         "operationId": "proximaSequenciaMensagem",
         "parameters": [
           {
             "name": "id_atendimento",
             "in": "query",
-            "schema": { "type": "integer" },
+            "schema": {
+              "type": "integer"
+            },
             "required": true
           }
         ],
         "responses": {
-          "200": { "description": "Próxima sequência retornada" }
+          "200": {
+            "description": "Próxima sequência retornada"
+          }
         }
       }
     },
     "/mensagens/marcar-excluida": {
       "put": {
-        "tags": ["Mensagens"],
+        "tags": [
+          "Mensagens"
+        ],
         "summary": "Marcar mensagem como excluída (P5: spAtualizaExcluida)",
         "operationId": "marcarMensagemExcluida",
         "requestBody": {
@@ -417,7 +596,9 @@
                     "description": "Identificador único do chat"
                   }
                 },
-                "required": ["chatid"]
+                "required": [
+                  "chatid"
+                ]
               }
             }
           }
@@ -430,28 +611,42 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "sucesso": { "type": "boolean" },
+                    "sucesso": {
+                      "type": "boolean"
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
-                        "chatid": { "type": "string" },
-                        "executado": { "type": "boolean" }
+                        "chatid": {
+                          "type": "string"
+                        },
+                        "executado": {
+                          "type": "boolean"
+                        }
                       }
                     },
-                    "mensagem": { "type": "string" }
+                    "mensagem": {
+                      "type": "string"
+                    }
                   }
                 }
               }
             }
           },
-          "400": { "description": "chatid obrigatório" },
-          "500": { "description": "Erro ao marcar mensagem como excluída" }
+          "400": {
+            "description": "chatid obrigatório"
+          },
+          "500": {
+            "description": "Erro ao marcar mensagem como excluída"
+          }
         }
       }
     },
     "/mensagens/marcar-reacao": {
       "post": {
-        "tags": ["Mensagens"],
+        "tags": [
+          "Mensagens"
+        ],
         "summary": "Marcar reação na mensagem",
         "operationId": "marcarMensagemReacao",
         "requestBody": {
@@ -461,22 +656,33 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "id": { "type": "integer" },
-                  "reacao": { "type": "integer" }
+                  "id": {
+                    "type": "integer"
+                  },
+                  "reacao": {
+                    "type": "integer"
+                  }
                 },
-                "required": ["id", "reacao"]
+                "required": [
+                  "id",
+                  "reacao"
+                ]
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Reação marcada" }
+          "200": {
+            "description": "Reação marcada"
+          }
         }
       }
     },
     "/mensagens/marcar-enviada": {
       "put": {
-        "tags": ["Mensagens"],
+        "tags": [
+          "Mensagens"
+        ],
         "summary": "Marcar mensagem como enviada",
         "operationId": "marcarMensagemEnviada",
         "requestBody": {
@@ -486,21 +692,29 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "id": { "type": "integer" }
+                  "id": {
+                    "type": "integer"
+                  }
                 },
-                "required": ["id"]
+                "required": [
+                  "id"
+                ]
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Mensagem marcada como enviada" }
+          "200": {
+            "description": "Mensagem marcada como enviada"
+          }
         }
       }
     },
     "/mensagens/comparar-duplicacao": {
       "post": {
-        "tags": ["Mensagens"],
+        "tags": [
+          "Mensagens"
+        ],
         "summary": "Comparar duplicação de mensagem",
         "operationId": "compararDuplicacaoMensagem",
         "requestBody": {
@@ -510,144 +724,204 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "mensagem1": { "type": "string" },
-                  "mensagem2": { "type": "string" }
+                  "mensagem1": {
+                    "type": "string"
+                  },
+                  "mensagem2": {
+                    "type": "string"
+                  }
                 },
-                "required": ["mensagem1", "mensagem2"]
+                "required": [
+                  "mensagem1",
+                  "mensagem2"
+                ]
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Comparação concluída" }
+          "200": {
+            "description": "Comparação concluída"
+          }
         }
       }
     },
     "/contatos/exportar": {
       "get": {
-        "tags": ["Contatos"],
+        "tags": [
+          "Contatos"
+        ],
         "summary": "Exportar contatos",
         "operationId": "exportarContatos",
         "parameters": [
           {
             "name": "formato",
             "in": "query",
-            "schema": { "type": "string", "enum": ["json", "csv", "xlsx"] },
+            "schema": {
+              "type": "string",
+              "enum": [
+                "json",
+                "csv",
+                "xlsx"
+              ]
+            },
             "description": "Formato de exportação"
           }
         ],
         "responses": {
-          "200": { "description": "Contatos exportados" }
+          "200": {
+            "description": "Contatos exportados"
+          }
         }
       }
     },
     "/contatos/buscar-nome": {
       "get": {
-        "tags": ["Contatos"],
+        "tags": [
+          "Contatos"
+        ],
         "summary": "Buscar contato por nome",
         "operationId": "buscarNomeContato",
         "parameters": [
           {
             "name": "nome",
             "in": "query",
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "required": true
           }
         ],
         "responses": {
-          "200": { "description": "Contatos encontrados" }
+          "200": {
+            "description": "Contatos encontrados"
+          }
         }
       }
     },
     "/agendamentos/pendentes": {
       "get": {
-        "tags": ["Agendamentos"],
+        "tags": [
+          "Agendamentos"
+        ],
         "summary": "Listar agendamentos pendentes",
         "operationId": "listarAgendamentosPendentes",
         "responses": {
-          "200": { "description": "Agendamentos pendentes" }
+          "200": {
+            "description": "Agendamentos pendentes"
+          }
         }
       }
     },
     "/parametros/sistema": {
       "get": {
-        "tags": ["Parâmetros"],
+        "tags": [
+          "Parâmetros"
+        ],
         "summary": "Obter parâmetros do sistema",
         "operationId": "getParametrosSistema",
         "responses": {
-          "200": { "description": "Parâmetros do sistema" }
+          "200": {
+            "description": "Parâmetros do sistema"
+          }
         }
       }
     },
     "/parametros/verificar-expediente": {
       "get": {
-        "tags": ["Parâmetros"],
+        "tags": [
+          "Parâmetros"
+        ],
         "summary": "Verificar expediente",
         "operationId": "verificarExpediente",
         "responses": {
-          "200": { "description": "Status do expediente" }
+          "200": {
+            "description": "Status do expediente"
+          }
         }
       }
     },
     "/menus/principal": {
       "get": {
-        "tags": ["Menus"],
+        "tags": [
+          "Menus"
+        ],
         "summary": "Obter menu principal",
         "operationId": "getMenuPrincipal",
         "responses": {
-          "200": { "description": "Menu principal" }
+          "200": {
+            "description": "Menu principal"
+          }
         }
       }
     },
     "/menus/submenus": {
       "get": {
-        "tags": ["Menus"],
+        "tags": [
+          "Menus"
+        ],
         "summary": "Obter submenus",
         "operationId": "getSubmenus",
         "parameters": [
           {
             "name": "id_menu",
             "in": "query",
-            "schema": { "type": "integer" },
+            "schema": {
+              "type": "integer"
+            },
             "required": false
           }
         ],
         "responses": {
-          "200": { "description": "Submenus" }
+          "200": {
+            "description": "Submenus"
+          }
         }
       }
     },
     "/respostas/respostas-automaticas": {
       "get": {
-        "tags": ["Respostas"],
+        "tags": [
+          "Respostas"
+        ],
         "summary": "Obter respostas automáticas",
         "operationId": "getRespostasAutomaticas",
         "responses": {
-          "200": { "description": "Respostas automáticas" }
+          "200": {
+            "description": "Respostas automáticas"
+          }
         }
       }
     },
     "/departamentos/por-menu": {
       "get": {
-        "tags": ["Departamentos"],
+        "tags": [
+          "Departamentos"
+        ],
         "summary": "Obter departamentos por menu",
         "operationId": "getDepartamentoPorMenu",
         "parameters": [
           {
             "name": "id_menu",
             "in": "query",
-            "schema": { "type": "integer" },
+            "schema": {
+              "type": "integer"
+            },
             "required": true
           }
         ],
         "responses": {
-          "200": { "description": "Departamentos" }
+          "200": {
+            "description": "Departamentos"
+          }
         }
       }
     },
     "/avisos/registrar": {
       "post": {
-        "tags": ["Avisos"],
+        "tags": [
+          "Avisos"
+        ],
         "summary": "Registrar aviso",
         "operationId": "registrarAvisoSemExpediente",
         "requestBody": {
@@ -657,75 +931,105 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "numero": { "type": "string" },
-                  "mensagem": { "type": "string" }
+                  "numero": {
+                    "type": "string"
+                  },
+                  "mensagem": {
+                    "type": "string"
+                  }
                 },
-                "required": ["numero", "mensagem"]
+                "required": [
+                  "numero",
+                  "mensagem"
+                ]
               }
             }
           }
         },
         "responses": {
-          "201": { "description": "Aviso registrado" }
+          "201": {
+            "description": "Aviso registrado"
+          }
         }
       }
     },
     "/avisos/limpar-antigos": {
       "delete": {
-        "tags": ["Avisos"],
+        "tags": [
+          "Avisos"
+        ],
         "summary": "Limpar avisos antigos",
         "operationId": "limparAvisoAntigos",
         "parameters": [
           {
             "name": "dias",
             "in": "query",
-            "schema": { "type": "integer", "default": 30 }
+            "schema": {
+              "type": "integer",
+              "default": 30
+            }
           }
         ],
         "responses": {
-          "200": { "description": "Avisos antigos removidos" }
+          "200": {
+            "description": "Avisos antigos removidos"
+          }
         }
       }
     },
     "/avisos/limpar-numero": {
       "delete": {
-        "tags": ["Avisos"],
+        "tags": [
+          "Avisos"
+        ],
         "summary": "Limpar avisos por número",
         "operationId": "limparAvisoNumero",
         "parameters": [
           {
             "name": "numero",
             "in": "query",
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "required": true
           }
         ],
         "responses": {
-          "200": { "description": "Avisos removidos" }
+          "200": {
+            "description": "Avisos removidos"
+          }
         }
       }
     },
     "/avisos/verificar-existente": {
       "get": {
-        "tags": ["Avisos"],
+        "tags": [
+          "Avisos"
+        ],
         "summary": "Verificar aviso existente",
         "operationId": "verificarAvisoExistente",
         "parameters": [
           {
             "name": "numero",
             "in": "query",
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "required": true
           }
         ],
         "responses": {
-          "200": { "description": "Aviso verificado" }
+          "200": {
+            "description": "Aviso verificado"
+          }
         }
       }
     },
     "/avisos/buscar-por-numero": {
       "get": {
-        "tags": ["Avisos"],
+        "tags": [
+          "Avisos"
+        ],
         "summary": "Buscar avisos por número (Q18: com limpeza de antigos)",
         "operationId": "buscarAvisosPorNumero",
         "description": "Remove avisos antigos da data atual e retorna avisos existentes do número",
@@ -733,7 +1037,9 @@
           {
             "name": "numero",
             "in": "query",
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "required": true,
             "description": "Número de telefone para buscar avisos"
           }
@@ -746,19 +1052,29 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "sucesso": { "type": "boolean" },
+                    "sucesso": {
+                      "type": "boolean"
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
-                        "numero": { "type": "string" },
+                        "numero": {
+                          "type": "string"
+                        },
                         "avisos": {
                           "type": "array",
                           "items": {
                             "type": "object",
                             "properties": {
-                              "id": { "type": "integer" },
-                              "numero": { "type": "string" },
-                              "mensagem": { "type": "string" },
+                              "id": {
+                                "type": "integer"
+                              },
+                              "numero": {
+                                "type": "string"
+                              },
+                              "mensagem": {
+                                "type": "string"
+                              },
                               "dt_aviso": {
                                 "type": "string",
                                 "format": "date-time"
@@ -766,7 +1082,9 @@
                             }
                           }
                         },
-                        "total_avisos": { "type": "integer" },
+                        "total_avisos": {
+                          "type": "integer"
+                        },
                         "linhas_limpas_gerais": {
                           "type": "integer",
                           "description": "Avisos antigos removidos"
@@ -777,20 +1095,28 @@
                         }
                       }
                     },
-                    "mensagem": { "type": "string" }
+                    "mensagem": {
+                      "type": "string"
+                    }
                   }
                 }
               }
             }
           },
-          "400": { "description": "Número obrigatório" },
-          "500": { "description": "Erro ao buscar avisos" }
+          "400": {
+            "description": "Número obrigatório"
+          },
+          "500": {
+            "description": "Erro ao buscar avisos"
+          }
         }
       }
     },
     "/anexos/pendentes": {
       "get": {
-        "tags": ["Anexos"],
+        "tags": [
+          "Anexos"
+        ],
         "summary": "Listar anexos pendentes (Q19)",
         "operationId": "listarAnexosPendentes",
         "description": "Retorna lista de anexos com enviado=1 para serem processados",
@@ -798,7 +1124,10 @@
           {
             "name": "canal",
             "in": "query",
-            "schema": { "type": "string", "default": "WhatsApp" },
+            "schema": {
+              "type": "string",
+              "default": "WhatsApp"
+            },
             "description": "Canal de comunicação (WhatsApp, Telegram, etc)"
           }
         ],
@@ -810,11 +1139,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "sucesso": { "type": "boolean" },
+                    "sucesso": {
+                      "type": "boolean"
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
-                        "canal": { "type": "string" },
+                        "canal": {
+                          "type": "string"
+                        },
                         "anexos": {
                           "type": "array",
                           "items": {
@@ -824,32 +1157,54 @@
                                 "type": "string",
                                 "description": "CONCAT(id, seq, numero)"
                               },
-                              "id": { "type": "integer" },
-                              "seq": { "type": "integer" },
-                              "numero": { "type": "string" },
-                              "nome_arquivo": { "type": "string" },
-                              "enviado": { "type": "integer" },
-                              "msg": { "type": "string" },
-                              "canal": { "type": "string" }
+                              "id": {
+                                "type": "integer"
+                              },
+                              "seq": {
+                                "type": "integer"
+                              },
+                              "numero": {
+                                "type": "string"
+                              },
+                              "nome_arquivo": {
+                                "type": "string"
+                              },
+                              "enviado": {
+                                "type": "integer"
+                              },
+                              "msg": {
+                                "type": "string"
+                              },
+                              "canal": {
+                                "type": "string"
+                              }
                             }
                           }
                         },
-                        "total": { "type": "integer" }
+                        "total": {
+                          "type": "integer"
+                        }
                       }
                     },
-                    "mensagem": { "type": "string" }
+                    "mensagem": {
+                      "type": "string"
+                    }
                   }
                 }
               }
             }
           },
-          "500": { "description": "Erro ao listar anexos" }
+          "500": {
+            "description": "Erro ao listar anexos"
+          }
         }
       }
     },
     "/anexos/{pk}": {
       "get": {
-        "tags": ["Anexos"],
+        "tags": [
+          "Anexos"
+        ],
         "summary": "Buscar anexo por PK (Q20)",
         "operationId": "buscarAnexoPorPK",
         "description": "Retorna detalhes completos de um anexo específico",
@@ -857,7 +1212,9 @@
           {
             "name": "pk",
             "in": "path",
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "required": true,
             "description": "PK no formato CONCAT(id, seq, numero)"
           }
@@ -870,36 +1227,67 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "sucesso": { "type": "boolean" },
+                    "sucesso": {
+                      "type": "boolean"
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
-                        "pk": { "type": "string" },
-                        "id": { "type": "integer" },
-                        "seq": { "type": "integer" },
-                        "numero": { "type": "string" },
-                        "nome_arquivo": { "type": "string" },
-                        "enviado": { "type": "integer" },
-                        "tamanho_arquivo": { "type": "integer" },
-                        "msg": { "type": "string" },
-                        "canal": { "type": "string" },
-                        "data_msg": { "type": "string", "format": "date-time" }
+                        "pk": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "seq": {
+                          "type": "integer"
+                        },
+                        "numero": {
+                          "type": "string"
+                        },
+                        "nome_arquivo": {
+                          "type": "string"
+                        },
+                        "enviado": {
+                          "type": "integer"
+                        },
+                        "tamanho_arquivo": {
+                          "type": "integer"
+                        },
+                        "msg": {
+                          "type": "string"
+                        },
+                        "canal": {
+                          "type": "string"
+                        },
+                        "data_msg": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
                       }
                     },
-                    "mensagem": { "type": "string" }
+                    "mensagem": {
+                      "type": "string"
+                    }
                   }
                 }
               }
             }
           },
-          "404": { "description": "Anexo não encontrado" },
-          "500": { "description": "Erro ao buscar anexo" }
+          "404": {
+            "description": "Anexo não encontrado"
+          },
+          "500": {
+            "description": "Erro ao buscar anexo"
+          }
         }
       }
     },
     "/anexos/{pk}/marcar-enviado": {
       "put": {
-        "tags": ["Anexos"],
+        "tags": [
+          "Anexos"
+        ],
         "summary": "Marcar anexo como enviado (P16)",
         "operationId": "marcarAnexoEnviado",
         "description": "Atualiza o status enviado do anexo (0=enviado, 1=pendente)",
@@ -907,7 +1295,9 @@
           {
             "name": "pk",
             "in": "path",
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "required": true,
             "description": "PK no formato CONCAT(id, seq, numero)"
           }
@@ -921,12 +1311,17 @@
                 "properties": {
                   "enviado": {
                     "type": "integer",
-                    "enum": [0, 1],
+                    "enum": [
+                      0,
+                      1
+                    ],
                     "default": 0,
                     "description": "0=enviado, 1=pendente"
                   }
                 },
-                "required": ["enviado"]
+                "required": [
+                  "enviado"
+                ]
               }
             }
           }
@@ -939,33 +1334,57 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "sucesso": { "type": "boolean" },
+                    "sucesso": {
+                      "type": "boolean"
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
-                        "pk": { "type": "string" },
-                        "id": { "type": "integer" },
-                        "seq": { "type": "integer" },
-                        "numero": { "type": "string" },
-                        "enviado": { "type": "integer" },
-                        "linhas_atualizadas": { "type": "integer" }
+                        "pk": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "seq": {
+                          "type": "integer"
+                        },
+                        "numero": {
+                          "type": "string"
+                        },
+                        "enviado": {
+                          "type": "integer"
+                        },
+                        "linhas_atualizadas": {
+                          "type": "integer"
+                        }
                       }
                     },
-                    "mensagem": { "type": "string" }
+                    "mensagem": {
+                      "type": "string"
+                    }
                   }
                 }
               }
             }
           },
-          "400": { "description": "PK obrigatório" },
-          "404": { "description": "Anexo não encontrado" },
-          "500": { "description": "Erro ao marcar anexo" }
+          "400": {
+            "description": "PK obrigatório"
+          },
+          "404": {
+            "description": "Anexo não encontrado"
+          },
+          "500": {
+            "description": "Erro ao marcar anexo"
+          }
         }
       }
     },
     "/mensagens/pendentes-status": {
       "get": {
-        "tags": ["Mensagens"],
+        "tags": [
+          "Mensagens"
+        ],
         "summary": "Listar mensagens pendentes de verificação de status",
         "operationId": "listarMensagensStatusPendentes",
         "description": "Lista mensagens que precisam de verificação de status via WPPConnect. Baseado em VerificaStatusMessage_Mult",
@@ -973,20 +1392,28 @@
           {
             "name": "canal",
             "in": "query",
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "required": true,
             "description": "Canal de atendimento (ex: 'whatsapp')"
           },
           {
             "name": "horas_atras",
             "in": "query",
-            "schema": { "type": "integer", "default": 24 },
+            "schema": {
+              "type": "integer",
+              "default": 24
+            },
             "description": "Quantidade de horas para buscar (padrão: 24)"
           },
           {
             "name": "minutos_futuros",
             "in": "query",
-            "schema": { "type": "integer", "default": 10 },
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
             "description": "Minutos para frente (padrão: 10)"
           }
         ],
@@ -998,35 +1425,57 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "sucesso": { "type": "boolean" },
+                    "sucesso": {
+                      "type": "boolean"
+                    },
                     "dados": {
                       "type": "array",
                       "items": {
                         "type": "object",
                         "properties": {
-                          "id_msg": { "type": "integer" },
-                          "chatid": { "type": "string" },
-                          "dt_msg": { "type": "string" },
-                          "id_atend": { "type": "integer" },
-                          "situacao": { "type": "string" },
-                          "status_msg": { "type": "integer" },
-                          "canal": { "type": "string" }
+                          "id_msg": {
+                            "type": "integer"
+                          },
+                          "chatid": {
+                            "type": "string"
+                          },
+                          "dt_msg": {
+                            "type": "string"
+                          },
+                          "id_atend": {
+                            "type": "integer"
+                          },
+                          "situacao": {
+                            "type": "string"
+                          },
+                          "status_msg": {
+                            "type": "integer"
+                          },
+                          "canal": {
+                            "type": "string"
+                          }
                         }
                       }
                     },
-                    "mensagem": { "type": "string" }
+                    "mensagem": {
+                      "type": "string"
+                    }
                   }
                 }
               }
             }
           },
-          "400": { "description": "Parâmetro 'canal' obrigatório" }
+          "400": {
+            "description": "Parâmetro 'canal' obrigatório"
+          }
         }
       }
     },
     "/mensagens/status/atualizar": {
       "post": {
-        "tags": ["Mensagens"],
+        "tags": [
+          "Mensagens"
+        ],
         "summary": "Atualizar status de mensagem",
         "operationId": "atualizarStatusMensagem",
         "description": "Atualiza o status de uma mensagem após WPPConnect verificar",
@@ -1047,11 +1496,21 @@
                   },
                   "novo_status": {
                     "type": "integer",
-                    "enum": [0, 1, 2, 3, 4],
+                    "enum": [
+                      0,
+                      1,
+                      2,
+                      3,
+                      4
+                    ],
                     "description": "0=Pendente, 1=Enviada, 2=Entregue, 3=Lida, 4=Erro"
                   }
                 },
-                "required": ["id_msg", "chatid", "novo_status"]
+                "required": [
+                  "id_msg",
+                  "chatid",
+                  "novo_status"
+                ]
               }
             }
           }
@@ -1064,30 +1523,48 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "sucesso": { "type": "boolean" },
+                    "sucesso": {
+                      "type": "boolean"
+                    },
                     "dados": {
                       "type": "object",
                       "properties": {
-                        "id_msg": { "type": "integer" },
-                        "status_anterior": { "type": "integer" },
-                        "status_novo": { "type": "integer" },
-                        "atualizado_em": { "type": "string" }
+                        "id_msg": {
+                          "type": "integer"
+                        },
+                        "status_anterior": {
+                          "type": "integer"
+                        },
+                        "status_novo": {
+                          "type": "integer"
+                        },
+                        "atualizado_em": {
+                          "type": "string"
+                        }
                       }
                     },
-                    "mensagem": { "type": "string" }
+                    "mensagem": {
+                      "type": "string"
+                    }
                   }
                 }
               }
             }
           },
-          "400": { "description": "Parâmetros inválidos" },
-          "404": { "description": "Mensagem não encontrada" }
+          "400": {
+            "description": "Parâmetros inválidos"
+          },
+          "404": {
+            "description": "Mensagem não encontrada"
+          }
         }
       }
     },
     "/mensagens/status/processar-mult": {
       "post": {
-        "tags": ["Mensagens"],
+        "tags": [
+          "Mensagens"
+        ],
         "summary": "Processar múltiplas atualizações de status em lote",
         "operationId": "processarMultiplasAtualizacoes",
         "description": "Atualiza múltiplas mensagens de uma vez para melhor performance",
@@ -1103,18 +1580,34 @@
                     "items": {
                       "type": "object",
                       "properties": {
-                        "id_msg": { "type": "integer" },
-                        "chatid": { "type": "string" },
+                        "id_msg": {
+                          "type": "integer"
+                        },
+                        "chatid": {
+                          "type": "string"
+                        },
                         "novo_status": {
                           "type": "integer",
-                          "enum": [0, 1, 2, 3, 4]
+                          "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4
+                          ]
                         }
                       },
-                      "required": ["id_msg", "chatid", "novo_status"]
+                      "required": [
+                        "id_msg",
+                        "chatid",
+                        "novo_status"
+                      ]
                     }
                   }
                 },
-                "required": ["atualizacoes"]
+                "required": [
+                  "atualizacoes"
+                ]
               }
             }
           }
@@ -1127,22 +1620,38 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "sucesso": { "type": "boolean" },
+                    "sucesso": {
+                      "type": "boolean"
+                    },
                     "dados": {
                       "type": "object",
                       "properties": {
-                        "processadas": { "type": "integer" },
-                        "atualizadas": { "type": "integer" },
-                        "erros": { "type": "integer" },
+                        "processadas": {
+                          "type": "integer"
+                        },
+                        "atualizadas": {
+                          "type": "integer"
+                        },
+                        "erros": {
+                          "type": "integer"
+                        },
                         "detalhes": {
                           "type": "array",
                           "items": {
                             "type": "object",
                             "properties": {
-                              "id_msg": { "type": "integer" },
-                              "status_novo": { "type": "integer" },
-                              "sucesso": { "type": "boolean" },
-                              "erro": { "type": "string" }
+                              "id_msg": {
+                                "type": "integer"
+                              },
+                              "status_novo": {
+                                "type": "integer"
+                              },
+                              "sucesso": {
+                                "type": "boolean"
+                              },
+                              "erro": {
+                                "type": "string"
+                              }
                             }
                           }
                         }
@@ -1153,13 +1662,17 @@
               }
             }
           },
-          "400": { "description": "Campo 'atualizacoes' obrigatório" }
+          "400": {
+            "description": "Campo 'atualizacoes' obrigatório"
+          }
         }
       }
     },
     "/mensagens/status/relatorio": {
       "get": {
-        "tags": ["Mensagens"],
+        "tags": [
+          "Mensagens"
+        ],
         "summary": "Relatório de mensagens por status",
         "operationId": "relatorioStatusMensagens",
         "description": "Gera relatório de mensagens agrupadas por status em um período",
@@ -1167,20 +1680,28 @@
           {
             "name": "canal",
             "in": "query",
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "required": true,
             "description": "Canal de atendimento (ex: 'whatsapp')"
           },
           {
             "name": "data_ini",
             "in": "query",
-            "schema": { "type": "string", "format": "date" },
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
             "description": "Data inicial (padrão: 7 dias atrás)"
           },
           {
             "name": "data_fim",
             "in": "query",
-            "schema": { "type": "string", "format": "date" },
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
             "description": "Data final (padrão: hoje)"
           }
         ],
@@ -1192,11 +1713,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "sucesso": { "type": "boolean" },
+                    "sucesso": {
+                      "type": "boolean"
+                    },
                     "dados": {
                       "type": "object",
                       "properties": {
-                        "total": { "type": "integer" },
+                        "total": {
+                          "type": "integer"
+                        },
                         "por_status": {
                           "type": "object",
                           "properties": {
@@ -1212,19 +1737,39 @@
                               "type": "integer",
                               "description": "Entregues"
                             },
-                            "3": { "type": "integer", "description": "Lidas" },
-                            "4": { "type": "integer", "description": "Erros" }
+                            "3": {
+                              "type": "integer",
+                              "description": "Lidas"
+                            },
+                            "4": {
+                              "type": "integer",
+                              "description": "Erros"
+                            }
                           }
                         },
-                        "pendentes": { "type": "integer" },
-                        "enviadas": { "type": "integer" },
-                        "entregues": { "type": "integer" },
-                        "lidas": { "type": "integer" },
+                        "pendentes": {
+                          "type": "integer"
+                        },
+                        "enviadas": {
+                          "type": "integer"
+                        },
+                        "entregues": {
+                          "type": "integer"
+                        },
+                        "lidas": {
+                          "type": "integer"
+                        },
                         "periodo": {
                           "type": "object",
                           "properties": {
-                            "inicio": { "type": "string", "format": "date" },
-                            "fim": { "type": "string", "format": "date" }
+                            "inicio": {
+                              "type": "string",
+                              "format": "date"
+                            },
+                            "fim": {
+                              "type": "string",
+                              "format": "date"
+                            }
                           }
                         }
                       }
@@ -1234,14 +1779,18 @@
               }
             }
           },
-          "400": { "description": "Parâmetro 'canal' obrigatório" }
+          "400": {
+            "description": "Parâmetro 'canal' obrigatório"
+          }
         }
       }
     },
     "/banco-dados/tabelas": {
       "get": {
         "summary": "Listar todas as tabelas do banco de dados",
-        "tags": ["Banco de Dados"],
+        "tags": [
+          "Banco de Dados"
+        ],
         "responses": {
           "200": {
             "description": "Lista de tabelas",
@@ -1250,12 +1799,18 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean" },
+                    "success": {
+                      "type": "boolean"
+                    },
                     "data": {
                       "type": "array",
-                      "items": { "type": "string" }
+                      "items": {
+                        "type": "string"
+                      }
                     },
-                    "count": { "type": "integer" }
+                    "count": {
+                      "type": "integer"
+                    }
                   }
                 }
               }
@@ -1267,13 +1822,17 @@
     "/banco-dados/tabela/existe": {
       "get": {
         "summary": "Verificar se uma tabela existe (TabelaExistenoMYSQL)",
-        "tags": ["Banco de Dados"],
+        "tags": [
+          "Banco de Dados"
+        ],
         "parameters": [
           {
             "name": "tabela",
             "in": "query",
             "required": true,
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "description": "Nome da tabela a verificar"
           }
         ],
@@ -1285,13 +1844,21 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean" },
+                    "success": {
+                      "type": "boolean"
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
-                        "tabela": { "type": "string" },
-                        "existe": { "type": "boolean" },
-                        "verificado_em": { "type": "string" }
+                        "tabela": {
+                          "type": "string"
+                        },
+                        "existe": {
+                          "type": "boolean"
+                        },
+                        "verificado_em": {
+                          "type": "string"
+                        }
                       }
                     }
                   }
@@ -1305,20 +1872,26 @@
     "/banco-dados/campo/existe": {
       "get": {
         "summary": "Verificar se um campo existe em uma tabela (CampoExiste)",
-        "tags": ["Banco de Dados"],
+        "tags": [
+          "Banco de Dados"
+        ],
         "parameters": [
           {
             "name": "tabela",
             "in": "query",
             "required": true,
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "description": "Nome da tabela"
           },
           {
             "name": "campo",
             "in": "query",
             "required": true,
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "description": "Nome do campo"
           }
         ],
@@ -1330,17 +1903,36 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean" },
+                    "success": {
+                      "type": "boolean"
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
-                        "tabela": { "type": "string" },
-                        "campo": { "type": "string" },
-                        "existe": { "type": "boolean" },
-                        "tipo": { "type": "string" },
-                        "permite_null": { "type": "boolean" },
-                        "padrao": { "type": ["string", "null"] },
-                        "chave": { "type": "string" }
+                        "tabela": {
+                          "type": "string"
+                        },
+                        "campo": {
+                          "type": "string"
+                        },
+                        "existe": {
+                          "type": "boolean"
+                        },
+                        "tipo": {
+                          "type": "string"
+                        },
+                        "permite_null": {
+                          "type": "boolean"
+                        },
+                        "padrao": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "chave": {
+                          "type": "string"
+                        }
                       }
                     }
                   }
@@ -1354,13 +1946,17 @@
     "/banco-dados/tabela/estrutura": {
       "get": {
         "summary": "Obter estrutura completa de uma tabela",
-        "tags": ["Banco de Dados"],
+        "tags": [
+          "Banco de Dados"
+        ],
         "parameters": [
           {
             "name": "tabela",
             "in": "query",
             "required": true,
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "description": "Nome da tabela"
           }
         ],
@@ -1372,22 +1968,41 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean" },
+                    "success": {
+                      "type": "boolean"
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
-                        "tabela": { "type": "string" },
-                        "total_campos": { "type": "integer" },
+                        "tabela": {
+                          "type": "string"
+                        },
+                        "total_campos": {
+                          "type": "integer"
+                        },
                         "campos": {
                           "type": "array",
                           "items": {
                             "type": "object",
                             "properties": {
-                              "nome": { "type": "string" },
-                              "tipo": { "type": "string" },
-                              "permite_null": { "type": "boolean" },
-                              "padrao": { "type": ["string", "null"] },
-                              "chave": { "type": "string" }
+                              "nome": {
+                                "type": "string"
+                              },
+                              "tipo": {
+                                "type": "string"
+                              },
+                              "permite_null": {
+                                "type": "boolean"
+                              },
+                              "padrao": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "chave": {
+                                "type": "string"
+                              }
                             }
                           }
                         }
@@ -1404,19 +2019,25 @@
     "/banco-dados/campo/info": {
       "get": {
         "summary": "Obter informações detalhadas de um campo",
-        "tags": ["Banco de Dados"],
+        "tags": [
+          "Banco de Dados"
+        ],
         "parameters": [
           {
             "name": "tabela",
             "in": "query",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "campo",
             "in": "query",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1429,8 +2050,14 @@
     "/banco-dados/tabela/criar": {
       "post": {
         "summary": "Criar nova tabela (ADMIN ONLY)",
-        "tags": ["Banco de Dados"],
-        "security": [{ "bearerAuth": [] }],
+        "tags": [
+          "Banco de Dados"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1438,37 +2065,61 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "nome": { "type": "string", "description": "Nome da tabela" },
+                  "nome": {
+                    "type": "string",
+                    "description": "Nome da tabela"
+                  },
                   "campos": {
                     "type": "array",
                     "description": "Definição dos campos",
                     "items": {
                       "type": "object",
                       "properties": {
-                        "nome": { "type": "string" },
-                        "tipo": { "type": "string" },
-                        "chave_primaria": { "type": "boolean" },
-                        "auto_incremento": { "type": "boolean" },
-                        "permite_null": { "type": "boolean" }
+                        "nome": {
+                          "type": "string"
+                        },
+                        "tipo": {
+                          "type": "string"
+                        },
+                        "chave_primaria": {
+                          "type": "boolean"
+                        },
+                        "auto_incremento": {
+                          "type": "boolean"
+                        },
+                        "permite_null": {
+                          "type": "boolean"
+                        }
                       }
                     }
                   }
                 },
-                "required": ["nome", "campos"]
+                "required": [
+                  "nome",
+                  "campos"
+                ]
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Tabela criada com sucesso" }
+          "200": {
+            "description": "Tabela criada com sucesso"
+          }
         }
       }
     },
     "/banco-dados/campo/adicionar": {
       "post": {
         "summary": "Adicionar campo a uma tabela (ADMIN ONLY)",
-        "tags": ["Banco de Dados"],
-        "security": [{ "bearerAuth": [] }],
+        "tags": [
+          "Banco de Dados"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1476,32 +2127,52 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "tabela": { "type": "string" },
-                  "nome": { "type": "string" },
-                  "tipo": { "type": "string" },
-                  "permite_null": { "type": "boolean" },
+                  "tabela": {
+                    "type": "string"
+                  },
+                  "nome": {
+                    "type": "string"
+                  },
+                  "tipo": {
+                    "type": "string"
+                  },
+                  "permite_null": {
+                    "type": "boolean"
+                  },
                   "apos": {
                     "type": "string",
                     "description": "Nome do campo anterior"
                   }
                 },
-                "required": ["tabela", "nome", "tipo"]
+                "required": [
+                  "tabela",
+                  "nome",
+                  "tipo"
+                ]
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Campo adicionado com sucesso" }
+          "200": {
+            "description": "Campo adicionado com sucesso"
+          }
         }
       }
     },
     "/procedures/listar": {
       "get": {
-        "tags": ["Procedures"],
+        "tags": [
+          "Procedures"
+        ],
         "summary": "Listar Procedures",
         "description": "Lista todas as procedures do banco de dados MySQL",
         "operationId": "listProcedures",
-        "security": [{ "BearerToken": [] }],
+        "security": [
+          {
+            "BearerToken": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Lista de procedures obtida com sucesso",
@@ -1510,7 +2181,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean", "example": true },
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
                     "data": {
                       "type": "array",
                       "items": {
@@ -1520,11 +2194,16 @@
                             "type": "string",
                             "example": "sprDashBoardAnoAtual"
                           },
-                          "banco": { "type": "string", "example": "saw_db" }
+                          "banco": {
+                            "type": "string",
+                            "example": "saw_db"
+                          }
                         }
                       }
                     },
-                    "message": { "type": "string" }
+                    "message": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -1535,17 +2214,26 @@
     },
     "/procedures/existe": {
       "get": {
-        "tags": ["Procedures"],
+        "tags": [
+          "Procedures"
+        ],
         "summary": "Verificar Existência de Procedure",
         "description": "Verifica se uma procedure existe no banco de dados. Substitui TabelaExistenoMYSQL do Delphi.",
         "operationId": "procedureExists",
-        "security": [{ "BearerToken": [] }],
+        "security": [
+          {
+            "BearerToken": []
+          }
+        ],
         "parameters": [
           {
             "name": "nome",
             "in": "query",
             "required": true,
-            "schema": { "type": "string", "example": "sprDashBoardAnoAtual" },
+            "schema": {
+              "type": "string",
+              "example": "sprDashBoardAnoAtual"
+            },
             "description": "Nome da procedure a verificar"
           }
         ],
@@ -1557,15 +2245,25 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean", "example": true },
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
-                        "existe": { "type": "boolean", "example": true },
-                        "nome": { "type": "string" }
+                        "existe": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "nome": {
+                          "type": "string"
+                        }
                       }
                     },
-                    "message": { "type": "string" }
+                    "message": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -1576,11 +2274,17 @@
     },
     "/procedures/executar": {
       "post": {
-        "tags": ["Procedures"],
+        "tags": [
+          "Procedures"
+        ],
         "summary": "Executar Procedure",
         "description": "Executa uma procedure com parâmetros opcionais",
         "operationId": "executeProcedure",
-        "security": [{ "BearerToken": [] }],
+        "security": [
+          {
+            "BearerToken": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1595,12 +2299,19 @@
                   },
                   "parametros": {
                     "type": "array",
-                    "items": { "type": "string" },
-                    "example": ["2024", "01"],
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "2024",
+                      "01"
+                    ],
                     "description": "Array com valores dos parâmetros"
                   }
                 },
-                "required": ["nome"]
+                "required": [
+                  "nome"
+                ]
               }
             }
           }
@@ -1613,12 +2324,17 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean", "example": true },
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
                     "data": {
                       "type": "object",
                       "description": "Resultado da procedure"
                     },
-                    "message": { "type": "string" }
+                    "message": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -1629,11 +2345,17 @@
     },
     "/procedures/criar": {
       "post": {
-        "tags": ["Procedures"],
+        "tags": [
+          "Procedures"
+        ],
         "summary": "Criar Procedure (ADMIN)",
         "description": "Cria uma nova procedure no banco de dados. Requer permissão de administrador.",
         "operationId": "createProcedure",
-        "security": [{ "BearerToken": [] }],
+        "security": [
+          {
+            "BearerToken": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1652,24 +2374,37 @@
                     "description": "Código SQL completo da procedure"
                   }
                 },
-                "required": ["nome", "sql"]
+                "required": [
+                  "nome",
+                  "sql"
+                ]
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Procedure criada com sucesso" },
-          "403": { "description": "Acesso negado (requer admin)" }
+          "200": {
+            "description": "Procedure criada com sucesso"
+          },
+          "403": {
+            "description": "Acesso negado (requer admin)"
+          }
         }
       }
     },
     "/procedures/droppar": {
       "post": {
-        "tags": ["Procedures"],
+        "tags": [
+          "Procedures"
+        ],
         "summary": "Remover Procedure (ADMIN)",
         "description": "Remove uma procedure do banco de dados. Requer permissão de administrador.",
         "operationId": "dropProcedure",
-        "security": [{ "BearerToken": [] }],
+        "security": [
+          {
+            "BearerToken": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1683,24 +2418,36 @@
                     "description": "Nome da procedure a remover"
                   }
                 },
-                "required": ["nome"]
+                "required": [
+                  "nome"
+                ]
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Procedure removida com sucesso" },
-          "403": { "description": "Acesso negado (requer admin)" }
+          "200": {
+            "description": "Procedure removida com sucesso"
+          },
+          "403": {
+            "description": "Acesso negado (requer admin)"
+          }
         }
       }
     },
     "/sql/executar": {
       "post": {
-        "tags": ["Procedures"],
+        "tags": [
+          "Procedures"
+        ],
         "summary": "Executar SQL Arbitrário (ADMIN)",
         "description": "Executa código SQL arbitrário. CUIDADO: Requer permissão de administrador e deve ser usado com cautela.",
         "operationId": "executeSQL",
-        "security": [{ "BearerToken": [] }],
+        "security": [
+          {
+            "BearerToken": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1714,24 +2461,36 @@
                     "description": "Código SQL a executar"
                   }
                 },
-                "required": ["sql"]
+                "required": [
+                  "sql"
+                ]
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "SQL executado com sucesso" },
-          "403": { "description": "Acesso negado (requer admin)" }
+          "200": {
+            "description": "SQL executado com sucesso"
+          },
+          "403": {
+            "description": "Acesso negado (requer admin)"
+          }
         }
       }
     },
     "/tabelas/sincronizar-estrutura": {
       "post": {
-        "tags": ["Procedures"],
+        "tags": [
+          "Procedures"
+        ],
         "summary": "Sincronizar Estrutura de Tabelas",
         "description": "Cria tabelas e colunas se não existirem. Substitui VerificaTabelaseColunas do Delphi.",
         "operationId": "syncTableStructure",
-        "security": [{ "BearerToken": [] }],
+        "security": [
+          {
+            "BearerToken": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1749,9 +2508,18 @@
                     "items": {
                       "type": "object",
                       "properties": {
-                        "nome": { "type": "string", "example": "em_almoco" },
-                        "tipo": { "type": "string", "example": "INT" },
-                        "permite_null": { "type": "boolean", "example": true }
+                        "nome": {
+                          "type": "string",
+                          "example": "em_almoco"
+                        },
+                        "tipo": {
+                          "type": "string",
+                          "example": "INT"
+                        },
+                        "permite_null": {
+                          "type": "boolean",
+                          "example": true
+                        }
                       }
                     },
                     "description": "Array com definição das colunas"
@@ -1766,7 +2534,10 @@
                     "description": "Se deve criar a tabela quando ela não existir"
                   }
                 },
-                "required": ["tabela", "colunas"]
+                "required": [
+                  "tabela",
+                  "colunas"
+                ]
               }
             }
           }
@@ -1779,16 +2550,27 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean", "example": true },
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
-                        "tabela_criada": { "type": "boolean" },
-                        "colunas_adicionadas": { "type": "array" },
-                        "total": { "type": "integer" }
+                        "tabela_criada": {
+                          "type": "boolean"
+                        },
+                        "colunas_adicionadas": {
+                          "type": "array"
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
                       }
                     },
-                    "message": { "type": "string" }
+                    "message": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -1803,21 +2585,37 @@
       "SuccessResponse": {
         "type": "object",
         "properties": {
-          "sucesso": { "type": "boolean", "example": true },
-          "mensagem": { "type": "string" },
-          "dados": { "type": "object" }
+          "sucesso": {
+            "type": "boolean",
+            "example": true
+          },
+          "mensagem": {
+            "type": "string"
+          },
+          "dados": {
+            "type": "object"
+          }
         }
       },
       "LoginResponse": {
         "type": "object",
         "properties": {
-          "sucesso": { "type": "boolean", "example": true },
+          "sucesso": {
+            "type": "boolean",
+            "example": true
+          },
           "dados": {
             "type": "object",
             "properties": {
-              "token": { "type": "string" },
-              "refresh_token": { "type": "string" },
-              "usuario": { "type": "object" }
+              "token": {
+                "type": "string"
+              },
+              "refresh_token": {
+                "type": "string"
+              },
+              "usuario": {
+                "type": "object"
+              }
             }
           }
         }
@@ -1825,17 +2623,29 @@
       "AtendimentoListResponse": {
         "type": "object",
         "properties": {
-          "sucesso": { "type": "boolean" },
+          "sucesso": {
+            "type": "boolean"
+          },
           "dados": {
             "type": "array",
             "items": {
               "type": "object",
               "properties": {
-                "id": { "type": "integer" },
-                "numero": { "type": "string" },
-                "nome": { "type": "string" },
-                "situacao": { "type": "string" },
-                "canal": { "type": "string" }
+                "id": {
+                  "type": "integer"
+                },
+                "numero": {
+                  "type": "string"
+                },
+                "nome": {
+                  "type": "string"
+                },
+                "situacao": {
+                  "type": "string"
+                },
+                "canal": {
+                  "type": "string"
+                }
               }
             }
           }
