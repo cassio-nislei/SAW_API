@@ -64,15 +64,29 @@ session_cache_expire(180000); // Deixar a sessão um bom tempo
     function userOnline($lastDate,$minutosOffline){
         $blnOnline = true;
 
-        $start_date = new DateTime($lastDate);
-        $since_start = $start_date->diff(new DateTime());
-        
-        $minutosTotais = (intval($since_start->days)*(24*60))
-                            + (intval($since_start->h)*(60))
-                            + (intval($since_start->i));
-        
-        // > 15 minutos defini-se como Offline //
-        if( intval($minutosTotais) >= intval($minutosOffline) ){
+        try {
+            // Validação se a data está vazia
+            if(empty($lastDate)){
+                return false;
+            }
+
+            // Tenta criar DateTime da data recebida
+            $start_date = new DateTime($lastDate);
+            $now = new DateTime();
+            $since_start = $start_date->diff($now);
+            
+            // Calcula o total de minutos
+            $minutosTotais = (intval($since_start->days)*(24*60))
+                                + (intval($since_start->h)*(60))
+                                + (intval($since_start->i));
+            
+            // Se passou mais tempo que os minutos offline, marca como offline
+            if( intval($minutosTotais) >= intval($minutosOffline) ){
+                $blnOnline = false;
+            }
+        } catch (Exception $e) {
+            // Se houver erro na data, considera como offline
+            error_log("Erro ao verificar data de usuário: " . $e->getMessage() . " - Data: " . $lastDate);
             $blnOnline = false;
         }
 

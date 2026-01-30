@@ -1,8 +1,6 @@
 <?php
   require_once("../../includes/padrao.inc.php");
 
-  mysqli_next_result($conexao);
-  
   // Definições de Variáveis //
   $id = isset($_GET["idDepartamento"]) ? $_GET["idDepartamento"] : "";
   $condicao = ($id !== "") ? " AND tud.id_departamento = '$id'" : " GROUP BY tu.id";
@@ -15,11 +13,13 @@
               WHERE tu.situacao NOT IN('I')"
               . $condicao;
 
+  echo "<h2>Resultado da Query:</h2>";
+  echo "<pre>$strSQL</pre>";
+  
   $usuarios = mysqli_query($conexao, $strSQL);
   
   if(!$usuarios){
-    echo "<!-- Erro na query: " . mysqli_error($conexao) . " -->";
-    echo '<div class="contact-list"><p>Erro ao carregar atendentes.</p></div>';
+    echo "Erro na query: " . mysqli_error($conexao);
     exit;
   }
 
@@ -34,17 +34,21 @@
     $minutos_offline = $arrParametros["minutos_offline"];
   }
 
+  echo "<h2>Minutos Offline Configurado: " . $minutos_offline . "</h2>";
+  echo "<h2>Atendentes Encontrados:</h2>";
+
   if(mysqli_num_rows($usuarios) == 0){
-    echo '<div class="contact-list"><p>Nenhum atendente disponível</p></div>';
+    echo '<p>Nenhum atendente disponível</p>';
   }
   else{
-    echo '<div class="contact-list">';
-    $encontrouOnline = false;
+    echo '<table border="1" cellpadding="10" style="border-collapse: collapse;">';
+    echo '<tr><th>ID</th><th>Nome</th><th>Última Data/Hora</th><th>Status</th><th>Minutos desde última atividade</th></tr>';
     
     while($ln = mysqli_fetch_assoc($usuarios)){
-      // Validação se datetime_online não está vazio
+      $status = "Offline";
+      $minutos_desde = "N/A";
+      
       if(!empty($ln["datetime_online"])){
-        // Calcula manualmente se está online
         try {
           $start_date = new DateTime($ln["datetime_online"]);
           $now = new DateTime();
@@ -54,26 +58,27 @@
                               + (intval($since_start->h)*(60))
                               + (intval($since_start->i));
           
-          // Se a última atividade foi dentro do tempo permitido, está online
+          $minutos_desde = $minutosTotais;
+          
           if($minutosTotais < $minutos_offline){
-            $encontrouOnline = true;
-            echo '
-            <div class="contact">
-              <img src="../../img/ico-contact.svg" alt="' . htmlspecialchars($ln["nome"]) . '">
-              <p>' . htmlspecialchars($ln["nome"]) . '</p>
-            </div>';
+            $status = "<span style='color: green;'>✓ Online</span>";
+          }
+          else{
+            $status = "<span style='color: red;'>✗ Offline</span>";
           }
         } catch (Exception $e) {
-          // Se houver erro, apenas ignora esse usuário
-          error_log("Erro ao processar data do usuário " . $ln["nome"] . ": " . $e->getMessage());
+          $status = "Erro ao processar data";
         }
       }
+      
+      echo '<tr>';
+      echo '<td>' . $ln["id"] . '</td>';
+      echo '<td>' . htmlspecialchars($ln["nome"]) . '</td>';
+      echo '<td>' . $ln["datetime_online"] . '</td>';
+      echo '<td>' . $status . '</td>';
+      echo '<td>' . $minutos_desde . '</td>';
+      echo '</tr>';
     }
-    
-    if(!$encontrouOnline){
-      echo '<p style="padding: 15px; text-align: center; color: #999;">Nenhum atendente online no momento</p>';
-    }
-    
-    echo '</div>';
+    echo '</table>';
   }
 ?>
