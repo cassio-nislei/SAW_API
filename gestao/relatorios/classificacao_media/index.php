@@ -15,7 +15,7 @@
 				 </div>
 				 <div class="card-body" id="graficoAtendimentosPorAtendente">
 				 <?php
-  require_once("../../../includes/padrao.inc.php");
+  require_once(__DIR__ . "/../../../includes/padrao.inc.php");
 
                        mysqli_next_result($conexao);
 

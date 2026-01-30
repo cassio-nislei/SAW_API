@@ -277,7 +277,7 @@ $html = '
         <span class="msg-time">Enviado '.$datamensagem. ' às '. $horamensagem.'</span><br>
           '. str_replace("\\n","<br/>",$mensagem) ;
            	//Trato a existencia de mensagem de resposta
-					if (strlen($mensagemResposta)>0){
+					if( strlen($mensagemResposta)>0){
 						$html .= '
 						<div style="border-left: solid green;border-radius:3px;">							
 								<span dir="ltr" >'. str_replace("\\n","<br/>",$mensagemResposta) .'</span>
