@@ -1,8 +1,17 @@
 FROM php:8.2-apache
 
-# Instalar dependências e extensões PHP
-RUN docker-php-ext-install mysqli pdo pdo_mysql && \
-    docker-php-ext-enable mysqli pdo pdo_mysql
+# Instalar dependências do sistema e extensões PHP
+RUN apt-get update && apt-get install -y \
+    libgd-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    libfreetype6-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Instalar extensões PHP
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    docker-php-ext-install gd mysqli pdo pdo_mysql && \
+    docker-php-ext-enable gd mysqli pdo pdo_mysql
 
 # Habilitar mod_rewrite para URLs amigáveis
 RUN a2enmod rewrite

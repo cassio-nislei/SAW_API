@@ -170,7 +170,21 @@ if($interval->format('%i%h%d%m%y')=="00000")
                 </a>
                 <div id="collapseOutros" class="collapse" aria-labelledby="headingOutros" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">   
-                       <a class="collapse-item" href="?pg=RelAtendimentos">Atendimentos</a>                        
+                       <a class="collapse-item" href="?pg=RelAtendimentos">Atendimentos</a>
+                       <a class="collapse-item" href="?pg=RelClassificacaoMedia">Classificação Média</a>                        
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMarketing"
+                    aria-expanded="true" aria-controls="collapseMarketing">
+                    <i class="fas fa-fw fa-share-alt"></i>
+                    <span>Marketing</span>
+                </a>
+                <div id="collapseMarketing" class="collapse" aria-labelledby="headingMarketing" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">   
+                       <a class="collapse-item" href="?pg=Stories">Stories</a>                        
                     </div>
                 </div>
             </li>
@@ -351,6 +365,9 @@ if($interval->format('%i%h%d%m%y')=="00000")
                             
 
                             case 'RelAtendimentos'              : $incluir = 'relatorios/atendimentos/index.php'; break;
+                            case 'RelClassificacaoMedia'        : $incluir = 'relatorios/classificacao_media/index.php'; break;
+                            
+                            case 'Stories'                      : $incluir = 'marketing/stories/index.php'; break;
 							default : $incluir = "dashboard/index.php"; break;
 						}
 						include($incluir);

@@ -47,9 +47,13 @@
         form = new FormData();
 
         function ajustaScroll(){	
-            $('#panel-messages-container').animate({
-                scrollTop: $(this).height()*100 // aqui introduz o numero de px que quer no scroll, neste caso é a altura da propria div, o que faz com que venha para o fim
-            }, 100);
+            var container = $('#panel-messages-container');
+            // Primeiro faz um scroll imediato para o final
+            container.scrollTop(container[0].scrollHeight);
+            // Depois anima suavemente para garantir que chegou ao final
+            container.animate({
+                scrollTop: container[0].scrollHeight
+            }, 300);
         }
 
         function carregaAtendimento() {
@@ -68,9 +72,8 @@
                 if (parseInt(retorno) > parseInt(qtdMensagens)) {
                     $.ajax("atendimento/listaConversas.php?id=" + id + "&id_canal=" + id_canal + "&numero=" + numero + "&nome=" + nome).done(function(data) {
                         $('#mensagens').html(data);
+                        ajustaScroll(); //desço a barra de rolagem da conversa após carregar os dados
                     });
-
-                    ajustaScroll(); //desço a barra de rolagem da conversa
                 }
                 $("#TotalMensagens").html(retorno);
             });
@@ -79,6 +82,11 @@
         // Atualiza a Lista de Atendimentos //
             var intervalo = setInterval(function() { carregaAtendimento(); }, 5000);
             carregaAtendimento();
+            
+            // Rola para o final das mensagens ao carregar a página
+            setTimeout(function() {
+                ajustaScroll();
+            }, 500);
         // FIM Atualiza a Lista de Atendimentos //
 
         // Selecionar o Imput File //
@@ -206,6 +214,12 @@
                 resetForm: true,
                 success: function(retorno) {
                     carregaAtendimento();	
+                    
+                    // Aguarda um pouco para garantir que o conteúdo foi renderizado
+                    setTimeout(function() {
+                        ajustaScroll();
+                    }, 800);
+                    
                     form = new FormData();
  //alert(retorno);
                     // Limpando Campos //
