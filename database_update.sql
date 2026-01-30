@@ -322,7 +322,7 @@ BEGIN
         AND ((coalesce(pNumero,0) = 0) OR (pNumero = ta.numero))
         AND ((coalesce(pProtocolo,0) = 0) OR (pProtocolo = ta.protocolo))
         AND ((pEtiquetas = 0) OR (te.id IN (pEtiquetas)))
-        GROUP BY ta.id, ta.dt_atend, ta.nome, ta.numero, ta.nome_atend
+        GROUP BY ta.id, ta.dt_atend, ta.nome, ta.numero, ta.nome_atend, u.id
         ORDER BY dt_atend, nome;
     end if;
 END $$
