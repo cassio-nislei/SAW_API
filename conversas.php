@@ -775,6 +775,26 @@ if (!isset($_SESSION["usuariosaw"])){
     observeListChanges('ListaTriagem', 'counterTriagemValue');
     observeListChanges('ListaPendentes', 'counterPendentesValue');
     observeListChanges('ListaEmAtendimento', 'counterEmAtendimentoValue');
+    
+    // Verifica se há um parâmetro 'numero' na URL e abre automaticamente
+    var urlParams = new URLSearchParams(window.location.search);
+    var numeroParam = urlParams.get('numero');
+    
+    if (numeroParam) {
+      // Aguarda um tempo para garantir que os elementos estão carregados
+      setTimeout(function() {
+        // Procura por elementos de atendimento (triagem, pendentes, atendendo)
+        var elementos = document.querySelectorAll('.linkDivTriagem, .linkDivPendentes, .linkDivAtendendo');
+        for (var i = 0; i < elementos.length; i++) {
+          var numeroInput = elementos[i].querySelector('#numero');
+          if (numeroInput && numeroInput.value == numeroParam) {
+            // Simula um clique no elemento encontrado
+            elementos[i].click();
+            break;
+          }
+        }
+      }, 1000);
+    }
   };
 </script>
 

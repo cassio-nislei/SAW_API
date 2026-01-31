@@ -1,5 +1,8 @@
 <?php
 	require_once("../includes/padrao.inc.php");
+	
+	// Garante que a timezone está configurada para Brasília
+	date_default_timezone_set('America/Sao_Paulo');
   	
 	//Inicia o Atendimento
   	//Recupero os dados do atendimento selecionado
@@ -70,17 +73,19 @@
 	//		$protocolo = $objprotocolo->protocolo;
 			//Verifico se já existe o protocolo gerado
 			$protocolo = date('YmdHis');
+		$data_atend = date('Y-m-d');
+		$hora_atend = date('H:i:s');
 
-			$qryaux = mysqli_query(
-				$conexao
-				, "INSERT INTO tbatendimento (id,situacao,nome,id_atend,nome_atend,numero,setor,dt_atend,hr_atend, canal, protocolo)
-					VALUES('$s_id_atendimento','A','$s_nome','$id_atend','$s_nome','$s_celular_atendimento','$idDepartamento',CURDATE(),CURTIME(), '$idCanal','$protocolo'
-					 )"
-			) or die(mysqli_error($conexao));
+		$qryaux = mysqli_query(
+			$conexao
+			, "INSERT INTO tbatendimento (id,situacao,nome,id_atend,nome_atend,numero,setor,dt_atend,hr_atend, canal, protocolo)
+			VALUES('$s_id_atendimento','A','$s_nome','$id_atend','$s_nome','$s_celular_atendimento','$idDepartamento','$data_atend','$hora_atend', '$idCanal','$protocolo'
+			)"
+		) or die(mysqli_error($conexao));
 
-			//Após Gerar o Atendimento, verifico se está controlando protocolos para Enviar uma mensagem com o Número do Protocolo
-			//Exibir mensagem de Número de Protocolo
-			if ($_SESSION["parametros"]["usar_protocolo"]==1){
+		//Após Gerar o Atendimento, verifico se está controlando protocolos para Enviar uma mensagem com o Número do Protocolo
+		//Exibir mensagem de Número de Protocolo
+		if ($_SESSION["parametros"]["usar_protocolo"]==1){
 				//BUsco o Número de protocolo
 				$qryprotocolo = mysqli_query(
 					$conexao

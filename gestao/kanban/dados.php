@@ -18,13 +18,15 @@ $query = "
         COALESCE(td.departamento, 'Sem Departamento') as departamento,
         ta.nome_atend as atendente,
         DATE_FORMAT(ta.dt_atend, '%H:%i') as hora,
+        ta.hr_atend,
         ta.canal as id_canal,
-        tc.foto_perfil as foto_perfil
+        tc.foto_perfil as foto_perfil,
+        ta.protocolo as protocolo
     FROM tbatendimento ta
     LEFT JOIN tbdepartamentos td ON ta.setor = td.id
     LEFT JOIN tbcontatos tc ON ta.numero = tc.numero
     WHERE (
-        ta.situacao IN ('TRIAGEM', 'PENDENTE', 'ATENDENDO', 'T', 'P', 'A')
+        (ta.situacao IN ('TRIAGEM', 'PENDENTE', 'ATENDENDO') OR ta.situacao IN ('T', 'P', 'A'))
         OR (ta.situacao IN ('FINALIZADO', 'F') AND DATE(ta.dt_atend) = CURDATE())
     )
     ORDER BY ta.dt_atend DESC
@@ -71,13 +73,16 @@ while($row = mysqli_fetch_assoc($result)) {
     $atendimentos[] = [
         'id' => $row['id'],
         'numero' => $row['numero'],
+        'unique_id' => $row['id'] . '_' . $row['numero'],
         'nome' => $row['nome'],
         'situacao' => $situacao,
         'departamento' => $row['departamento'],
         'atendente' => $row['atendente'],
         'hora' => $row['hora'],
+        'hr_atend' => $row['hr_atend'],
         'id_canal' => $row['id_canal'],
-        'foto_perfil' => $fotoPerfil
+        'foto_perfil' => $fotoPerfil,
+        'protocolo' => $row['protocolo']
     ];
 }
 
@@ -91,3 +96,4 @@ if($debug) {
     echo json_encode($atendimentos);
 }
 ?>
+

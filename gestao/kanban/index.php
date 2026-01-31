@@ -94,11 +94,17 @@ require_once("../../includes/padrao.inc.php");
             padding: 10px;
             margin-bottom: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            cursor: pointer;
+            cursor: grab;
             transition: all 0.3s ease;
             border-left: 4px solid #4e73df;
             flex-shrink: 0;
             position: relative;
+            user-select: none;
+        }
+        
+        .kanban-card.dragging {
+            cursor: grabbing;
+            opacity: 0.9;
         }
         
         .kanban-card-foto {
@@ -156,8 +162,41 @@ require_once("../../includes/padrao.inc.php");
             color: #2e5090;
             transform: scale(1.2);
         }
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            transform: translateY(-2px);
+        
+        .kanban-card-chat {
+            position: absolute;
+            bottom: 8px;
+            right: 30px;
+            width: 15px;
+            height: 15px;
+            background: none;
+            border: none;
+            color: #28a745;
+            cursor: pointer;
+            padding: 0;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .kanban-card-chat:hover {
+            color: #1e7e34;
+            transform: scale(1.2);
+        }
+        
+        .kanban-card-chat:disabled,
+        .kanban-card-chat.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .kanban-card-chat:disabled:hover,
+        .kanban-card-chat.disabled:hover {
+            color: #ccc;
+            transform: none;
         }
         
         .kanban-card-title {
@@ -243,6 +282,183 @@ require_once("../../includes/padrao.inc.php");
                 max-width: 250px;
             }
         }
+        
+        /* Modal Histórico */
+        .window {
+            position: fixed !important;
+            width: 90% !important;
+            height: 90% !important;
+            background: #fff !important;
+            border-radius: 3px !important;
+            box-shadow: 0 0 8px 0 #0000002b !important;
+            left: 5% !important;
+            top: 5% !important;
+            z-index: 1000 !important;
+            overflow: auto !important;
+            margin: 0 20px !important;
+            padding: 20px !important;
+            box-sizing: border-box !important;
+        }
+        
+        .window.maior {
+            top: 20px !important;
+            bottom: 20px !important;
+            left: 20px !important;
+            right: 20px !important;
+            width: auto !important;
+            height: auto !important;
+            z-index: 1000 !important;
+        }
+        
+        #fundo_preto {
+            position: fixed !important;
+            left: 0 !important;
+            right: 0 !important;
+            top: 0 !important;
+            bottom: 0 !important;
+            background: #000000a6 !important;
+            z-index: 999 !important;
+            display: none;
+        }
+        
+        .window[style*="display: block"] ~ #fundo_preto {
+            display: block !important;
+        }
+        
+        /* Responsivo para telas menores */
+        @media (max-width: 1024px) {
+            .window.maior {
+                top: 20px !important;
+                bottom: 20px !important;
+                left: 20px !important;
+                right: 20px !important;
+                padding: 15px !important;
+            }
+            
+            ._3AwwN {
+                flex-wrap: wrap !important;
+            }
+            
+            ._1WBXd {
+                flex: 1 1 100% !important;
+                margin-top: 10px !important;
+            }
+            
+            ._1i0-u {
+                flex: 0 1 auto !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .kanban-column {
+                min-width: 250px;
+                max-width: 250px;
+            }
+            
+            .window.maior {
+                top: 15px !important;
+                bottom: 15px !important;
+                left: 15px !important;
+                right: 15px !important;
+                padding: 15px !important;
+            }
+            
+            ._3AwwN {
+                flex-direction: column !important;
+            }
+            
+            ._18tv- {
+                margin-bottom: 10px !important;
+            }
+            
+            ._1WBXd {
+                margin-bottom: 10px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .window.maior {
+                top: 10px !important;
+                bottom: 10px !important;
+                left: 10px !important;
+                right: 10px !important;
+                padding: 10px !important;
+            }
+        }
+        
+        /* Configurações de CSS das Modais de Finalização */
+        .window.menor {
+            width: 90% !important;
+            max-width: 600px !important;
+            height: auto !important;
+            max-height: 85vh !important;
+            z-index: 1000 !important;
+            overflow-y: auto !important;
+        }
+        
+        .window.menor.comprido {
+            height: auto !important;
+            max-height: 90vh !important;
+        }
+        
+        .box-modal {
+            padding: 1.5rem 2rem;
+        }
+        
+        .box-modal .title {
+            display: block;
+            color: #557cf2;
+            font-size: 1.7em;
+            font-weight: 700;
+            padding-bottom: 1rem;
+        }
+        
+        .box-modal p {
+            line-height: 1.3rem;
+            padding-bottom: 1rem;
+        }
+        
+        .uk-button-success {
+            background-color: #557cf2 !important;
+            color: #fff;
+            border: 1px solid transparent;
+        }
+        
+        .uk-button {
+            border-radius: 3px;
+            padding: 8px 16px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            background-color: #f5f5f5;
+        }
+        
+        .uk-button:hover {
+            background-color: #e9e9e9;
+        }
+        
+        .uk-button-success:hover {
+            background-color: #4a68d8 !important;
+        }
+        
+        .uk-form-label {
+            color: #333;
+            font-size: 0.875rem;
+            margin-top: 13px;
+            margin-bottom: 8px;
+        }
+        
+        .uk-checkbox {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        
+        .uk-text-right {
+            text-align: right;
+        }
+        
+        .uk-width-1-1@m {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -300,16 +516,6 @@ require_once("../../includes/padrao.inc.php");
         <div id="HistoricoAberto" class="_1GX8_">
             <div class="YUoyu" data-asset-chat-background="true"></div>
             <header class="_3AwwN">
-                <div class="_18tv-" role="button">
-                    <div class="_1WliW" style="height: 40px; width: 40px;">
-                        <img src="#" class="Qgzj8 gqwaM" style="display:none;" id="active-photo-historico">
-                        <div class="_3ZW2E">
-                            <span data-icon="default-user">
-                                <img src="images/cliente.png" class="rounded-circle user_img" id="foto-historico">
-                            </span>
-                        </div>
-                    </div>
-                </div>
                 <div class="_1WBXd" role="button">
                     <div class="_2EbF-">
                         <div class="_2zCDG">
@@ -341,10 +547,14 @@ require_once("../../includes/padrao.inc.php");
         </div>
     </div>
     
+    <!-- Fundo Preto -->
+    <div id="fundo_preto"></div>
+    
     <script>
-        function abrirHistorico(numero, nome) {
-            // Mostrar modal
+        function abrirHistorico(numero, nome, protocolo) {
+            // Mostrar modal e fundo preto
             $('#modalHistorico').css('display', 'block');
+            $('#fundo_preto').css('display', 'block');
             
             // Atualizar header
             $('#active-name-historico').text(nome || 'Histórico');
@@ -356,10 +566,11 @@ require_once("../../includes/padrao.inc.php");
             
             $.post("../../atendimento/qtdConversas.php", {
                 numero: numero,
+                protocolo: protocolo,
                 id: 'all',
                 id_canal: idCanal
             }, function(retorno) {
-                $.ajax("../../atendimento/listaConversas.php?id=all&numero=" + numero + "&nome=" + nome_encoded + "&id_canal=" + idCanal).done(function(data) {
+                $.ajax("../../atendimento/listaConversas.php?id=all&numero=" + numero + "&protocolo=" + protocolo + "&nome=" + nome_encoded + "&id_canal=" + idCanal).done(function(data) {
                     $('#mensagensHistorico').html(data);
                     scrollToHistoricoBottom();
                 });
@@ -367,9 +578,10 @@ require_once("../../includes/padrao.inc.php");
             });
             
             // Fechar modal ao clicar em X
-            $("#fecharHistorico").click(function() {
+            $("#fecharHistorico").off('click').on('click', function() {
                 $.post("../../includes/deletarArquivos.php", {numero: numero}, function() {
                     $('#modalHistorico').css('display', 'none');
+                    $('#fundo_preto').css('display', 'none');
                 });
             });
         }
@@ -383,13 +595,44 @@ require_once("../../includes/padrao.inc.php");
             }
         }
         
-        // Fechar modal ao clicar fora
-        $(document).on('click', function(event) {
-            if($(event.target).attr('id') === 'modalHistorico') {
-                $('#modalHistorico').css('display', 'none');
-            }
+        // Fechar modal ao clicar no fundo preto
+        $(document).on('click', '#fundo_preto', function() {
+            $('#modalHistorico').css('display', 'none');
+            $('#fundo_preto').css('display', 'none');
         });
     </script>
+    
+    <script>
+        function abrirModal(id) {
+            var alturaTela = $(window).height();
+            var larguraTela = $(window).width();
+
+            //colocando o fundo preto
+            $('#fundo_preto').css({'width': larguraTela, 'height': alturaTela});
+            $('#fundo_preto').fadeIn(500);	
+            $('#fundo_preto').fadeTo("slow", 0.8);
+
+            $(id).show();
+            
+            // Centralizar o modal
+            setTimeout(function() {
+                var modalWidth = $(id).outerWidth();
+                var modalHeight = $(id).outerHeight();
+                var left = (larguraTela - modalWidth) / 2;
+                var top = (alturaTela - modalHeight) / 2;
+                $(id).css({'top': top + 'px', 'left': left + 'px'});
+            }, 50);
+            
+            $(window).scrollTop(0);
+        }
+
+        function fecharModal() {
+            $("#fundo_preto").fadeOut(500);
+            $(".window").fadeOut(500);
+        }
+    </script>
+    
+    <script>
         function carregarKanban() {
             console.log('Carregando kanban...');
             $.ajax({
@@ -398,12 +641,6 @@ require_once("../../includes/padrao.inc.php");
                 dataType: 'json',
                 success: function(data) {
                     console.log('Dados recebidos:', data);
-                    
-                    // Limpar colunas
-                    $('#col-triagem').html('');
-                    $('#col-espera').html('');
-                    $('#col-andamento').html('');
-                    $('#col-encerrados').html('');
                     
                     let counts = {
                         triagem: 0,
@@ -416,7 +653,21 @@ require_once("../../includes/padrao.inc.php");
                     if(Array.isArray(data) && data.length > 0) {
                         $.each(data, function(idx, atendimento) {
                             console.log('Processando:', atendimento.situacao);
-                            let card = criarCard(atendimento);
+                            
+                            // Verificar se o card já existe e obter seu tempo se estiver na mesma situação
+                            let tempoExistente = null;
+                            let cardExistente = document.querySelector(`.kanban-card[data-unique-id="${atendimento.unique_id}"]`);
+                            if (cardExistente) {
+                                let situacaoExistente = cardExistente.getAttribute('data-situacao');
+                                // Se a situação é a mesma, preservar o tempo
+                                if (situacaoExistente === atendimento.situacao) {
+                                    tempoExistente = cardExistente.getAttribute('data-tempo-criacao');
+                                }
+                                // Remover card antigo para ser substituído
+                                cardExistente.remove();
+                            }
+                            
+                            let card = criarCard(atendimento, tempoExistente);
                             let coluna = atendimento.situacao;
                             
                             // Mapear situação para o padrão esperado
@@ -459,11 +710,21 @@ require_once("../../includes/padrao.inc.php");
             });
         }
         
-        function criarCard(atendimento) {
+        function criarCard(atendimento, tempoExistente = null) {
             let nome = (atendimento.nome && atendimento.nome.trim()) ? atendimento.nome : 'Sem nome';
             let departamento = (atendimento.departamento && atendimento.departamento.trim()) ? atendimento.departamento : 'Sem Departamento';
             let atendente = (atendimento.atendente && atendimento.atendente.trim()) ? atendimento.atendente : 'Não atribuído';
             let fotoPerfil = (atendimento.foto_perfil && atendimento.foto_perfil.trim()) ? atendimento.foto_perfil : '';
+            
+            // Usar tempo existente se fornecido, caso contrário criar novo
+            let tempoCriacao = tempoExistente || Date.now();
+            
+            // Verificar se é atendimento finalizado
+            let isFinalized = atendimento.situacao === 'F' || atendimento.situacao === 'FINALIZADO';
+            
+            // Atributo para desabilitar botão de chat se finalizado
+            let chatDisabled = isFinalized ? 'disabled' : '';
+            let chatClass = isFinalized ? 'disabled' : '';
             
             let fotoHtml = '';
             if(fotoPerfil) {
@@ -478,9 +739,12 @@ require_once("../../includes/padrao.inc.php");
             }
             
             return `
-                <div class="kanban-card" onclick="abrirConversa('${atendimento.id}', '${atendimento.numero}', '${nome}', '${atendimento.id_canal}')">
+                <div class="kanban-card kanban-card-draggable" data-unique-id="${atendimento.unique_id}" data-situacao="${atendimento.situacao || ''}" data-tempo-criacao="${tempoCriacao}">
                     ${fotoHtml}
-                    <button class="kanban-card-visualizar" onclick="event.stopPropagation(); abrirHistorico('${atendimento.numero}', '${nome}')" title="Visualizar histórico">
+                    <button class="kanban-card-chat ${chatClass}" onclick="if(!this.disabled) { event.stopPropagation(); abrirConversas('${atendimento.numero}'); }" ${chatDisabled} title="Abrir conversa">
+                        <i class="fas fa-comment"></i>
+                    </button>
+                    <button class="kanban-card-visualizar" onclick="event.stopPropagation(); abrirHistorico('${atendimento.numero}', '${nome}', '${atendimento.protocolo}')" title="Visualizar histórico">
                         <i class="fas fa-eye"></i>
                     </button>
                     <div class="kanban-card-content">
@@ -488,7 +752,8 @@ require_once("../../includes/padrao.inc.php");
                         <div class="kanban-card-numero">📱 ${atendimento.numero}</div>
                         <div class="kanban-card-text">Depto: ${departamento}</div>
                         <div class="kanban-card-text">Atendente: ${atendente}</div>
-                        <div class="kanban-card-hora">🕐 ${atendimento.hora}</div>
+                        <div class="kanban-card-text">Protocolo: <strong>${atendimento.protocolo || 'N/A'}</strong></div>
+                        <div class="kanban-card-hora">⏱️ <span class="tempo-decorrido">00:00:00</span></div>
                     </div>
                 </div>
             `;
@@ -502,12 +767,105 @@ require_once("../../includes/padrao.inc.php");
             window.location.href = url;
         }
         
+        function abrirConversas(numero) {
+            // Atualizar status para ANDAMENTO antes de abrir a conversa
+            $.ajax({
+                url: '../../atendimento/atualizar-status.php',
+                type: 'POST',
+                data: {
+                    numero: numero,
+                    situacao: 'A' // A = ANDAMENTO
+                },
+                success: function(response) {
+                    console.log('Status atualizado para ANDAMENTO');
+                    // Agora redirecionar para conversas.php
+                    let url = '../../conversas.php?numero=' + encodeURIComponent(numero);
+                    window.location.href = url;
+                },
+                error: function(err) {
+                    console.error('Erro ao atualizar status:', err);
+                    // Mesmo com erro, redirecionar para conversas
+                    let url = '../../conversas.php?numero=' + encodeURIComponent(numero);
+                    window.location.href = url;
+                }
+            });
+        }
+        
+        function calcularTempoDecorrido(tempoMsCriacao) {
+            if (!tempoMsCriacao) return '00:00:00';
+            
+            let tempoInicial = parseInt(tempoMsCriacao);
+            let agora = Date.now();
+            let diferenca = agora - tempoInicial;
+            
+            if (diferenca > 0) {
+                let totalSegundos = Math.floor(diferenca / 1000);
+                
+                let h = Math.floor(totalSegundos / 3600);
+                let m = Math.floor((totalSegundos % 3600) / 60);
+                let s = totalSegundos % 60;
+                
+                return String(h).padStart(2, '0') + ':' + 
+                       String(m).padStart(2, '0') + ':' + 
+                       String(s).padStart(2, '0');
+            }
+            
+            return '00:00:00';
+        }
+        
+        function atualizarTodosTempos() {
+            var cards = document.querySelectorAll('.kanban-card[data-tempo-criacao]');
+            cards.forEach(function(card) {
+                // Não atualizar tempo para atendimentos finalizados
+                var situacao = card.getAttribute('data-situacao');
+                if (situacao === 'F' || situacao === 'FINALIZADO') {
+                    return; // Pula este card
+                }
+                
+                var tempoMsCriacao = card.getAttribute('data-tempo-criacao');
+                var tempoSpan = card.querySelector('.tempo-decorrido');
+                if (tempoSpan && tempoMsCriacao) {
+                    var novoTempo = calcularTempoDecorrido(tempoMsCriacao);
+                    tempoSpan.textContent = novoTempo;
+                }
+            });
+        }
+        
+        // Drag to scroll no kanban card
+        $(document).on('mousedown', '.kanban-card-draggable', function(e) {
+            var $card = $(this);
+            var startY = e.pageY;
+            var startScrollTop = $card.closest('.kanban-column-content').scrollTop();
+            var isDragging = false;
+            
+            $(document).on('mousemove', function(e) {
+                if (!isDragging) {
+                    isDragging = true;
+                    $card.addClass('dragging');
+                }
+                
+                var deltaY = e.pageY - startY;
+                var $container = $card.closest('.kanban-column-content');
+                $container.scrollTop(startScrollTop - deltaY);
+            });
+            
+            $(document).on('mouseup', function() {
+                if (isDragging) {
+                    $card.removeClass('dragging');
+                }
+                $(document).off('mousemove');
+                $(document).off('mouseup');
+            });
+        });
+        
         // Carregar kanban ao abrir a página
         $(document).ready(function() {
             console.log('Página pronta, carregando kanban');
             carregarKanban();
-            // Atualizar a cada 30 segundos
-            setInterval(carregarKanban, 30000);
+            // Atualizar a cada 10 segundos
+            setInterval(carregarKanban, 10000);
+            // Atualizar tempos a cada 1 segundo para contagem em tempo real
+            setInterval(atualizarTodosTempos, 1000);
         });
     </script>
 </body>

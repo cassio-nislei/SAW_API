@@ -6,15 +6,19 @@
 		$idAtendimento = $_POST["id"];
 		$numero = $_POST["numero"];
 		$idCanal = !empty($_POST["id_canal"]) ? $_POST["id_canal"] : 0;
+		$protocolo = !empty($_POST["protocolo"]) ? $_POST["protocolo"] : '';
 
 		// Inicialização da Consulta //
-		$strSQL = "SELECT coalesce(count(ID),0) AS total_notificacoes FROM tbmsgatendimento WHERE numero = '".$numero."'";
+		$strSQL = "SELECT coalesce(count(tma.ID),0) AS total_notificacoes FROM tbmsgatendimento tma LEFT JOIN tbatendimento ta ON tma.numero = ta.numero WHERE tma.numero = '".$numero."'";
+
+		// Verifica se Adiciona ou não o Filtro por ID //
+		if( intval($idAtendimento) > 0 ){ $strSQL .= " AND tma.id = '".$idAtendimento."'"; }
 
 		// Verifica se Adiciona ou não o Filtro por Canal //
-		if( intval($idAtendimento) > 0 ){ $strSQL .= " AND id = '".$idAtendimento."'"; }
+		if( intval($idCanal) > 0 ){ $strSQL .= " AND tma.canal = '".$idCanal."'"; }
 
-		// Verifica se Adiciona ou não o Filtro por Canal //
-		if( intval($idCanal) > 0 ){ $strSQL .= " AND canal = '".$idCanal."'"; }
+		// Verifica se Adiciona ou não o Filtro por Protocolo //
+		if( !empty($protocolo) ){ $strSQL .= " AND ta.protocolo = '".$protocolo."'"; }
 
 		// Recupera a Qtde de Mensagens //
 		$qryConversa = mysqli_query(

@@ -7,6 +7,7 @@
 		$numero = isset($_GET["numero"]) ? $_GET["numero"] : "";
 		$Nome = isset($_GET["nome"]) ? $_GET["nome"] : "";
 		$idCanal = isset($_GET["id_canal"]) ? $_GET["id_canal"] : "";
+		$protocolo = isset($_GET["protocolo"]) ? $_GET["protocolo"] : "";
 	// FIM Definições de Variáveis //
 
 	// Definição do SQL //
@@ -16,8 +17,19 @@
 		tma.reacaorec
 					FROM tbmsgatendimento tma
 						LEFT JOIN tbanexos ta ON tma.id = ta.id AND tma.seq = ta.seq AND tma.numero = ta.numero
-							WHERE tma.numero = '".$numero."' and tma.id = '$idAtendimento'
-								ORDER BY tma.id, seq";
+							WHERE tma.numero = '".$numero."' and tma.id = '$idAtendimento'";
+		// Adiciona filtro de protocolo se fornecido
+		if( !empty($protocolo) ){ 
+			$strSQL = "SELECT tma.chatid, tma.id, tma.seq, tma.numero, tma.msg, tma.resp_msg, tma.dt_msg, tma.hr_msg, tma.id_atend, ta.tipo_arquivo, ta.nome_original, tma.situacao, tma.reagir,tma.reacao,
+			tma.reacaorec
+						FROM tbmsgatendimento tma
+							LEFT JOIN tbanexos ta ON tma.id = ta.id AND tma.seq = ta.seq AND tma.numero = ta.numero
+							LEFT JOIN tbatendimento tb ON tma.numero = tb.numero
+							WHERE tma.numero = '".$numero."' AND tma.id = '$idAtendimento' AND tb.protocolo = '".$protocolo."'"; 
+		} else {
+			$strSQL .= " ORDER BY tma.id, seq";
+		}
+		$strSQL .= " ORDER BY tma.id, seq";
 	}else
 		// Alteração necessária para mostrar o 'Histórico de Atendimentos' do Cliente completo pelo número//
 		if( $idAtendimento === "all" ){
@@ -25,8 +37,17 @@
 			tma.reacaorec
 						FROM tbmsgatendimento tma
 							LEFT JOIN tbanexos ta ON tma.id = ta.id AND tma.seq = ta.seq AND tma.numero = ta.numero
-								WHERE tma.numero = '".$numero."'
-									ORDER BY tma.id, seq";
+								WHERE tma.numero = '".$numero."'";
+			// Adiciona filtro de protocolo se fornecido
+			if( !empty($protocolo) ){ 
+				$strSQL = "SELECT tma.chatid, tma.id, tma.seq, tma.numero, tma.msg, tma.resp_msg, tma.dt_msg, tma.hr_msg, tma.id_atend, ta.tipo_arquivo, ta.nome_original, tma.situacao, tma.reagir,tma.reacao,
+				tma.reacaorec
+							FROM tbmsgatendimento tma
+								LEFT JOIN tbanexos ta ON tma.id = ta.id AND tma.seq = ta.seq AND tma.numero = ta.numero
+								LEFT JOIN tbatendimento tb ON tma.numero = tb.numero
+								WHERE tma.numero = '".$numero."' AND tb.protocolo = '".$protocolo."'"; 
+			}
+			$strSQL .= " ORDER BY tma.id, seq";
 		}
 		else{
 			// Atualizo as visualizações das mensagens para zerar o contador conforme atualiza a conversa //
@@ -47,8 +68,17 @@
 			tma.reacaorec
 						FROM tbmsgatendimento tma
 							LEFT JOIN tbanexos ta ON tma.id = ta.id AND tma.seq = ta.seq AND tma.numero = ta.numero
-								WHERE tma.numero = '".$numero."' AND  tma.id = '".$idAtendimento."'
-									ORDER BY seq";
+								WHERE tma.numero = '".$numero."' AND  tma.id = '".$idAtendimento."'";
+			// Adiciona filtro de protocolo se fornecido
+			if( !empty($protocolo) ){ 
+				$strSQL = "SELECT tma.chatid, tma.id, tma.seq, tma.numero, tma.msg,  tma.resp_msg, tma.dt_msg, tma.hr_msg, tma.id_atend, ta.tipo_arquivo, ta.nome_original, tma.situacao, tma.reagir,tma.reacao,
+				tma.reacaorec
+							FROM tbmsgatendimento tma
+								LEFT JOIN tbanexos ta ON tma.id = ta.id AND tma.seq = ta.seq AND tma.numero = ta.numero
+								LEFT JOIN tbatendimento tb ON tma.numero = tb.numero
+								WHERE tma.numero = '".$numero."' AND tma.id = '".$idAtendimento."' AND tb.protocolo = '".$protocolo."'"; 
+			}
+			$strSQL .= " ORDER BY seq";
 		}
 	// FIM Definição do SQL //
 
