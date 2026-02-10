@@ -37,8 +37,8 @@ if($arquivo['type'] == "text/csv"){
         //var_dump($linha);
 
         // Criar a QUERY para salvar o usuário no banco de dados
-        $numero  = ($linha[0] ?? "NULL");
-        $nome    = ($linha[3] ?? "NULL");
+        $numero  = mysqli_real_escape_string($conexao, ($linha[0] ?? "NULL"));
+        $nome    = mysqli_real_escape_string($conexao, ($linha[3] ?? "NULL"));
 
        
 
