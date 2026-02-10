@@ -214,7 +214,7 @@
 		}
 		else if (strlen($objConversa->msg)>0) {
 			$mensagem = $objConversa->msg;	
-			$mensagemResposta = $objConversa->resp_msg;	
+			$mensagemResposta = $objConversa->resp_msg ?? "";	
 		}
 
 		$mensagem = nl2br($mensagem);
