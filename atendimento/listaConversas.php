@@ -212,7 +212,7 @@
 
 			$mensagem = '<a href="atendimento/anexo.php?id='.$objConversa->id.'&numero='.$objConversa->numero.'&seq='.$objConversa->seq.'"><img src="images/'.$imgIcone.'" width="100" height="100"></a><br>'.$objConversa->nome_original.'<br>'. $objConversa->msg;
 		}
-		else if (strlen($objConversa->msg)>0) {
+		else if (!empty($objConversa->msg) && strlen($objConversa->msg)>0) {
 			$mensagem = $objConversa->msg;	
 			$mensagemResposta = $objConversa->resp_msg ?? "";	
 		}
@@ -397,7 +397,7 @@
 						<div class="Tkt2p">
 						  ';	
 					//Trato a existencia de mensagem de resposta
-					if (strlen($mensagemResposta)>0){						
+				if (!empty($mensagemResposta) && strlen($mensagemResposta)>0){						
 						echo '
 						<div style="border-left: solid green;border-radius:3px;background-color:#CCC;opacity: 0.2;color:#000">							
 								<span dir="ltr" class="selectable-text invisible-space message-text">'. str_replace("\\n","<br/>",$mensagemResposta) .'</span>
