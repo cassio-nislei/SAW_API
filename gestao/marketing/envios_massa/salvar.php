@@ -21,7 +21,7 @@
 	 	
 	}
 		
-		if( $inserir ){ echo "1"; }
+		if( $inserir ){ /*echo "1";*/ }
 
 
 	?>
