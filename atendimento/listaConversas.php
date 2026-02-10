@@ -1,5 +1,3 @@
-
-</div>
 <?php
 	// Requires //
 	require_once("../includes/padrao.inc.php");
@@ -32,16 +30,18 @@
 		}
 		else{
 			// Atualizo as visualizações das mensagens para zerar o contador conforme atualiza a conversa //
-			  $intUserId = $_SESSION["usuariosaw"]["id"]; //Atualizo a mensagem como visualizada apenas se o Dono do chamado visualiza-la
-			  $mesmoUsuario = mysqli_query($conexao, "select id_atend from tbatendimento WHERE id = '".$idAtendimento."' AND  numero = '".$numero."'") ;
-			  $mesmousuariologado = mysqli_fetch_assoc($mesmoUsuario);
-			  if ($mesmousuariologado["id_atend"]==$intUserId){
-                $sqlUpdateTbMsgAtendimento = "UPDATE tbmsgatendimento 
-												SET visualizada = true
-													WHERE id = '".$idAtendimento."' AND  numero = '".$numero."'";
-				$qryConversa = mysqli_query($conexao, $sqlUpdateTbMsgAtendimento) 
-					or die("Erro ao atualizar as visualizações das mensagens: " . $sqlUpdateTbMsgAtendimento . "<br/>" . mysqli_error($conexao));
-			  }
+			if( isset($_SESSION["usuariosaw"]["id"]) ){
+				$intUserId = $_SESSION["usuariosaw"]["id"]; //Atualizo a mensagem como visualizada apenas se o Dono do chamado visualiza-la
+				$mesmoUsuario = mysqli_query($conexao, "select id_atend from tbatendimento WHERE id = '".$idAtendimento."' AND  numero = '".$numero."'") ;
+				$mesmousuariologado = mysqli_fetch_assoc($mesmoUsuario);
+				if ($mesmousuariologado["id_atend"]==$intUserId){
+					$sqlUpdateTbMsgAtendimento = "UPDATE tbmsgatendimento 
+													SET visualizada = true
+														WHERE id = '".$idAtendimento."' AND  numero = '".$numero."'";
+					$qryConversa = mysqli_query($conexao, $sqlUpdateTbMsgAtendimento) 
+						or die("Erro ao atualizar as visualizações das mensagens: " . $sqlUpdateTbMsgAtendimento . "<br/>" . mysqli_error($conexao));
+				}
+			}
 				
 			// FIM Atualizo as visualizações das mensagens para zerar o contador conforme atualiza a conversa //
 
