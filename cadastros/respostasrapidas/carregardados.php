@@ -1,5 +1,5 @@
 <?php 
-    require_once("../includes/padrao.inc.php");
+    require_once("../../includes/padrao.inc.php");
 	$codigo    = $_GET["codigo"];
 	$tabela    = "tbrespostasrapidas";
 

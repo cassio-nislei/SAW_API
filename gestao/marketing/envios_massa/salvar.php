@@ -4,10 +4,10 @@
 	$id                = $_POST['id'];
 	$dt          = explode('/', $_POST['dt_envio']) ;
     $data_envio = $dt[2].'-'.$dt[1].'-'.$dt[0];
-	$mensagem            = mysqli_real_escape_string($conexao, $_POST['mensagem']);
+	$mensagem            = $_POST['mensagem'];
 	$ativo = isset($_POST['ativo']) ? 1 : 0; // 1 para marcado, 0 para desmarcado
 	$canal               = 1;
-	$nome                = mysqli_real_escape_string($conexao, $_POST['nome']);
+	$nome                = $_POST['nome'];
 	
 	if( $acao == 0 ){	
 		$sql = "INSERT INTO tbenviomgsmassa (canal, nome, dt_inclusao, dt_envio, msg, tipo_mensagem, ativo) VALUES ('$canal', '$nome', current_date(), '$data_envio',  '$mensagem', 2, $ativo)";
@@ -21,7 +21,7 @@
 	 	
 	}
 		
-		if( $inserir ){ /*echo "1";*/ }
+		if( $inserir ){ echo "1"; }
 
 
 	?>

@@ -1,5 +1,5 @@
 <?php 
-    require_once("../includes/padrao.inc.php");
+    require_once("../../includes/padrao.inc.php");
 
     // Declaração de Variáveis //
      $_numero = (isset($_POST['numero_contato']) && !empty($_POST['numero_contato'])) ? $_POST['numero_contato'] : null;

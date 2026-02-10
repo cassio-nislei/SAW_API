@@ -1,3 +1,5 @@
+<span id="msgContatos"></span>
+
 <?php
 	// Quando vier pela Pesquisa, passa por aqui //
 	if( !isset($conexao) ){
@@ -43,29 +45,28 @@
 					$Consulta = $Consulta ." AND  tbe.cor = '$etiqueta'";  
 				   }
 				   $Consulta = $Consulta . "group by tbc.numero ";
-			}else{ //Aqui a Consulta por nome
-				$Consulta = $Consulta ." WHERE (upper(nome) LIKE upper('%".$pesquisa."%')) ";
-				if ($etiqueta != '0'){
-					$Consulta = $Consulta ." AND  tbe.cor = '$etiqueta'";  
-				   }
-				$Consulta = $Consulta . "group by tbc.numero ";
-				$Consulta = $Consulta . "  ORDER BY POSITION(upper('$pesquisa') IN upper(nome) ), upper(nome)";
-			}
-			
-			
-			$Consulta = $Consulta . "LIMIT 30";
-	
-	//	echo $Consulta;
+				}else if ($tipo_pesquisa==2){ //CPF ou CNPJ
+				}else{ //Aqui a Consulta por nome
+					$Consulta = $Consulta ." WHERE (upper(nome) LIKE upper('%".$pesquisa."%')) ";
+					if ($etiqueta != '0'){
+						$Consulta = $Consulta ." AND  tbe.cor = '$etiqueta'";  
+					   }
+					$Consulta = $Consulta . "group by tbc.numero ";
+					$Consulta = $Consulta . "  ORDER BY POSITION(upper('$pesquisa') IN upper(nome) ), upper(nome)";
+				}
+				
+				
+				$Consulta = $Consulta . "LIMIT 30";
+		
+		//	echo $Consulta;
 
-	$qryContatos = mysqli_query($conexao, $Consulta);
+		$qryContatos = mysqli_query($conexao, $Consulta	);
 
 
 	
 
 	$qtdeContatos = mysqli_num_rows($qryContatos);
-						
-	echo '<span id="msgContatos"></span>';
-	
+							
 	if( $qtdeContatos == 0 ){
 		echo "<font size=\"2\" color=\"#CCC\"><b>&nbsp;&nbsp;&nbsp;&nbsp;Nenhum contato encontrado</b></font>";
 	}
@@ -84,7 +85,7 @@
 			   align-items: center;
 		   
 		 justify-content: center;color:white; background-color:'.$cordefundo.'"';
-		if( isset($_SESSION["parametros"]) && $_SESSION["parametros"]["exibe_foto_perfil"] ){
+		if( $_SESSION["parametros"]["exibe_foto_perfil"] ){
 			$fotoPerfil = getFotoPerfil($conexao, $registros->numero);
 			if (strlen($fotoPerfil)<40){
                 $perfil = RetornaNomeAbreviado($registros->nome); 

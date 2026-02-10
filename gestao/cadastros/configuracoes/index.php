@@ -33,14 +33,8 @@
 	$isCkdcontar_tempo_espera_so_dos_clientes = "";
 	$isCkdhistorico_atendimento = "";
 	$isCkdusar_protocolo        = "";
-	$isCkdusar_pesquisa_satisfacao = "";
-//	$isCkdund_neg           = "";
-//	$link1                  = "";
-//	$link2                  = "";
-//	$link3                  = "";
-//	$msg_equipe_atende 		= "";
-//	$msg_equipe_atende2     = "";
-//	$msg_cliente_canvas     = "";
+	$isCkdusar_pesquisa_satisfacao        = "";
+
 
 	if( mysqli_num_rows($existe) > 0 ){
 		$msg = mysqli_fetch_array($existe);
@@ -148,10 +142,9 @@
 		//Parametro para Usar numero de protocolos nos atendimentos
         if($usar_protocolo === "1" ){ $isCkdusar_protocolo = "checked"; }
 
-		//Parametro para Usar Pesquisa de Satisfacao
+		//Parametro para Usar numero de protocolos nos atendimentos
         if($usar_pesquisa_satisfacao === "1" ){ $isCkdusar_pesquisa_satisfacao = "checked"; }
-
-
+		
 
 		
 
@@ -206,43 +199,44 @@
 		 
 		  <div class="tab-content" id="myTabContent">
            <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
-				<div class="row">
-					<div class="col-md-6 col-12 mb-3">
-						<div class="uk-form-label"> <b>Mensagem de [Aguardando Atendimento], use <font color=red><< setor >></font> caso queira exibir o nome do setor na frase </b> </div>
-						<textarea class="uk-textarea" type="text" id="msg_aguardando_atendimento" name="msg_aguardando_atendimento" rows="4" 
-							placeholder="Informe a mensagem de [Aguardando Atendimento]"></textarea>
-					</div>
-
-					<div class="col-md-6 col-12 mb-3">
-						<div class="uk-form-label"> <b>Mensagem de Início de Atendimento</b> </div>
-						<textarea class="uk-textarea" type="text" id="msg_inicio_atendimento" name="msg_inicio_atendimento" rows="4" 
-							placeholder="Informe a mensagem de [Início de Atendimento]"></textarea>
-					</div>
-
-					<div class="col-md-6 col-12 mb-3">
-						<div class="uk-form-label"> <b>Mensagem Aceite de atendimento , use <font color=red><< setor >></font> caso queira exibir o nome do setor ou <font color=red><< atendente >></font> caso queira exibir o nome do atendente na frase</b> </div>
-						<textarea class="uk-textarea" type="text" id="msg_inicio_atendente" name="msg_inicio_atendente" rows="4" 
-							placeholder="Informe a mensagem de [Início de Aceite]"></textarea>
-					</div>
-
-					<div class="col-md-6 col-12 mb-3">
-						<div class="uk-form-label"> <b>Mensagem de Fim de Atendimento</b> </div>
-						<textarea class="uk-textarea" type="text" id="msg_fim_atendimento" name="msg_fim_atendimento" rows="4" 
-							placeholder="Informe a mensagem de [Fim de Atendimento]"></textarea>
-					</div>
-
-					<div class="col-md-6 col-12 mb-3">
-						<div class="uk-form-label"> <b>Mensagem de Sem Expediente</b> </div>
-						<textarea class="uk-textarea" type="text" id="msg_sem_expediente" name="msg_sem_expediente" rows="4" 
-							placeholder="Informe a mensagem de [Sem Expediente]"></textarea>
-					</div>
-
-					<div class="col-md-6 col-12 mb-3">
-						<div class="uk-form-label"> <b>Mensagem de Desconexão por Inatividade</b> </div>
-						<textarea class="uk-textarea" type="text" id="msg_desc_inatividade" name="msg_desc_inatividade" rows="4" 
-							placeholder="Informe a mensagem de [Desconexão por Inatividade]"></textarea>
-					</div>
+				<div class="uk-width-1-1@m" style="width: 49%; float: left;">
+					<div class="uk-form-label"> <b>Mensagem de [Aguardando Atendimento], use <font color=red><< setor >></font> caso queira exibir o nome do setor na frase </b> </div>
+					<textarea class="uk-textarea" type="text" id="msg_aguardando_atendimento" name="msg_aguardando_atendimento" rows="4" 
+						placeholder="Informe a mensagem de [Aguardando Atendimento]"></textarea>
 				</div>
+
+				<div class="uk-width-1-1@m" style="width: 49%; float: right;">
+					<div class="uk-form-label"> <b>Mensagem de Início de Atendimento</b> </div>
+					<textarea class="uk-textarea" type="text" id="msg_inicio_atendimento" name="msg_inicio_atendimento" rows="4" 
+						placeholder="Informe a mensagem de [Início de Atendimento]"></textarea>
+				</div>
+
+				<div class="uk-width-1-1@m" style="width: 49%; float: right;">
+					<div class="uk-form-label"> <b>Mensagem Aceite de atendimento , use <font color=red><< setor >></font> caso queira exibir o nome do setor ou <font color=red><< atendente >></font> caso queira exibir o nome do atendente na frase</b> </div>
+					<textarea class="uk-textarea" type="text" id="msg_inicio_atendente" name="msg_inicio_atendente" rows="4" 
+						placeholder="Informe a mensagem de [Início de Aceite]"></textarea>
+				</div>
+
+				<div class="uk-width-1-1@m" style="width: 32%; float: left;">
+					<div class="uk-form-label"> <b>Mensagem de Fim de Atendimento</b> </div>
+					<textarea class="uk-textarea" type="text" id="msg_fim_atendimento" name="msg_fim_atendimento" rows="4" 
+						placeholder="Informe a mensagem de [Fim de Atendimento]"></textarea>
+				</div>
+
+				<div class="uk-width-1-1@m" style="width: 32%; float: left; margin-left: 30px;">
+					<div class="uk-form-label"> <b>Mensagem de Sem Expediente</b> </div>
+					<textarea class="uk-textarea" type="text" id="msg_sem_expediente" name="msg_sem_expediente" rows="4" 
+						placeholder="Informe a mensagem de [Sem Expediente]"></textarea>
+				</div>
+
+				<div class="uk-width-1-1@m" style="width: 32%; float: right;">
+					<div class="uk-form-label"> <b>Mensagem de Desconexão por Inatividade</b> </div>
+					<textarea class="uk-textarea" type="text" id="msg_desc_inatividade" name="msg_desc_inatividade" rows="4" 
+						placeholder="Informe a mensagem de [Desconexão por Inatividade]"></textarea>
+				</div>
+
+			
+			   
 			</div>
            <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
 			

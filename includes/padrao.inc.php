@@ -1,5 +1,6 @@
 <?php
-// Headers //
+    // Headers //
+    session_cache_expire(180000); //dEIXAR A SESSÃO UM BOM TEMPO SEM EX
         if( intval(strpos($_SERVER["REQUEST_URI"], "controller.php")) > 0 ){
             header('Content-type: application/json');
             header("Access-Control-Allow-Origin: *");
@@ -7,8 +8,7 @@
         }
         else {
             // Inicializando a Sessão //
-            session_cache_expire(180000); // Deixar a sessão um bom tempo - ANTES de session_start()
-            @session_start(); // Inicia a sessão
+            @session_start(); // Verificar o Warning que está dando //
 
             // Validação de Sessão //
             if( !isset($_SESSION["usuariosaw"]) ){ @header("Location:index.php"); }
@@ -64,29 +64,15 @@
     function userOnline($lastDate,$minutosOffline){
         $blnOnline = true;
 
-        try {
-            // Validação se a data está vazia
-            if(empty($lastDate)){
-                return false;
-            }
-
-            // Tenta criar DateTime da data recebida
-            $start_date = new DateTime($lastDate);
-            $now = new DateTime();
-            $since_start = $start_date->diff($now);
-            
-            // Calcula o total de minutos
-            $minutosTotais = (intval($since_start->days)*(24*60))
-                                + (intval($since_start->h)*(60))
-                                + (intval($since_start->i));
-            
-            // Se passou mais tempo que os minutos offline, marca como offline
-            if( intval($minutosTotais) >= intval($minutosOffline) ){
-                $blnOnline = false;
-            }
-        } catch (Exception $e) {
-            // Se houver erro na data, considera como offline
-            error_log("Erro ao verificar data de usuário: " . $e->getMessage() . " - Data: " . $lastDate);
+        $start_date = new DateTime($lastDate);
+        $since_start = $start_date->diff(new DateTime());
+        
+        $minutosTotais = (intval($since_start->days)*(24*60))
+                            + (intval($since_start->h)*(60))
+                            + (intval($since_start->i));
+        
+        // > 15 minutos defini-se como Offline //
+        if( intval($minutosTotais) >= intval($minutosOffline) ){
             $blnOnline = false;
         }
 
@@ -157,7 +143,9 @@
     }
 
     function limpaNome($nome){
-		return trim(preg_replace('/[^a-zàèìòùáéíóú ]+/ui', '', $nome));
+        //Tirei esse tratamento para exibir os Emojis normalmente
+        return $nome;
+		//return trim(preg_replace('/[^a-zàèìòùáéíóú ]+/ui', '', $nome));
 	}
 
     // Deletar Arquivos //
@@ -238,7 +226,7 @@
         $nomes      = explode(" ", $nome);
         $letra1nome = substr($nomes[0],0,1);
         $letraultimonome = substr($nomes[count($nomes)-1],0,1);
-        return $letra1nome . $letraultimonome;
+        return utf8_encode($letra1nome . $letraultimonome);
       }
 
       function trataTempoOciosodoAtendente($tempoEmMinutos){

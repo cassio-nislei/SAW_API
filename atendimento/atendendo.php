@@ -6,17 +6,13 @@
 		$id_usuario = isset($_SESSION["usuariosaw"]["id"]) ? $_SESSION["usuariosaw"]["id"] : "";
 		$htmlConversas = "";
 		//Perfil 0 = Administrador e Perfil 2 = Corrdenador
-		$mostra_todos_chats = isset($_SESSION["parametros"]["mostra_todos_chats"]) ? $_SESSION["parametros"]["mostra_todos_chats"] : 0;
-		$permissaoAdmin = (isset($_SESSION["usuariosaw"]["perfil"]) && ($_SESSION["usuariosaw"]["perfil"] == 0 || $_SESSION["usuariosaw"]["perfil"] == 2) && $mostra_todos_chats == 1) ? '' : "AND ta.id_atend = '".$id_usuario."'";
+		$permissaoAdmin = ($_SESSION["usuariosaw"]["perfil"] == 0 || $_SESSION["usuariosaw"]["perfil"] == 2) && $_SESSION["parametros"]["mostra_todos_chats"] == 1 ? '' : "AND ta.id_atend = '".$id_usuario."'";
 		$ultHora = null;
 		$ultMsg = null;
 	// FIM Definições de Variáveis //
 	$filtroDepartamento = '';
 	
-	$nao_usar_menu = isset($_SESSION["parametros"]["nao_usar_menu"]) ? $_SESSION["parametros"]["nao_usar_menu"] : 0;
-	$perfil = isset($_SESSION["usuariosaw"]["perfil"]) ? $_SESSION["usuariosaw"]["perfil"] : 1;
-	
-	if ($nao_usar_menu==0 || $perfil > 0){
+	if ($_SESSION["parametros"]["nao_usar_menu"]==0 || $_SESSION["usuariosaw"]["perfil"] > 0){
        $filtroDepartamento = ' AND ta.setor IN(SELECT id_departamento FROM tbusuariodepartamento WHERE id_usuario = '.$id_usuario.')';
 	}
 
@@ -63,19 +59,16 @@
 			$notificacoes = '<span class="OUeyt messages-count-new">'.$not["qtd_novas"].'</span>';
 
 			// Dispara o Alerta Sonoro - Se definido no Painel de Configurações //
-			$alerta_sonoro = isset($_SESSION["parametros"]["alerta_sonoro"]) ? $_SESSION["parametros"]["alerta_sonoro"] : 0;
-			if( $alerta_sonoro ){
+			if( $_SESSION["parametros"]["alerta_sonoro"] ){
 				echo '<iframe src="https://player.vimeo.com/video/402630730?autoplay=1&loop=0&autopause=1" style="display: none" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>';
 			}
 
 
 			//Se recebeu uma nova mensagem em horario de almoço, respondo com a mensagem de almoço
 			//echo "Variavel".$_SESSION["usuariosaw"]["em_almoco"];
-			$em_almoco = isset($_SESSION["usuariosaw"]["em_almoco"]) ? $_SESSION["usuariosaw"]["em_almoco"] : "false";
-			$msg_almoco = isset($_SESSION["usuariosaw"]["msg_almoco"]) ? $_SESSION["usuariosaw"]["msg_almoco"] : "";
-			if (($em_almoco=="true") && ($id_usuario==$registros->id_atend)){
+			if (($_SESSION["usuariosaw"]["em_almoco"]=="true") && ($id_usuario==$registros->id_atend)){
 				$newSequence = newSequence($conexao, $registros->id,$registros->numero, $registros->canal); // Gera a sequencia da mensagem
-				$msgAlmoco = $msg_almoco;
+				$msgAlmoco = $_SESSION["usuariosaw"]["msg_almoco"];
 				$gravaMsgAlmoco = mysqli_query(
 					$conexao, 
 					"INSERT INTO tbmsgatendimento(id,seq,numero,msg,  nome_chat,situacao, dt_msg,hr_msg,id_atend,canal)

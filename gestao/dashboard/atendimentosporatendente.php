@@ -7,7 +7,7 @@
                           $conexao
                           , "select count(ta.id) as atendimentos, tu.nome from tbatendimento ta
                           inner join tbusuario tu on tu.id = ta.id_atend
-                          where ta.id_atend > 0 and ta.dt_atend between DATE_FORMAT(NOW(), '%Y-%m-01') and  LAST_DAY(NOW())
+                          where ta.situacao = 'F' and ta.id_atend > 0 and ta.dt_atend between DATE_FORMAT(NOW(), '%Y-%m-01') and  LAST_DAY(NOW())
                           group by tu.nome order by atendimentos desc "
                                     
                       );

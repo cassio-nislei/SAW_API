@@ -39,11 +39,11 @@
 <div class="container-fluid">
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-      <h1 class="h3 mb-0 text-gray-800">Situação dos Atendimentos
-            <select name="ano" id="ano" style="padding: 5px 10px; margin: 0 10px; font-size: 14px;">
+      <h1 class="h3 mb-0 text-gray-800">Situação dos Atendimentos         
+            <select name="ano" id="ano">
                             <?php
                            
-                              $ano = mysqli_query($conexao,"select distinct YEAR(dt_atend) as ano from tbatendimento order by dt_atend DESC");
+                              $ano = mysqli_query($conexao,"select distinct YEAR(dt_atend) as ano from tbatendimento order by dt_atend");
                               while ($anos = mysqli_fetch_assoc($ano)){
                                 if ($anos['ano'] == date("Y")){
                                   $seleciona = 'selected';
@@ -58,21 +58,18 @@
                             
                             ?>
                 </select>   
-                <select name="mes" id="mes" style="padding: 5px 10px; margin: 0 10px; font-size: 14px;">
-                   <option value="0" selected>Todos os Meses</option>
+                <select name="mes" id="mes">
                    <option value="1" >Janeiro</option>
-                   <option value="2" >Fevereiro</option>
-                   <option value="3" >Março</option>
-                   <option value="4" >Abril</option>
-                   <option value="5" >Maio</option>
-                   <option value="6" >Junho</option>
-                   <option value="7" >Julho</option>
-                   <option value="8" >Agosto</option>
-                   <option value="9" >Setembro</option>
-                   <option value="10" >Outubro</option>
-                   <option value="11" >Novembro</option>
-                   <option value="12" >Dezembro</option>
+                   <option value="1" >Fevereiro</option>
+                   <option value="1" >Março</option>
+                   <option value="1" >Abril</option>
+                   <option value="1" >Maio</option>
+                   <option value="1" >Junho</option>
+                   <option value="1" >Julho</option>
+                   <option value="1" >Agosto</option>
+                   <option value="1" >Setembro</option>
                 </select>    
+                                    
           <?php
 
             $cards = mysqli_query($conexao,"CALL sprDashBoardAnoAtual();");
@@ -191,19 +188,6 @@
    </div>
 </div>
 
-<div class="row">
-<div class="col-xl-12 col-lg-12">
-    <!-- Area Chart -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Atendentes Inativos</h6>
-        </div>
-          <div id="AtendentesInativos">
-          </div>
-      </div>
-   </div>
-</div>
-
 <!-- Content Row -->
 <div class="row">
 
@@ -285,65 +269,21 @@
       // Faça uma requisição POST para o arquivo atualizarelatorio.php
       $.post('dashboard/atendentesonline.php', function(data) {
         console.log('Função atualizarRelatorio chamada.');
-        console.log('Dados retornados:', data);
         $("#AtendentesOnline").html(data);
         
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         console.error('Erro ao atualizar o relatório:', textStatus, errorThrown);
-        console.error('Status:', jqXHR.status);
-        console.error('Response:', jqXHR.responseText);
-      });
-    }
-
-    //carrego e atualizo os dados dos Atendentes inativos
-    function atualizarRelatorioInativos() {
-      $.post('dashboard/atendentesinativos.php', function(data) {
-        console.log('Função atualizarRelatorioInativos chamada.');
-        console.log('Dados retornados:', data);
-        $("#AtendentesInativos").html(data);
-        
-      })
-      .fail(function(jqXHR, textStatus, errorThrown) {
-        console.error('Erro ao atualizar o relatório de inativos:', textStatus, errorThrown);
-        console.error('Status:', jqXHR.status);
-        console.error('Response:', jqXHR.responseText);
       });
     }
 
     // Chame a função a cada 30 segundos (30 * 1000 milissegundos)
     setInterval(atualizarRelatorio, 30000);
-    setInterval(atualizarRelatorioInativos, 30000);
     
-    // Chama a primeira vez quando a página carrega
-    $(document).ready(function() {
-      // Define o mês atual como selecionado
-      var mesAtual = new Date().getMonth() + 1; // getMonth retorna 0-11, então +1
-      $("#mes").val(mesAtual);
-      
-      atualizarRelatorio();
-      atualizarRelatorioInativos();
-      updateTimestampUser(); // Atualiza o timestamp do usuário logado
-    });
+    atualizarRelatorio();
   
     </script>
-
-    <script>
-    // Atualiza o timestamp do usuário a cada 5 minutos para manter online
-    var idTimestampUsuario = setInterval(function() { 
-        updateTimestampUser();
-    }, 300000); // 5 minutos
     
-    function updateTimestampUser(){
-        $.ajax("../../cadastros/usuarios/gravaTimestamp.php").done(
-            function(response) {
-                console.log('Timestamp do usuário atualizado');
-            }
-        ).fail(function() {
-            console.log('Erro ao atualizar timestamp');
-        });
-    }
-    </script>
 
     <script>
     //carrego e atualizo os dados dos Atendentes online

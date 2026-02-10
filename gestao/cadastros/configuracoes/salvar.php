@@ -29,8 +29,8 @@
    $contar_tempo_espera_so_dos_clientes = !empty($_POST['contar_tempo_espera_so_dos_clientes']) ? $_POST['contar_tempo_espera_so_dos_clientes'] : "0";
    $historico_atendimento       = !empty($_POST['historico_atendimento']) ? $_POST['historico_atendimento'] : "0";
    $usar_protocolo              = !empty($_POST['usar_protocolo']) ? $_POST['usar_protocolo'] : "0";
-   $usar_pesquisa_satisfacao    = !empty($_POST['usar_pesquisa_satisfacao']) ? $_POST['usar_pesquisa_satisfacao'] : "0";
    $tipo_menu                   = !empty($_POST['tipo_menu']) ? $_POST['tipo_menu'] : "0";
+   $usar_pesquisa_satisfacao    = !empty($_POST['usar_pesquisa_satisfacao']) ? $_POST['usar_pesquisa_satisfacao'] : "0";
    
    
    $foto                         = @$_POST["foto2"];
@@ -72,10 +72,10 @@
          , '".$departamento_atendente."'
          , '".$contar_tempo_espera_so_dos_clientes."'
          , '".$historico_atendimento."'
-         , '".$usar_protocolo."'
-         , '".$usar_pesquisa_satisfacao."'
+         , '".$usar_protocoloo."'
          , '".$tipo_menu."'
-         , '".$msg_inicio_atendente."'";
+         , '".$msg_inicio_atendente."'
+         , '".$usar_pesquisa_satisfacao."'";
 
       if( $foto != "" ){
          $sql .= ",'".$foto."')";
@@ -116,8 +116,8 @@
                   , contar_tempo_espera_so_dos_clientes = '".$contar_tempo_espera_so_dos_clientes."'
                   , historico_atendimento = '".$historico_atendimento."'
                   , usar_protocolo = '".$usar_protocolo."'
-                  , usar_pesquisa_satisfacao = '".$usar_pesquisa_satisfacao."'
                   , tipo_menu = '".$tipo_menu."'
+                  , usar_pesquisa_satisfacao = '".$usar_pesquisa_satisfacao."'
                   , msg_inicio_atendente = (CONCAT_WS(REPLACE('\\\ n', ' ', ''), ".$msg_inicio_atendente.")";
 
       if( $foto != "" ){

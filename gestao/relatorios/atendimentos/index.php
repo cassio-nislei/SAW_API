@@ -66,6 +66,22 @@
 		
 					</div>	  
 
+					<div class="row">
+					<div class="col-12">
+						<div class='form-group'>
+							<select class="js-example-basic-multiple pesqAtendentes" name="id_atendente[]" multiple="multiple" id="id_atendente" style="width:90%">
+								<?php
+							//Crio a lista de etiquetas e defino as cores a exibir
+								$query = mysqli_query($conexao, "SELECT * FROM tbusuario");                       
+								while ($ListarEtiquetas = mysqli_fetch_array($query)){       
+								echo  '<option value="'.$ListarEtiquetas["id"].'" >'.$ListarEtiquetas["nome"].'</otpion>';                     
+								}
+								?>
+							</select>
+							</div> 	
+							</div>				
+					</div> 
+
 
 					<div class="row">
 					<div class="col-lg-2 col-md-2 col-sm-12 col-xs-12 col-12" >
@@ -142,6 +158,12 @@ function (e) {
 
 	$('.pesqEtiquetas').select2({
     placeholder: 'TAGS',
+    maximumSelectionLength: 10,
+    "language": "pt-BR"
+  });
+
+  $('.pesqAtendentes').select2({
+    placeholder: 'Filtrar por atendente',
     maximumSelectionLength: 10,
     "language": "pt-BR"
   });

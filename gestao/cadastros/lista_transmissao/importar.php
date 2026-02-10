@@ -4,11 +4,6 @@ require_once("../../../includes/padrao.inc.php");
 
 // Receber o arquivo do formulário
 $arquivo = $_FILES['arquivo'];
-$idmsg   = $_POST["id_msg"];
-
-//Deleto as mensagens caso exista importações anteriores para essa mensagem
-$apagar = mysqli_query($conexao,"delete from tbenviomassanumero where id_msg = $idmsg ");
-
 //var_dump($arquivo);
 
 // Variáveis de validação
@@ -37,14 +32,15 @@ if($arquivo['type'] == "text/csv"){
         //var_dump($linha);
 
         // Criar a QUERY para salvar o usuário no banco de dados
-        $numero  = ($linha[0] ?? "NULL");
-        $nome    = ($linha[3] ?? "NULL");
-
-       
+        $numero = ($linha[0] ?? "NULL");
+        $dt          = explode('/', ($linha[1] ?? "NULL")) ;
+        $data_envio = $dt[2].'-'.$dt[1].'-'.$dt[0];
+        $hr     = ($linha[2] ?? "NULL");
+        $msg    = ($linha[3] ?? "NULL");
 
       //  echo "Numero: $numero, Data: $dt, Hora: $dt, MSG: $msg";
       //  exit();
-        $inseriu = mysqli_query($conexao,"INSERT INTO tbenviomassanumero (canal, id_msg, numero, nome, enviada) VALUES (1, $idmsg, '$numero', '$nome', false)") or die(mysqli_error($conexao));
+        $inseriu = mysqli_query($conexao,"INSERT INTO tbmsgsenviadaspelosaw (numero, dt_inclusao, dt_programada, hora_programada, msg) VALUES ('$numero', current_date(), '$data_envio', '$hr', '$msg')") or die(mysqli_error($conexao));
 
     }
 
