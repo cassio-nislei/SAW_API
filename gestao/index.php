@@ -409,9 +409,9 @@ if($interval->format('%i%h%d%m%y')=="00000")
                             case 'Usuarios'                     : $incluir = 'cadastros/usuarios/index.php'; break;	
                             case 'Config'                       : $incluir = 'cadastros/configuracoes/index.php'; break;
                             case 'Perfil'                       : $incluir = 'cadastros/perfil/index.php'; break;
-                            case 'Contatos'                     : $incluir = 'cadastros/contatos/index.php'; break;
-                            case 'Etiquetas'                    : $incluir = 'cadastros/etiquetas/index.php'; break;
-                            case 'RespostasRapidas'             : $incluir = 'cadastros/respostasrapidas/index.php'; break;
+                            case 'Contatos'                     : $incluir = '../cadastros/contatos/index.php'; break;
+                            case 'Etiquetas'                    : $incluir = '../cadastros/etiquetas/index.php'; break;
+                            case 'RespostasRapidas'             : $incluir = '../cadastros/respostasrapidas/index.php'; break;
 
                             case 'RelAtendimentos'              : $incluir = 'relatorios/atendimentos/index.php'; break;
                             case 'RelClassificacaoMedia'        : $incluir = 'relatorios/classificacao_media/index.php'; break;
