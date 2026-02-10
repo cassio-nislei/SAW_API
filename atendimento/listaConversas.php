@@ -187,7 +187,8 @@
 					$mensagem = $mensagem .'<br>'.  $objConversa->msg;
 				}
 			// FIM Montando a Mensagem //
-		}
+		}  // FIM if (!file_exists)
+		}  // FIM elseif IMAGE
 		else if ( $objConversa->tipo_arquivo == 'DOCUMENT'
 			|| $objConversa->tipo_arquivo == 'APPLI'
 			|| $objConversa->tipo_arquivo == 'TEXT/' ) {
