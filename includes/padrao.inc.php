@@ -1,6 +1,5 @@
 <?php
 // Headers //
-session_cache_expire(180000); // Deixar a sessão um bom tempo
         if( intval(strpos($_SERVER["REQUEST_URI"], "controller.php")) > 0 ){
             header('Content-type: application/json');
             header("Access-Control-Allow-Origin: *");
@@ -8,7 +7,10 @@ session_cache_expire(180000); // Deixar a sessão um bom tempo
         }
         else {
             // Inicializando a Sessão //
-            @session_start(); // Verificar o Warning que está dando //
+            if (!isset($_SESSION)) {
+                @session_start(); // Inicia a sessão antes de qualquer output
+                session_cache_expire(180000); // Deixar a sessão um bom tempo - APÓS session_start()
+            }
 
             // Validação de Sessão //
             if( !isset($_SESSION["usuariosaw"]) ){ @header("Location:index.php"); }

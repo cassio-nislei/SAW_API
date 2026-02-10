@@ -1,5 +1,3 @@
-<span id="msgContatos"></span>
-
 <?php
 	// Quando vier pela Pesquisa, passa por aqui //
 	if( !isset($conexao) ){
@@ -48,6 +46,8 @@
 				}else if ($tipo_pesquisa==2){ //CPF ou CNPJ
 				}else{ //Aqui a Consulta por nome
 					$Consulta = $Consulta ." WHERE (upper(nome) LIKE upper('%".$pesquisa."%')) ";
+?>
+<span id="msgContatos"></span>
 					if ($etiqueta != '0'){
 						$Consulta = $Consulta ." AND  tbe.cor = '$etiqueta'";  
 					   }
@@ -85,7 +85,7 @@
 			   align-items: center;
 		   
 		 justify-content: center;color:white; background-color:'.$cordefundo.'"';
-		if( $_SESSION["parametros"]["exibe_foto_perfil"] ){
+		if( isset($_SESSION["parametros"]) && $_SESSION["parametros"]["exibe_foto_perfil"] ){
 			$fotoPerfil = getFotoPerfil($conexao, $registros->numero);
 			if (strlen($fotoPerfil)<40){
                 $perfil = RetornaNomeAbreviado($registros->nome); 
