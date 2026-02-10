@@ -164,14 +164,19 @@
 
 			// Cria o arquivo se ele ainda não existir //
 				if( !file_exists($fileRootImage) ){
-					// GAMBI, POG PLUS+ //
-					// if( strlen(($objAnexos->nome_contato)) === 0 ){ $img = imagecreatefromstring( $objAnexos->arquivo ); }
-					// else{ $img = imagecreatefromstring( base64_decode($objAnexos->arquivo) ); }
-					
-					$img = imagecreatefromstring( $objAnexos->arquivo );
-					imagejpeg( $img, $fileRootImage );
+				// Tenta criar a imagem - primeiro tenta dados brutos, depois base64 //
+				$img = @imagecreatefromstring( $objAnexos->arquivo );
+				
+				// Se falhar, tenta decodificar base64 //
+				if( $img === false ){
+					$img = @imagecreatefromstring( base64_decode($objAnexos->arquivo, true) );
 				}
-			// FIM Cria o arquivo se ele ainda não existir //
+				
+				// Só salva se conseguiu criar a imagem //
+				if( $img !== false ){
+					imagejpeg( $img, $fileRootImage );
+					imagedestroy( $img );
+				}
 
 			// Montando a Mensagem //
 				$mensagem = '<a href="'.$fileName.'" data-lightbox-title="">
