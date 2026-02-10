@@ -1,5 +1,5 @@
 <?php
-require_once("../../includes/padrao.inc.php");
+require_once(__DIR__ . '/../../includes/padrao.inc.php');
 ?>
 
 <!DOCTYPE html>
@@ -13,22 +13,27 @@ require_once("../../includes/padrao.inc.php");
     <style>
         body {
             background-color: #f5f5f5;
-            padding: 15px;
+            padding: 0;
+            margin: 0;
+            overflow-x: hidden;
         }
         
         .kanban-header-title {
-            margin-bottom: 20px;
-            padding: 0 10px;
+            margin-bottom: 10px;
+            padding: 15px 10px 0 10px;
+            margin: 0;
+            font-size: 18px;
         }
         
         .kanban-container {
             display: flex;
             gap: 15px;
             overflow-x: auto;
-            overflow-y: hidden;
-            padding: 0;
-            height: calc(100vh - 150px);
-            max-width: 100%;
+            overflow-y: visible;
+            padding: 0 15px 15px 15px;
+            min-height: auto;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .kanban-column {
@@ -459,6 +464,13 @@ require_once("../../includes/padrao.inc.php");
         .uk-width-1-1@m {
             width: 100%;
         }
+
+        .container-fluid {
+            padding: 0;
+            margin: 0;
+            overflow: visible;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -636,7 +648,7 @@ require_once("../../includes/padrao.inc.php");
         function carregarKanban() {
             console.log('Carregando kanban...');
             $.ajax({
-                url: 'dados.php',
+                url: 'kanban/dados.php',
                 type: 'GET',
                 dataType: 'json',
                 success: function(data) {
@@ -739,7 +751,7 @@ require_once("../../includes/padrao.inc.php");
             }
             
             return `
-                <div class="kanban-card kanban-card-draggable" data-unique-id="${atendimento.unique_id}" data-situacao="${atendimento.situacao || ''}" data-tempo-criacao="${tempoCriacao}">
+                <div class="kanban-card kanban-card-draggable" data-unique-id="${atendimento.unique_id}" data-situacao="${atendimento.situacao || ''}" data-tempo-criacao="${tempoCriacao}" data-hr-atend="${atendimento.hr_atend || ''}">
                     ${fotoHtml}
                     <button class="kanban-card-chat ${chatClass}" onclick="if(!this.disabled) { event.stopPropagation(); abrirConversas('${atendimento.numero}'); }" ${chatDisabled} title="Abrir conversa">
                         <i class="fas fa-comment"></i>
@@ -753,7 +765,7 @@ require_once("../../includes/padrao.inc.php");
                         <div class="kanban-card-text">Depto: ${departamento}</div>
                         <div class="kanban-card-text">Atendente: ${atendente}</div>
                         <div class="kanban-card-text">Protocolo: <strong>${atendimento.protocolo || 'N/A'}</strong></div>
-                        <div class="kanban-card-hora">⏱️ <span class="tempo-decorrido">00:00:00</span></div>
+                        <div class="kanban-card-hora">⏱️ <span id="kanban-hor${atendimento.numero}">00:00:00</span></div>
                     </div>
                 </div>
             `;
@@ -778,15 +790,15 @@ require_once("../../includes/padrao.inc.php");
                 },
                 success: function(response) {
                     console.log('Status atualizado para ANDAMENTO');
-                    // Agora redirecionar para conversas.php
+                    // Abrir em nova aba
                     let url = '../../conversas.php?numero=' + encodeURIComponent(numero);
-                    window.location.href = url;
+                    window.open(url, '_blank');
                 },
                 error: function(err) {
                     console.error('Erro ao atualizar status:', err);
-                    // Mesmo com erro, redirecionar para conversas
+                    // Mesmo com erro, abrir em nova aba
                     let url = '../../conversas.php?numero=' + encodeURIComponent(numero);
-                    window.location.href = url;
+                    window.open(url, '_blank');
                 }
             });
         }
@@ -814,7 +826,7 @@ require_once("../../includes/padrao.inc.php");
         }
         
         function atualizarTodosTempos() {
-            var cards = document.querySelectorAll('.kanban-card[data-tempo-criacao]');
+            var cards = document.querySelectorAll('.kanban-card[data-hr-atend]');
             cards.forEach(function(card) {
                 // Não atualizar tempo para atendimentos finalizados
                 var situacao = card.getAttribute('data-situacao');
@@ -822,13 +834,56 @@ require_once("../../includes/padrao.inc.php");
                     return; // Pula este card
                 }
                 
-                var tempoMsCriacao = card.getAttribute('data-tempo-criacao');
-                var tempoSpan = card.querySelector('.tempo-decorrido');
-                if (tempoSpan && tempoMsCriacao) {
-                    var novoTempo = calcularTempoDecorrido(tempoMsCriacao);
-                    tempoSpan.textContent = novoTempo;
+                var hrAtend = card.getAttribute('data-hr-atend');
+                var uniqueId = card.getAttribute('data-unique-id');
+                
+                if (hrAtend && uniqueId) {
+                    // Extrair numero do unique_id (formato: id_numero)
+                    var numero = uniqueId.split('_')[1];
+                    var tempoSpan = document.getElementById('kanban-hor' + numero);
+                    
+                    if (tempoSpan) {
+                        // Calcular tempo decorrido desde hrAtend até agora
+                        var tempoDecorrido = calcularTempoDesdeHora(hrAtend);
+                        tempoSpan.textContent = tempoDecorrido;
+                    }
                 }
             });
+        }
+        
+        function calcularTempoDesdeHora(hrAtend) {
+            // hrAtend vem no formato HH:MM:SS
+            if (!hrAtend) return '00:00:00';
+            
+            // Pegar a hora atual
+            var agora = new Date();
+            var horaAtual = agora.getHours().toString().padStart(2, '0') + ':' + 
+                           agora.getMinutes().toString().padStart(2, '0') + ':' + 
+                           agora.getSeconds().toString().padStart(2, '0');
+            
+            // Converter ambas para segundos desde meia-noite
+            var [hAtend, mAtend, sAtend] = hrAtend.split(':').map(Number);
+            var [hAgora, mAgora, sAgora] = horaAtual.split(':').map(Number);
+            
+            var segundosAtend = hAtend * 3600 + mAtend * 60 + sAtend;
+            var segundosAgora = hAgora * 3600 + mAgora * 60 + sAgora;
+            
+            // Calcular diferença
+            var diferenca = segundosAgora - segundosAtend;
+            
+            // Se for negativo, significa que passou para o próximo dia
+            if (diferenca < 0) {
+                diferenca += 24 * 3600; // Adiciona 24 horas em segundos
+            }
+            
+            // Converter de volta para HH:MM:SS
+            var h = Math.floor(diferenca / 3600);
+            var m = Math.floor((diferenca % 3600) / 60);
+            var s = diferenca % 60;
+            
+            return String(h).padStart(2, '0') + ':' + 
+                   String(m).padStart(2, '0') + ':' + 
+                   String(s).padStart(2, '0');
         }
         
         // Drag to scroll no kanban card
@@ -857,6 +912,7 @@ require_once("../../includes/padrao.inc.php");
                 $(document).off('mouseup');
             });
         });
+        
         
         // Carregar kanban ao abrir a página
         $(document).ready(function() {

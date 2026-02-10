@@ -95,12 +95,6 @@
 
 
    	// Finalizando o Atendimento //
-	   // IMPORTANTE: hr_atend NÃO deve ser alterado - mantém a hora de início do atendimento
-	   // Recuperar o hr_atend atual para garantir que não mude
-	   $qryGetHora = mysqli_query($conexao, "SELECT hr_atend FROM tbatendimento WHERE id = '".trim($s_id_atendimento)."' AND numero = '".trim($s_celular_atendimento)."' LIMIT 1");
-	   $rowHora = mysqli_fetch_assoc($qryGetHora);
-	   $hr_atend_original = $rowHora['hr_atend'];
-	   
 	   $qryaux = mysqli_query(
 			$conexao,
 			"UPDATE tbatendimento SET situacao = 'F', 
@@ -108,8 +102,7 @@
 				nome_atend = '".$nome_atend."', 
 				finalizado_por = '".$S_FINALIZADO."', 
 				classifica_atendimento = 1,
-				hr_atend = '".$hr_atend_original."',
-				dt_fim = NOW()
+				dt_fim = now()
 					WHERE id = '".trim($s_id_atendimento)."' AND numero = '".trim($s_celular_atendimento)."' AND canal = '".trim($s_id_canal)."'"
 		) or die(mysqli_error($conexao));
 

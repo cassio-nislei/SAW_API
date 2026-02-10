@@ -128,6 +128,9 @@
 <!-- Modal Redefinir Senha -->
 <?php require_once("modalRedefinirSenha.php"); ?>
 
+<!-- Modal Redefinir Senha -->
+<?php require_once("modalNovaConversa.php"); ?>
+
 <!-- Cadastro de Etiqueta -->
 <?php require_once("modalEtiqueta.php"); ?>
 

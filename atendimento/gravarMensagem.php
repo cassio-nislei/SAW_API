@@ -11,6 +11,7 @@
 		$nomeDepartamento = $_SESSION["usuariosaw"]["nomeDepartamento"];
 		$binario = '';
 		$nomeArquivo = '';
+		$anexomsgRapida = $_POST["anexomsgRapida"];
 		$tipo = '';
 		//$situacao    = ( strpos($strMensagem, 'BEGIN:VCARD') !== false ) ? ((intval($idCanal) > 1 ? "E" : "N" ) ) : "E"; // O Marcelino precisa disso! Pois no Delphi ainda não funciona o envio de Contato!
 		$situacao    = 'E'; 
@@ -31,10 +32,46 @@
 
 	// faz o insert apenas da Imagem, sem atendente
 	// Insere o Anexo se houver
-		// Verifica se existe um Upload //
-		if( isset($_FILES["upload"]) && !empty($_FILES['upload']) ){
-            //Verifico se foi selecionado 1 único arquivo
+	     //Se a mensagem rápida possuir anexo
+		 if ($anexomsgRapida != 0){
 
+			$nomeArquivo = $_POST["nomeanexomsgRapida"];
+
+			$newSequence = newSequence($conexao, $idAtendimento, $strNumero, $idCanal); // Gera a sequencia da mensagem
+
+			$fileType = mime_content_type('../'.$anexomsgRapida);
+			if( $fileType == "audio/mpeg" ){
+				$tipo = 'PTT';
+				$nomeArquivo = "audio_" . $idAtendimento . "_" . $newSequence . ".mp3";
+			}
+			// Demais Arquivos //
+			else{ $tipo = strtoupper(substr($fileType,0,5)); }
+
+			// Lemos o  conteudo do arquivo usando afunção do PHP file_get_contents //
+			$binario = file_get_contents('../'.$anexomsgRapida);
+			// evitamos erro de sintaxe do MySQL
+			$binario = mysqli_real_escape_string($conexao,$binario);
+
+		   //GRava o Anexo no Banco de dados
+		   $sqlInsertTbAnexo = "INSERT INTO tbanexos(id,seq,numero,arquivo,nome_arquivo,nome_original,tipo_arquivo,canal,enviado)
+							VALUES ('".$idAtendimento."','".$newSequence."','".$strNumero."','".$binario."','".$nomeArquivo."',
+								'".$nomeArquivo."','".$tipo."','".$idCanal."',1)";
+
+			$insereAnexo = mysqli_query($conexao, $sqlInsertTbAnexo) or die(mysqli_error($conexao));
+
+			   //Se está enviando anexo eu mudo a Situação da Mensagem para N para não  Enviar duplicada
+			   $situacao = 'N';
+
+				$inseremsg = mysqli_query(
+					$conexao, 
+					"INSERT INTO tbmsgatendimento(id,seq,numero,msg, resp_msg, nome_chat,situacao, dt_msg,hr_msg,id_atend,canal, chatid_resposta)
+						VALUES('".$idAtendimento."','".$newSequence."' ,'".$strNumero."', (CONCAT_WS(REPLACE('\\\ n', ' ', ''), ".$strMensagem."), '".$strResposta."',
+								'".$strUserNome."' ,'".$situacao."',NOW(),CURTIME(),'".$intUserId."','".$idCanal."', '".$idResposta."')"
+				);
+
+
+		 }else if (isset($_FILES["upload"]) && !empty($_FILES['upload'])   ){ // Verifica se existe um Upload //
+            //Verifico se foi selecionado 1 único arquivo
 					
 			//Tento desesperadamente Pegar Multiplos arquivos para Gravar
 			for ($controle = 0; $controle < @count($_FILES['upload']["name"]); $controle++){ 
@@ -84,16 +121,16 @@
 				$binario = mysqli_real_escape_string($conexao,$binario);
 
 
-               //GRava o Anexo no Banco de dados
+               //Grava o Anexo no Banco de dados
 			   $sqlInsertTbAnexo = "INSERT INTO tbanexos(id,seq,numero,arquivo,nome_arquivo,nome_original,tipo_arquivo,canal,enviado)
 								VALUES ('".$idAtendimento."','".$newSequence."','".$strNumero."','".$binario."','".$nomeArquivo."',
 									'".$nomeArquivo."','".$tipo."','".$idCanal."',1)";
 
 				$insereAnexo = mysqli_query($conexao, $sqlInsertTbAnexo)
-					or die($sqlInsertTbAnex."<br/>".mysqli_error($conexao));
+					or die($sqlInsertTbAnexo."<br/>".mysqli_error($conexao));
 
-
-			  //GRavo uma mensagem vinculada ao Anexo caso o Anexo tenha realmene sido inserido
+				$situacao = 'N'; //Mudo a Situação para N para não enviar duas vezes a mensagem no ANEXO
+			  //Gravo uma mensagem vinculada ao Anexo caso o Anexo tenha realmene sido inserido
 			  $inseremsg = mysqli_query(
 				$conexao, 
 				"INSERT INTO tbmsgatendimento(id,seq,numero,msg, resp_msg, nome_chat,situacao, dt_msg,hr_msg,id_atend,canal, chatid_resposta)
@@ -107,7 +144,7 @@
 		}
 	// FIM Verifica se existe um Upload //
 	else{
-	//Se for apenas MEnsagem Grava a mensagem
+	//Se for apenas Mensagem Grava a mensagem
 	$newSequence = newSequence($conexao, $idAtendimento, $strNumero, $idCanal); // Gera a sequencia da mensagem
 	$inseremsg = mysqli_query(
 		$conexao, 

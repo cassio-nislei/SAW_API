@@ -58,6 +58,15 @@ $( document ).ready(function() {
             $("#titulo").val(registro.titulo);
             $("#id_usuario").val(registro.id_usuario);
             $("#resposta").val(registro.resposta);
+            if (registro.arquivo!=null && registro.arquivo!=""){
+                $("#arquivo_carregado").html("Existe um arquivo carregado");
+                $("#arquivo_carregado").css({ 'color': 'red', 'font-size': '150%' });
+            } else {             
+                $("#arquivo_carregado").html("Não Existe um arquivo carregado");
+                $("#arquivo_carregado").css({ 'color': 'black', 'font-size': '150%' });
+            }
+            $("#foto").val('');
+
         });
               
         // Mudo a Ação para Alterar    
@@ -83,7 +92,59 @@ $( document ).ready(function() {
     // Incluindo no TextArea a Resposta Rápida //
     $('.addRespostaRapida').on('click', function (){
         var respostaRapida = $(this).parent().find('span').text();
+        var arquivo = 'cadastros/respostasrapidas/' + $(this).parent().find('#AnexoRespostaRapida').val();
+        var nome_arquivo = $(this).parent().find('#NomeAnexoRespostaRapida').val();
+        var fileExtension = nome_arquivo.substring(nome_arquivo.lastIndexOf(".") + 1);
         $('#msg').val(respostaRapida);
+
+        if (nome_arquivo != ''){
+            
+            // Tratamento dos Paineis //
+            $(".panel-upImage").addClass("open");
+            $("#btnEnviar").attr("style", "display: block");
+            $("#divAudio").attr("style", "display: none");
+            
+            // Criando o Elemento <img> //
+
+            var img = document.createElement("img");
+            img.setAttribute("id", "imgView");
+            
+            fetch(arquivo)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Não foi possível obter o arquivo.');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    console.log("Blob:", blob);
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        if (fileExtension === "jpeg" || fileExtension === "jpg" || fileExtension === "png" || fileExtension === "gif") {
+                            img.src = reader.result;
+                        } else if (fileExtension === "pdf") {
+                            img.src = "images/abrir_pdf.png";
+                        } else if (fileExtension === "doc" || fileExtension === "docx") {
+                            img.src = "images/abrir_doc.png";
+                        } else if (fileExtension === "xls" || fileExtension === "xlsx" || fileExtension === "csv") {
+                            img.src = "images/abrir_xls.png";
+                        } else {
+                            img.src = "images/abrir_outros.png";
+                        }
+                    };
+                    reader.readAsDataURL(blob);
+                    $("#anexomsgRapida").val(arquivo);
+                    $("#nomeanexomsgRapida").val(nome_arquivo);
+                    
+
+                    $("#dragDropImage").attr("style", "display:none");
+                    document.getElementById("panel-upload-image").appendChild(img);
+                    $("#msg").focus();
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                });
+            }//fim da verificação se possui anexo nas respostas rápidas
 
         // Envio automático da Resposta Rápida //
         if( $('#parametrosRespRapidaAut').val() === "1" ){

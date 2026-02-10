@@ -1,12 +1,13 @@
-<?php
-	require_once("../../includes/padrao.inc.php");
-
+<?php 
+session_start();
+//require_once("../../includes/padrao.inc.php");
 	if( isset($_SESSION["i"]) ){
 		// Permito anexar no máximo 5 arquivos
 		if( $_SESSION["i"] >= 5 ){
-			echo "limite"; exit;
+			echo "3"; exit;
 		}
 	}
+		
 
 	$uploaddir = 'arquivos/';
 	$file = $uploaddir . basename($_FILES['uploadfile']['name']);
@@ -22,6 +23,8 @@
 			$_SESSION["anexos"][$_SESSION["i"]] = $file;
 		}
 
-		echo "success"; 
+		echo 0; 
+	
 	}
-	else { echo "error"; }
+	else { echo 1; }
+	?>

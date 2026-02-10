@@ -65,7 +65,7 @@
 		foreach ($categorias as $valor) {
 			mysqli_query(
 				$conexao, 
-				"CALL spr_grava_bc_categorias('".$idBC."', '".$valor."')"
+				"INSERT INTO base_conhecimento_categorias VALUES('".$idBC."', '".$valor."')"
 			) or die("Erro BCC: " . mysqli_error($conexao));
 		}
 	}

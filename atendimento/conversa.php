@@ -47,13 +47,9 @@
         form = new FormData();
 
         function ajustaScroll(){	
-            var container = $('#panel-messages-container');
-            // Primeiro faz um scroll imediato para o final
-            container.scrollTop(container[0].scrollHeight);
-            // Depois anima suavemente para garantir que chegou ao final
-            container.animate({
-                scrollTop: container[0].scrollHeight
-            }, 300);
+            $('#panel-messages-container').animate({
+                scrollTop: $(this).height()*100 // aqui introduz o numero de px que quer no scroll, neste caso é a altura da propria div, o que faz com que venha para o fim
+            }, 100);
         }
 
         function carregaAtendimento() {
@@ -68,12 +64,14 @@
                 id: id,
                 id_canal: id_canal
             }, function(retorno) {
+                console.log('QTD Conversas'+retorno);
                 //Válida se é para Atualizar a conversa, só faz a atualização da tela se existirem novas mensagens
                 if (parseInt(retorno) > parseInt(qtdMensagens)) {
                     $.ajax("atendimento/listaConversas.php?id=" + id + "&id_canal=" + id_canal + "&numero=" + numero + "&nome=" + nome).done(function(data) {
-                        $('#mensagens').html(data);
-                        ajustaScroll(); //desço a barra de rolagem da conversa após carregar os dados
+                          $('#mensagens').html(data);
                     });
+
+                    ajustaScroll(); //desço a barra de rolagem da conversa
                 }
                 $("#TotalMensagens").html(retorno);
             });
@@ -82,11 +80,6 @@
         // Atualiza a Lista de Atendimentos //
             var intervalo = setInterval(function() { carregaAtendimento(); }, 5000);
             carregaAtendimento();
-            
-            // Rola para o final das mensagens ao carregar a página
-            setTimeout(function() {
-                ajustaScroll();
-            }, 500);
         // FIM Atualiza a Lista de Atendimentos //
 
         // Selecionar o Imput File //
@@ -97,7 +90,7 @@
 
         // Tratamento dos dados digitados no campo de Mensagem //
             $("#msg").keydown(function(event) { processaMensagem(event); });
-
+         
             // Processa e Submita os Dados digitados no campo de Mensagem //
                 function processaMensagem(event){
                     var strMensagem = $.trim($("#msg").val());
@@ -182,6 +175,8 @@
             var msg_resposta = $("#RespostaSelecionada").html();
             var idResposta = $("#chatid_resposta").val();
 			var upload = document.getElementById("upload").files.length;
+            var anexomsgRapida = $("#anexomsgRapida").val();
+            var nomeanexomsgRapida = $("#nomeanexomsgRapida").val();
               
             // Montando os Dados [Form] para Envio //
             form.append('numero', numero);
@@ -191,6 +186,8 @@
             form.append('msg', msg);
             form.append('Resposta', msg_resposta); //Adicionei a mensagem de Resposta
             form.append('idResposta', idResposta); //Adicionei a mensagem de Resposta
+            form.append('anexomsgRapida', anexomsgRapida); //Adicionei a mensagem de Resposta
+            form.append('nomeanexomsgRapida', nomeanexomsgRapida); //Adicionei a mensagem de Resposta
 
             // Se não for 'Áudio' e não for 'Imagem da Área de Transferência' //
 			if( (!ehaudio) && (!imageClipboard) && (!ehupload) && (!imageCamera) ) {
@@ -214,16 +211,11 @@
                 resetForm: true,
                 success: function(retorno) {
                     carregaAtendimento();	
-                    
-                    // Aguarda um pouco para garantir que o conteúdo foi renderizado
-                    setTimeout(function() {
-                        ajustaScroll();
-                    }, 800);
-                    
                     form = new FormData();
  //alert(retorno);
                     // Limpando Campos //
                     $("#msg").val("");
+                    $("#anexomsgRapida").val("0");
                     $("#RespostaSelecionada").html("");
                     $("#chatid_resposta").val(""); 
                     $("#upload").val("");

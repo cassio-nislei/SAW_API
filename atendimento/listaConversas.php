@@ -1,3 +1,5 @@
+
+</div>
 <?php
 	// Requires //
 	require_once("../includes/padrao.inc.php");
@@ -7,7 +9,6 @@
 		$numero = isset($_GET["numero"]) ? $_GET["numero"] : "";
 		$Nome = isset($_GET["nome"]) ? $_GET["nome"] : "";
 		$idCanal = isset($_GET["id_canal"]) ? $_GET["id_canal"] : "";
-		$protocolo = isset($_GET["protocolo"]) ? $_GET["protocolo"] : "";
 	// FIM Definições de Variáveis //
 
 	// Definição do SQL //
@@ -17,19 +18,8 @@
 		tma.reacaorec
 					FROM tbmsgatendimento tma
 						LEFT JOIN tbanexos ta ON tma.id = ta.id AND tma.seq = ta.seq AND tma.numero = ta.numero
-							WHERE tma.numero = '".$numero."' and tma.id = '$idAtendimento'";
-		// Adiciona filtro de protocolo se fornecido
-		if( !empty($protocolo) ){ 
-			$strSQL = "SELECT tma.chatid, tma.id, tma.seq, tma.numero, tma.msg, tma.resp_msg, tma.dt_msg, tma.hr_msg, tma.id_atend, ta.tipo_arquivo, ta.nome_original, tma.situacao, tma.reagir,tma.reacao,
-			tma.reacaorec
-						FROM tbmsgatendimento tma
-							LEFT JOIN tbanexos ta ON tma.id = ta.id AND tma.seq = ta.seq AND tma.numero = ta.numero
-							LEFT JOIN tbatendimento tb ON tma.numero = tb.numero
-							WHERE tma.numero = '".$numero."' AND tma.id = '$idAtendimento' AND tb.protocolo = '".$protocolo."'"; 
-		} else {
-			$strSQL .= " ORDER BY tma.id, seq";
-		}
-		$strSQL .= " ORDER BY tma.id, seq";
+							WHERE tma.numero = '".$numero."' and tma.id = '$idAtendimento'
+								ORDER BY tma.id, seq";
 	}else
 		// Alteração necessária para mostrar o 'Histórico de Atendimentos' do Cliente completo pelo número//
 		if( $idAtendimento === "all" ){
@@ -37,17 +27,8 @@
 			tma.reacaorec
 						FROM tbmsgatendimento tma
 							LEFT JOIN tbanexos ta ON tma.id = ta.id AND tma.seq = ta.seq AND tma.numero = ta.numero
-								WHERE tma.numero = '".$numero."'";
-			// Adiciona filtro de protocolo se fornecido
-			if( !empty($protocolo) ){ 
-				$strSQL = "SELECT tma.chatid, tma.id, tma.seq, tma.numero, tma.msg, tma.resp_msg, tma.dt_msg, tma.hr_msg, tma.id_atend, ta.tipo_arquivo, ta.nome_original, tma.situacao, tma.reagir,tma.reacao,
-				tma.reacaorec
-							FROM tbmsgatendimento tma
-								LEFT JOIN tbanexos ta ON tma.id = ta.id AND tma.seq = ta.seq AND tma.numero = ta.numero
-								LEFT JOIN tbatendimento tb ON tma.numero = tb.numero
-								WHERE tma.numero = '".$numero."' AND tb.protocolo = '".$protocolo."'"; 
-			}
-			$strSQL .= " ORDER BY tma.id, seq";
+								WHERE tma.numero = '".$numero."'
+									ORDER BY tma.id, seq";
 		}
 		else{
 			// Atualizo as visualizações das mensagens para zerar o contador conforme atualiza a conversa //
@@ -68,17 +49,8 @@
 			tma.reacaorec
 						FROM tbmsgatendimento tma
 							LEFT JOIN tbanexos ta ON tma.id = ta.id AND tma.seq = ta.seq AND tma.numero = ta.numero
-								WHERE tma.numero = '".$numero."' AND  tma.id = '".$idAtendimento."'";
-			// Adiciona filtro de protocolo se fornecido
-			if( !empty($protocolo) ){ 
-				$strSQL = "SELECT tma.chatid, tma.id, tma.seq, tma.numero, tma.msg,  tma.resp_msg, tma.dt_msg, tma.hr_msg, tma.id_atend, ta.tipo_arquivo, ta.nome_original, tma.situacao, tma.reagir,tma.reacao,
-				tma.reacaorec
-							FROM tbmsgatendimento tma
-								LEFT JOIN tbanexos ta ON tma.id = ta.id AND tma.seq = ta.seq AND tma.numero = ta.numero
-								LEFT JOIN tbatendimento tb ON tma.numero = tb.numero
-								WHERE tma.numero = '".$numero."' AND tma.id = '".$idAtendimento."' AND tb.protocolo = '".$protocolo."'"; 
-			}
-			$strSQL .= " ORDER BY seq";
+								WHERE tma.numero = '".$numero."' AND  tma.id = '".$idAtendimento."'
+									ORDER BY seq";
 		}
 	// FIM Definição do SQL //
 
@@ -167,52 +139,16 @@
 		
 		//Trato o Anexo para exibir
 		//Quando for gravação de Audio
-		if ($objConversa->tipo_arquivo=='PTT'){
-			// Busca o arquivo de áudio
-			$strAnexos = "SELECT arquivo FROM tbanexos WHERE id = '".$objConversa->id."' AND numero = '".$objConversa->numero."' AND seq = '".$objConversa->seq."'";
-			$qryAnexos = mysqli_query($conexao, $strAnexos);
-			$objAnexos = mysqli_fetch_object($qryAnexos);
-			
-			// Se arquivo < 5MB, usa base64
-			if (strlen($objAnexos->arquivo) < 5242880) {
-				$audioData = base64_encode($objAnexos->arquivo);
-				$audioSrc = 'data:audio/ogg;base64,' . $audioData;
-				$mensagem = '<audio controls="" style="width:240px"><source src="'.$audioSrc.'"></audio>';
-			} else {
-				$mensagem = '<audio controls="" style="width:240px"><source src="atendimento/anexo.php?id='.$objConversa->id.'&numero='.$objConversa->numero.'&seq='.$objConversa->seq.'"></audio>';
-			}
+		if ($objConversa->tipo_arquivo=='PTT'){									
+			$mensagem = '<audio controls="" style="width:240px"><source src="atendimento/anexo.php?id='.$objConversa->id.'&numero='.$objConversa->numero.'&seq='.$objConversa->seq.'"></audio>';	
 		//Quando for envio de Audio
 		}
 		elseif ($objConversa->tipo_arquivo=='AUDIO'){
-			// Busca o arquivo de áudio
-			$strAnexos = "SELECT arquivo FROM tbanexos WHERE id = '".$objConversa->id."' AND numero = '".$objConversa->numero."' AND seq = '".$objConversa->seq."'";
-			$qryAnexos = mysqli_query($conexao, $strAnexos);
-			$objAnexos = mysqli_fetch_object($qryAnexos);
-			
-			// Se arquivo < 5MB, usa base64
-			if (strlen($objAnexos->arquivo) < 5242880) {
-				$audioData = base64_encode($objAnexos->arquivo);
-				$audioSrc = 'data:audio/mpeg;base64,' . $audioData;
-				$mensagem = '<audio controls="" style="width:240px"><source src="'.$audioSrc.'"></audio><br>'.$objConversa->nome_original;
-			} else {
-				$mensagem = '<a class="youtube cboxElement" href="atendimento/anexo.php?id='.$objConversa->id.'&numero='.$objConversa->numero.'&seq='.$objConversa->seq.'"><img src="images/abrir_audio.png" width="100" height="100"></a><br>'.$objConversa->nome_original;
-			}
+			$mensagem = '<a class="youtube cboxElement" href="atendimento/anexo.php?id='.$objConversa->id.'&numero='.$objConversa->numero.'&seq='.$objConversa->seq.'"><img src="images/abrir_audio.png" width="100" height="100"></a><br>'.$objConversa->nome_original;	
 		//Quando for envio de Video
 		}
 		elseif ($objConversa->tipo_arquivo=='VIDEO'){
-			// Busca o arquivo de vídeo
-			$strAnexos = "SELECT arquivo FROM tbanexos WHERE id = '".$objConversa->id."' AND numero = '".$objConversa->numero."' AND seq = '".$objConversa->seq."'";
-			$qryAnexos = mysqli_query($conexao, $strAnexos);
-			$objAnexos = mysqli_fetch_object($qryAnexos);
-			
-			// Se arquivo < 5MB, usa base64
-			if (strlen($objAnexos->arquivo) < 5242880) {
-				$videoData = base64_encode($objAnexos->arquivo);
-				$videoSrc = 'data:video/mp4;base64,' . $videoData;
-				$mensagem = '<video controls="" style="max-width:300px"><source src="'.$videoSrc.'"></video><br>'.$objConversa->nome_original;
-			} else {
-				$mensagem = '<a class="youtube cboxElement" href="atendimento/anexo.php?id='.$objConversa->id.'&numero='.$objConversa->numero.'&seq='.$objConversa->seq.'"><img src="images/abrir_video.png" width="100" height="100"></a><br>'.$objConversa->nome_original;
-			}
+			$mensagem = '<a class="youtube cboxElement" href="atendimento/anexo.php?id='.$objConversa->id.'&numero='.$objConversa->numero.'&seq='.$objConversa->seq.'"><img src="images/abrir_video.png" width="100" height="100"></a><br>'.$objConversa->nome_original;									 
 			//Quando for Imagem
 		}
 		elseif ($objConversa->tipo_arquivo=='STICKER'){
@@ -222,19 +158,27 @@
 			$strAnexos = "SELECT arquivo, nome_arquivo, tipo_arquivo, nome_contato FROM tbanexos WHERE id = '".$objConversa->id."' AND numero = '".$objConversa->numero."' AND seq = '".$objConversa->seq."'";
 			$qryAnexos = mysqli_query($conexao, $strAnexos);
 			$objAnexos = mysqli_fetch_object($qryAnexos);
-			
-			// Converte a imagem para base64 para exibição direta
-			$imageData = base64_encode($objAnexos->arquivo);
-			$imageSrc = 'data:image/jpeg;base64,' . $imageData;
+			$extensao = explode(".", $objAnexos->nome_arquivo)[1];
+			$fileName = "images/conversas/" . $objConversa->id.'_'.$objConversa->numero.'_'.$objConversa->seq.'.'.$extensao;
+			$fileRootImage = "../" . $fileName;
 
-
+			// Cria o arquivo se ele ainda não existir //
+				if( !file_exists($fileRootImage) ){
+					// GAMBI, POG PLUS+ //
+					// if( strlen(($objAnexos->nome_contato)) === 0 ){ $img = imagecreatefromstring( $objAnexos->arquivo ); }
+					// else{ $img = imagecreatefromstring( base64_decode($objAnexos->arquivo) ); }
+					
+					$img = imagecreatefromstring( $objAnexos->arquivo );
+					imagejpeg( $img, $fileRootImage );
+				}
+			// FIM Cria o arquivo se ele ainda não existir //
 
 			// Montando a Mensagem //
-				$mensagem = '<a href="'.$imageSrc.'" data-lightbox-title="">
-								<img style="border: 1px solid #ccc; border-radius: 5px;" width="100px" src="'.$imageSrc.'" />
+				$mensagem = '<a href="'.$fileName.'" data-lightbox-title="">
+								<img style="border: 1px solid #ccc; border-radius: 5px;" width="100px" src="'.$fileName.'" />
 							</a>';
 				
-				if (strlen($objConversa->msg ?? '')>0){
+				if (strlen($objConversa->msg)>0){
 					$mensagem = $mensagem .'<br>'.  $objConversa->msg;
 				}
 			// FIM Montando a Mensagem //
@@ -244,31 +188,23 @@
 			|| $objConversa->tipo_arquivo == 'TEXT/' ) {
 			$ext = strtoupper(pathinfo($objConversa->nome_original, PATHINFO_EXTENSION));
 			
-			// Busca o arquivo
-			$strAnexos = "SELECT arquivo FROM tbanexos WHERE id = '".$objConversa->id."' AND numero = '".$objConversa->numero."' AND seq = '".$objConversa->seq."'";
-			$qryAnexos = mysqli_query($conexao, $strAnexos);
-			$objAnexos = mysqli_fetch_object($qryAnexos);
-			
 			if ($ext=='PDF'){
 				$imgIcone = 'abrir_pdf.png';
-				$mensagem = '<a href="atendimento/anexo.php?id='.$objConversa->id.'&numero='.$objConversa->numero.'&seq='.$objConversa->seq.'"><img src="images/'.$imgIcone.'" width="100" height="100"></a><br>'.$objConversa->nome_original;
 			}
 			else if ($ext=='DOC' or $ext=='DOCX'){
 				$imgIcone = 'abrir_doc.png';
-				$mensagem = '<a href="atendimento/anexo.php?id='.$objConversa->id.'&numero='.$objConversa->numero.'&seq='.$objConversa->seq.'"><img src="images/'.$imgIcone.'" width="100" height="100"></a><br>'.$objConversa->nome_original;
 			}
 			else if ($ext=='XLS' or $ext=='XLSX' or $ext=='CSV'){
 				$imgIcone = 'abrir_xls.png';
-				$mensagem = '<a href="atendimento/anexo.php?id='.$objConversa->id.'&numero='.$objConversa->numero.'&seq='.$objConversa->seq.'"><img src="images/'.$imgIcone.'" width="100" height="100"></a><br>'.$objConversa->nome_original;
 			}
            else if ($ext=='PPT' or $ext=='PPTX' or $ext=='PPSX'){
 				$imgIcone = 'abrir_ppt.png'; //Add Marcelo POWERPOINT
-				$mensagem = '<a href="atendimento/anexo.php?id='.$objConversa->id.'&numero='.$objConversa->numero.'&seq='.$objConversa->seq.'"><img src="images/'.$imgIcone.'" width="100" height="100"></a><br>'.$objConversa->nome_original;
 			}
 			else{
 				$imgIcone = 'abrir_outros.png'; // Icone Generico
-				$mensagem = '<a href="atendimento/anexo.php?id='.$objConversa->id.'&numero='.$objConversa->numero.'&seq='.$objConversa->seq.'"><img src="images/'.$imgIcone.'" width="100" height="100"></a><br>'.$objConversa->nome_original;
 			}
+
+			$mensagem = '<a href="atendimento/anexo.php?id='.$objConversa->id.'&numero='.$objConversa->numero.'&seq='.$objConversa->seq.'"><img src="images/'.$imgIcone.'" width="100" height="100"></a><br>'.$objConversa->nome_original.'<br>'. $objConversa->msg;
 		}
 		else if (strlen($objConversa->msg)>0) {
 			$mensagem = $objConversa->msg;	
@@ -455,7 +391,7 @@
 						<div class="Tkt2p">
 						  ';	
 					//Trato a existencia de mensagem de resposta
-					if (!empty($mensagemResposta)){						
+					if (strlen($mensagemResposta)>0){						
 						echo '
 						<div style="border-left: solid green;border-radius:3px;background-color:#CCC;opacity: 0.2;color:#000">							
 								<span dir="ltr" class="selectable-text invisible-space message-text">'. str_replace("\\n","<br/>",$mensagemResposta) .'</span>

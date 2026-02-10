@@ -4,9 +4,9 @@
 	//Inicia o Atendimento
 	//Recupero os dados do atendimento selecionado
 	$s_celular_atendimento = $_POST["numero"]; //Pego o número do atendimento
-	$s_id_atendimento = $_POST["id_atendimento"];
-	$s_nome = $_POST["nome"];
-	$idCanal = isset($_REQUEST["id_canal"]) ? $_REQUEST["id_canal"] : "";
+	$s_id_atendimento      = $_POST["id_atendimento"];
+	$s_nome                = $_POST["nome"];
+	$idCanal               = isset($_REQUEST["id_canal"]) ? $_REQUEST["id_canal"] : "";
 	//Dados do Atendente
 	$id_atend = $_SESSION["usuariosaw"]["id"];
 	$nome_atend = $_SESSION["usuariosaw"]["nome"];
@@ -69,6 +69,6 @@
 
 	$qryaux = mysqli_query(
 		$conexao
-		, "INSERT INTO tbmsgatendimento(id, seq, numero, msg, nome_chat, situacao, dt_msg, hr_msg, id_atend, canal, chatid)
-			VALUES('".$s_id_atendimento."', '".$newSequence."', '".$s_celular_atendimento."', '".$strMensagem."', '".$nome_atend."', 'E', NOW(), CURTIME(), '".$id_atend."', '".$idCanal."', '".uniqid()."')"
+		, "INSERT INTO tbmsgatendimento(id, seq, numero, msg, nome_chat, situacao, dt_msg, hr_msg, id_atend, canal)
+			VALUES('".$s_id_atendimento."', '".$newSequence."', '".$s_celular_atendimento."', '".$strMensagem."', '".$nome_atend."', 'E', NOW(), CURTIME(), '".$id_atend."', '".$idCanal."')"
 	); 

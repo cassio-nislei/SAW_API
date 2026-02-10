@@ -1,6 +1,6 @@
 <!-- Cadastro de Resposta Rápida -->
 <div class="window medio" id="modalRespostaRapida">
-    <script type='text/javascript' src="cadastros/respostasrapidas/acoes.js"></script>
+   
 
     <div class="box-modal" id="FormRespostaRapida" style="display: none;">
         <form method="post" id="gravaRespostaRapida" name="gravaRespostaRapida" action="cadastros/respostasrapidas/salvar.php">
@@ -20,14 +20,14 @@
 
             <div class="uk-width-1-2@m">
             <div class="uk-form-label"> Visibilidade </div>
-            <select class="uk-select" id="id_usuario" name="id_usuario">
-                <option value="">Informe a visibilidade desta Resposta Rápida</option>
-                <option value="1">Para todos</option>
-                <option value="2">Somente para meu operador</option>
-            </select>
-            <div id="valida_id_usuario" style="display: none" class="msgValida">
-                Por favor, Informe a visibilidade desta Resposta Rápida.
-            </div>
+                <select class="uk-select" id="id_usuario" name="id_usuario">
+                    <option value="">Informe a visibilidade desta Resposta Rápida</option>
+                    <option value="1">Para todos</option>
+                    <option value="2">Somente para meu operador</option>
+                </select>
+                <div id="valida_id_usuario" style="display: none" class="msgValida">
+                    Por favor, Informe a visibilidade desta Resposta Rápida.
+                </div>
             </div>
         </div>
 
@@ -35,9 +35,27 @@
             <div class="uk-form-label"> Mensagem </div>
             <textarea class="uk-textarea" type="text" id="resposta" name="resposta" rows="10" placeholder="Informe qual será a Resposta Rápida"></textarea>
             <div id="valida_resposta" style="display: none" class="msgValida">
-            Por favor, Informe qual será a Resposta Rápida.
+              Por favor, Informe qual será a Resposta Rápida.
             </div>
         </div>
+
+        <div class="uk-width-1-1@m" style=" float: left;">
+					<div class="uk-form-label"> <b>Arquivo de envio Automatico</b> </div>
+					
+          <div class="col-md-2">
+            <h2 class="title" id="arquivo_carregado"></h2>						
+					</div>
+
+					<div class="col-md-10" align="left" style="margin-top: 15px;">
+						<div class="uk-form-file">
+							<input type="file" name="foto" id="foto" />
+			
+						</div>		
+					</div>
+
+			</div>
+
+
         </form>
 
         <p class="uk-text-right" style="margin-top:1rem">
@@ -84,6 +102,7 @@
     </div>
 </div>
 
+<script type='text/javascript' src="cadastros/respostasrapidas/acoes.js"></script>
 <script>
   $(document).ready(function() {
     $.ajax("cadastros/respostasrapidas/listar.php").done(function(data) {
@@ -97,4 +116,6 @@
     // Fechar a Janela //
     $('.fechar').on("click", function(){ fecharModal(); });
   });
+
+  
 </script>

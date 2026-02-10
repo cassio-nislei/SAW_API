@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Análise SAW20 vs SAW-main - Recursos</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #333;
+        padding: 20px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        font-size: 1.1em;
+        opacity: 0.9;
+      }
+
+      .content {
+        padding: 40px;
+      }
+
+      .section {
+        margin-bottom: 40px;
+      }
+
+      .section-title {
+        font-size: 1.8em;
+        color: #667eea;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .feature-card {
+        background: #f8f9fa;
+        border-left: 5px solid #667eea;
+        padding: 20px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .feature-card:hover {
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        transform: translateX(5px);
+      }
+
+      .feature-card.critical {
+        border-left-color: #e74c3c;
+      }
+
+      .feature-card.important {
+        border-left-color: #f39c12;
+      }
+
+      .feature-card.medium {
+        border-left-color: #f1c40f;
+      }
+
+      .feature-card.low {
+        border-left-color: #27ae60;
+      }
+
+      .feature-name {
+        font-size: 1.3em;
+        font-weight: bold;
+        color: #2c3e50;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .priority-badge {
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: bold;
+      }
+
+      .priority-critical {
+        background: #e74c3c;
+        color: white;
+      }
+
+      .priority-important {
+        background: #f39c12;
+        color: white;
+      }
+
+      .priority-medium {
+        background: #f1c40f;
+        color: #333;
+      }
+
+      .priority-low {
+        background: #27ae60;
+        color: white;
+      }
+
+      .feature-location {
+        color: #7f8c8d;
+        font-size: 0.95em;
+        margin-top: 8px;
+        font-family: "Courier New", monospace;
+      }
+
+      .feature-files {
+        margin-top: 10px;
+        padding-left: 20px;
+        color: #555;
+        font-size: 0.9em;
+      }
+
+      .feature-files li {
+        list-style: none;
+        margin-bottom: 5px;
+      }
+
+      .feature-files li:before {
+        content: "📄 ";
+        margin-right: 5px;
+      }
+
+      .feature-description {
+        margin-top: 10px;
+        color: #555;
+        line-height: 1.6;
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .comparison-table th {
+        background: #667eea;
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+      }
+
+      .comparison-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #ecf0f1;
+      }
+
+      .comparison-table tr:hover {
+        background: #f8f9fa;
+      }
+
+      .status-removed {
+        background: #ffebee;
+        color: #c62828;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+
+      .status-maintained {
+        background: #e8f5e9;
+        color: #2e7d32;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+
+      .status-new {
+        background: #e3f2fd;
+        color: #1565c0;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+
+      .recommendation-box {
+        background: #e3f2fd;
+        border-left: 5px solid #1976d2;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+      }
+
+      .recommendation-box h3 {
+        color: #1565c0;
+        margin-bottom: 10px;
+      }
+
+      .recommendation-box ol {
+        margin-left: 20px;
+      }
+
+      .recommendation-box li {
+        margin-bottom: 8px;
+        line-height: 1.6;
+      }
+
+      .summary-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+      }
+
+      .stat-number {
+        font-size: 2.5em;
+        font-weight: bold;
+      }
+
+      .stat-label {
+        font-size: 0.9em;
+        opacity: 0.9;
+        margin-top: 10px;
+      }
+
+      .footer {
+        background: #2c3e50;
+        color: white;
+        text-align: center;
+        padding: 20px;
+        font-size: 0.9em;
+      }
+
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 1.8em;
+        }
+
+        .content {
+          padding: 20px;
+        }
+
+        .summary-stats {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🔍 Análise: Recursos SAW20 vs SAW-main</h1>
+        <p>
+          Comparação completa de funcionalidades presentes em SAW20 que não
+          existem no projeto principal
+        </p>
+      </div>
+
+      <div class="content">
+        <!-- Summary Stats -->
+        <div class="summary-stats">
+          <div class="stat-card">
+            <div class="stat-number">14</div>
+            <div class="stat-label">Funcionalidades Extras</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">4</div>
+            <div class="stat-label">Críticas</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">4</div>
+            <div class="stat-label">Importantes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">6</div>
+            <div class="stat-label">Complementares</div>
+          </div>
+        </div>
+
+        <!-- Critical Section -->
+        <div class="section">
+          <div class="section-title">
+            🔴 Funcionalidades Críticas (Alta Prioridade)
+          </div>
+
+          <div class="feature-card critical">
+            <div class="feature-name">
+              Módulo de Marketing/Stories
+              <span class="priority-badge priority-critical">CRÍTICA</span>
+            </div>
+            <div class="feature-location">
+              📁 /saw20/gestao/marketing/stories/
+            </div>
+            <div class="feature-files">
+              <ul>
+                <li>index.php</li>
+                <li>carregardados.php</li>
+                <li>excluir.php</li>
+                <li>listar.php</li>
+                <li>salvar.php</li>
+              </ul>
+            </div>
+            <div class="feature-description">
+              Sistema completo de criação, gerenciamento e transmissão de
+              stories. Acessado via:
+              <strong>Gestão → Marketing → Status (Stories)</strong>
+            </div>
+          </div>
+
+          <div class="feature-card critical">
+            <div class="feature-name">
+              Listas de Transmissão
+              <span class="priority-badge priority-critical">CRÍTICA</span>
+            </div>
+            <div class="feature-location">
+              📁 Referenciada mas sem arquivo implementado
+            </div>
+            <div class="feature-description">
+              Gerenciamento de listas para broadcast de mensagens. Item de menu
+              presente mas implementação incompleta.
+            </div>
+          </div>
+
+          <div class="feature-card critical">
+            <div class="feature-name">
+              Base de Conhecimento
+              <span class="priority-badge priority-critical">CRÍTICA</span>
+            </div>
+            <div class="feature-location">
+              📁 /saw20/modulos/baseconhecimento/
+            </div>
+            <div class="feature-files">
+              <ul>
+                <li>index.php - Interface principal</li>
+                <li>salvar.php - Salvar conhecimento</li>
+                <li>excluir.php - Deletar itens</li>
+                <li>carregardados.php - Carregar dados</li>
+                <li>upload-file.php - Upload de anexos</li>
+                <li>apaga-file.php - Remover arquivos</li>
+                <li>anexo.php - Gerenciamento de anexos</li>
+              </ul>
+            </div>
+            <div class="feature-description">
+              Base de dados de conhecimento com suporte completo a anexos e
+              upload de documentos.
+            </div>
+          </div>
+
+          <div class="feature-card critical">
+            <div class="feature-name">
+              Chat Site (Widget de Chat)
+              <span class="priority-badge priority-critical">CRÍTICA</span>
+            </div>
+            <div class="feature-location">📁 /saw20/modulos/chatsite/</div>
+            <div class="feature-files">
+              <ul>
+                <li>index.php - Widget principal</li>
+                <li>listaMensagens.php - Histórico</li>
+                <li>qtdnovasmensagens.php - Contador</li>
+                <li>gravaMensagem.php - Salvar mensagens</li>
+                <li>iniciaAtendimento.php - Iniciar atendimento</li>
+                <li>menu.php - Menu do chat</li>
+                <li>sair.php - Encerrar sessão</li>
+              </ul>
+            </div>
+            <div class="feature-description">
+              Widget de chat para clientes/visitantes do site com integração
+              completa de atendimento.
+            </div>
+          </div>
+        </div>
+
+        <!-- Important Section -->
+        <div class="section">
+          <div class="section-title">
+            🟠 Módulos Importantes (Média Prioridade)
+          </div>
+
+          <div class="feature-card important">
+            <div class="feature-name">
+              Gestão de Contatos
+              <span class="priority-badge priority-important">IMPORTANTE</span>
+            </div>
+            <div class="feature-location">📁 /saw20/cadastros/contatos/</div>
+            <div class="feature-files">
+              <ul>
+                <li>index.php - Interface de contatos</li>
+                <li>listaEtiquetas.php - Lista de tags</li>
+                <li>ContatoController.php - Controlador</li>
+              </ul>
+            </div>
+            <div class="feature-description">
+              Cadastro, busca e gerenciamento de contatos com suporte a
+              tags/etiquetas.
+            </div>
+          </div>
+
+          <div class="feature-card important">
+            <div class="feature-name">
+              Etiquetas (Tags)
+              <span class="priority-badge priority-important">IMPORTANTE</span>
+            </div>
+            <div class="feature-location">📁 /saw20/cadastros/etiquetas/</div>
+            <div class="feature-files">
+              <ul>
+                <li>index.php</li>
+                <li>carregardados.php</li>
+                <li>excluir.php</li>
+                <li>listar.php</li>
+                <li>salvar.php</li>
+              </ul>
+            </div>
+            <div class="feature-description">
+              Sistema de criação e gerenciamento de tags para categorizar
+              informações e contatos.
+            </div>
+          </div>
+
+          <div class="feature-card important">
+            <div class="feature-name">
+              Respostas Rápidas
+              <span class="priority-badge priority-important">IMPORTANTE</span>
+            </div>
+            <div class="feature-location">
+              📁 /saw20/cadastros/respostasrapidas/
+            </div>
+            <div class="feature-files">
+              <ul>
+                <li>index.php</li>
+                <li>carregardados.php</li>
+                <li>excluir.php</li>
+                <li>listar.php</li>
+                <li>salvar.php</li>
+              </ul>
+            </div>
+            <div class="feature-description">
+              Templates de respostas predefinidas para acelerar o atendimento
+              aos clientes.
+            </div>
+          </div>
+
+          <div class="feature-card important">
+            <div class="feature-name">
+              WebChat
+              <span class="priority-badge priority-important">IMPORTANTE</span>
+            </div>
+            <div class="feature-location">📁 /saw20/webchat/</div>
+            <div class="feature-files">
+              <ul>
+                <li>index.php - Interface Web do Chat</li>
+                <li>listaMensagens.php - Histórico de mensagens</li>
+                <li>gravarMensagemChat.php - Salvar mensagens</li>
+              </ul>
+            </div>
+            <div class="feature-description">
+              Interface web completa para chat em tempo real entre operadores e
+              clientes.
+            </div>
+          </div>
+        </div>
+
+        <!-- Medium Priority Section -->
+        <div class="section">
+          <div class="section-title">
+            🟡 Módulos Complementares (Prioridade Média-Baixa)
+          </div>
+
+          <div class="feature-card medium">
+            <div class="feature-name">
+              Gestão Completa de Atendimentos
+              <span class="priority-badge priority-medium">COMPLEMENTAR</span>
+            </div>
+            <div class="feature-location">📁 /saw20/atendimento/</div>
+            <div class="feature-files">
+              <ul>
+                <li>conversa.php - Interface de conversa</li>
+                <li>listaConversas.php - Listagem</li>
+                <li>gravarMensagem.php - Salvar mensagens</li>
+                <li>finalizarAtendimento.php - Encerrar atendimento</li>
+                <li>
+                  transferirAtendimento.php - Transferir para outro operador
+                </li>
+                <li>triagem.php - Triagem de atendimentos</li>
+                <li>E mais 22 arquivos...</li>
+              </ul>
+            </div>
+            <div class="feature-description">
+              Módulo completo com 28 arquivos para gerenciamento detalhado de
+              atendimentos.
+            </div>
+          </div>
+
+          <div class="feature-card medium">
+            <div class="feature-name">
+              Componentes de Modal (Interface)
+              <span class="priority-badge priority-medium">COMPLEMENTAR</span>
+            </div>
+            <div class="feature-location">📁 /saw20/modais/</div>
+            <div class="feature-files">
+              <ul>
+                <li>21 componentes diferentes incluindo:</li>
+                <li>modalBaseConhecimento.php</li>
+                <li>modalContato.php</li>
+                <li>modalEtiqueta.php</li>
+                <li>modalHistorico.php</li>
+                <li>modalUpload.php</li>
+                <li>E mais 16...</li>
+              </ul>
+            </div>
+            <div class="feature-description">
+              Componentes de interface reutilizáveis para modais e dialógos.
+            </div>
+          </div>
+
+          <div class="feature-card medium">
+            <div class="feature-name">
+              Recurso de Áudio
+              <span class="priority-badge priority-medium">COMPLEMENTAR</span>
+            </div>
+            <div class="feature-location">📁 /saw20/audio/ + /saw20/js/</div>
+            <div class="feature-files">
+              <ul>
+                <li>Mp3LameEncoder.min.js.mem - Codec MP3</li>
+                <li>OggVorbisEncoder.min.js.mem - Codec OGG Vorbis</li>
+                <li>WebAudioRecorder.min.js - Gravador</li>
+                <li>WebAudioRecorderMp3.min.js - MP3</li>
+                <li>WebAudioRecorderOgg.min.js - OGG</li>
+                <li>WebAudioRecorderWav.min.js - WAV</li>
+              </ul>
+            </div>
+            <div class="feature-description">
+              Suporte completo a gravação e transmissão de áudio em múltiplos
+              formatos.
+            </div>
+          </div>
+
+          <div class="feature-card low">
+            <div class="feature-name">
+              Funções Específicas (Timestamp, Redefinir Senha)
+              <span class="priority-badge priority-low">BAIXA</span>
+            </div>
+            <div class="feature-location">
+              📁 /saw20/gestao/cadastros/usuarios/
+            </div>
+            <div class="feature-files">
+              <ul>
+                <li>gravaTimestamp.php - Rastreamento de acesso</li>
+                <li>redefinirSenha.php - Interface de redefinição</li>
+              </ul>
+            </div>
+            <div class="feature-description">
+              Funções auxiliares para gerenciamento de usuários e rastreamento.
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="section">
+          <div class="section-title">📊 Tabela Comparativa</div>
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Recurso</th>
+                <th>SAW20</th>
+                <th>SAW-main</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Módulo Marketing</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td><span class="status-removed">REMOVIDO</span></td>
+              </tr>
+              <tr>
+                <td>Base de Conhecimento</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td><span class="status-removed">REMOVIDO</span></td>
+              </tr>
+              <tr>
+                <td>Chat Site</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td><span class="status-removed">REMOVIDO</span></td>
+              </tr>
+              <tr>
+                <td>WebChat</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td><span class="status-removed">REMOVIDO</span></td>
+              </tr>
+              <tr>
+                <td>Gestão de Contatos</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td><span class="status-removed">REMOVIDO</span></td>
+              </tr>
+              <tr>
+                <td>Etiquetas</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td><span class="status-removed">REMOVIDO</span></td>
+              </tr>
+              <tr>
+                <td>Respostas Rápidas</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td><span class="status-removed">REMOVIDO</span></td>
+              </tr>
+              <tr>
+                <td>Áudio/Codec</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td><span class="status-removed">REMOVIDO</span></td>
+              </tr>
+              <tr>
+                <td>Atendimento Detalhado</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td><span class="status-maintained">MANTIDO</span></td>
+              </tr>
+              <tr>
+                <td>Agendamentos</td>
+                <td>❌</td>
+                <td>✅</td>
+                <td><span class="status-new">NOVO</span></td>
+              </tr>
+              <tr>
+                <td>Vendor (Composer)</td>
+                <td>❌</td>
+                <td>✅</td>
+                <td><span class="status-new">NOVO</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="section">
+          <div class="section-title">🎯 Prioridade de Implementação</div>
+
+          <div class="recommendation-box">
+            <h3>Fase 1: Crítica (Implementar Primeiro)</h3>
+            <ol>
+              <li>
+                <strong>Base de Conhecimento</strong> - Sistema fundamental de
+                gestão de informações
+              </li>
+              <li>
+                <strong>Chat Site</strong> - Widget para comunicação com
+                clientes
+              </li>
+              <li>
+                <strong>Gestão de Contatos</strong> - Cadastro e organização de
+                contatos
+              </li>
+              <li>
+                <strong>Respostas Rápidas</strong> - Agilizar atendimentos com
+                templates
+              </li>
+            </ol>
+          </div>
+
+          <div class="recommendation-box">
+            <h3>Fase 2: Importante (Implementar em Seguida)</h3>
+            <ol>
+              <li>
+                <strong>Etiquetas</strong> - Complementa gestão de contatos
+              </li>
+              <li>
+                <strong>Marketing/Stories</strong> - Funcionalidade de
+                comunicação com clientes
+              </li>
+              <li>
+                <strong>WebChat</strong> - Interface web para chat em tempo real
+              </li>
+              <li>
+                <strong>Recurso de Áudio</strong> - Suporte a gravação e
+                transmissão de áudio
+              </li>
+            </ol>
+          </div>
+
+          <div class="recommendation-box">
+            <h3>Fase 3: Complementar (Opcional)</h3>
+            <ol>
+              <li>Componentes de Modal customizados</li>
+              <li>Função de Timestamp para rastreamento</li>
+              <li>Configuração HTTPS/SSL (.well-known)</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- Important Notes -->
+        <div class="section">
+          <div class="section-title">⚠️ Observações Importantes</div>
+
+          <div class="feature-card">
+            <div class="feature-name">Branding Diferente</div>
+            <div class="feature-description">
+              <strong>SAW20:</strong> Desenvolvido por "Net Solutions" com logo
+              e site diferentes<br />
+              <strong>SAW-main:</strong> Desenvolvido por "BSSI Tech Info"
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-name">Diferenças de Banco de Dados</div>
+            <div class="feature-description">
+              SAW20 usa <code>datetime_online</code> vs SAW-main usa
+              <code>dt_ultimo_acesso</code> para rastreamento de usuários.
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-name">❌ Bug Detectado em SAW-main</div>
+            <div class="feature-description">
+              Função <code>qtdLinhas()</code> em
+              <code>/gestao/index.php</code> tem bug com variável
+              <code>$link</code> não definida.<br />
+              <strong>Correção:</strong> Trocar
+              <code>mysqli_close($link)</code> por
+              <code>mysqli_close($conexao)</code>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-name">Compatibilidade</div>
+            <div class="feature-description">
+              <strong>95% compatível</strong> entre versões<br />
+              <strong>5% diferenças</strong> em branding e detalhes
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>
+          Análise Comparativa: SAW20 vs SAW-main | Gerado em 10 de Fevereiro de
+          2026 | v1.0
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

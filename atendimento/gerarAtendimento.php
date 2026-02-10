@@ -1,20 +1,17 @@
 <?php
 	require_once("../includes/padrao.inc.php");
-	
-	// Garante que a timezone está configurada para Brasília
-	date_default_timezone_set('America/Sao_Paulo');
   	
 	//Inicia o Atendimento
-  	//Recupero os dados do atendimento selecionado
+
 	$s_celular_atendimento = $_POST["numero"]; //Pego o número do atendimento
 	$s_nome = $_POST["nome"];
 	//Gero o número de atendimento
 
 	// Verifica antes se já não tem um Atendimento em Curso //
-		$qryAtendimentoAtivo = mysqli_query($conexao, "SELECT nome_atend FROM `tbatendimento` WHERE `numero` = '".$s_celular_atendimento."' AND `situacao` NOT IN('F') LIMIT 1;");
+		$qryAtendimentoAtivo = mysqli_query($conexao, "SELECT id, nome_atend FROM tbatendimento WHERE numero = '".$s_celular_atendimento."' AND situacao NOT IN('F') LIMIT 1;");
 		$objAtendimentoAtivo = mysqli_fetch_object($qryAtendimentoAtivo);
 
-		if( intval(mysqli_num_rows($qryAtendimentoAtivo)) === 0 ){
+		if( mysqli_num_rows($qryAtendimentoAtivo) == 0 ){
 			$qryaux = mysqli_query(
 				$conexao
 				, "SELECT coalesce(max(id),0)+1 SEQ 
@@ -73,19 +70,17 @@
 	//		$protocolo = $objprotocolo->protocolo;
 			//Verifico se já existe o protocolo gerado
 			$protocolo = date('YmdHis');
-		$data_atend = date('Y-m-d');
-		$hora_atend = date('H:i:s');
 
-		$qryaux = mysqli_query(
-			$conexao
-			, "INSERT INTO tbatendimento (id,situacao,nome,id_atend,nome_atend,numero,setor,dt_atend,hr_atend, canal, protocolo)
-			VALUES('$s_id_atendimento','A','$s_nome','$id_atend','$s_nome','$s_celular_atendimento','$idDepartamento','$data_atend','$hora_atend', '$idCanal','$protocolo'
-			)"
-		) or die(mysqli_error($conexao));
+			$qryaux = mysqli_query(
+				$conexao
+				, "INSERT INTO tbatendimento (id,situacao,nome,id_atend,nome_atend,numero,setor,dt_atend,hr_atend, canal, protocolo)
+					VALUES('$s_id_atendimento','A','$s_nome','$id_atend','$s_nome','$s_celular_atendimento','$idDepartamento',CURDATE(),CURTIME(), '$idCanal','$protocolo'
+					 )"
+			) or die(mysqli_error($conexao));
 
-		//Após Gerar o Atendimento, verifico se está controlando protocolos para Enviar uma mensagem com o Número do Protocolo
-		//Exibir mensagem de Número de Protocolo
-		if ($_SESSION["parametros"]["usar_protocolo"]==1){
+			//Após Gerar o Atendimento, verifico se está controlando protocolos para Enviar uma mensagem com o Número do Protocolo
+			//Exibir mensagem de Número de Protocolo
+			if ($_SESSION["parametros"]["usar_protocolo"]==1){
 				//BUsco o Número de protocolo
 				$qryprotocolo = mysqli_query(
 					$conexao
@@ -107,8 +102,12 @@
 				);
 			}
 
-			if( $qryaux ){ echo $s_id_atendimento; }
-			else{ echo "erro"; }
+		   if( $qryaux ){ 
+			  echo $s_id_atendimento; }
+		  	  else{ echo "erro"; 
+			}
+		}else{ 	
+			echo $objAtendimentoAtivo->id;		
+			//echo "Já existe um atendimento deste cliente com o(a) atendente " . $objAtendimentoAtivo->nome_atend; 
 		}
-		else{ echo "Já existe um atendimento deste cliente com o(a) atendente " . $objAtendimentoAtivo->nome_atend; }
 	// FIM Verifica antes se já não tem um Atendimento em Curso //

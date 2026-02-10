@@ -1,6 +1,6 @@
-<div class="window menor comprido" id="modalFinalizarAtendimento">
-    <div class="box-modal" style="padding: 20px; max-height: 80vh; overflow-y: auto;">
-        <form method="post" style="margin-top: 0;">
+<div class="window menor" id="modalFinalizarAtendimento">
+    <div class="box-modal">
+        <form method="post" style="margin-top: 15px;">
             <h2 class="title">Finalizar Atendimento</h2>
             <p>
                 Deseja realmente finalizar este atendimento?
@@ -9,25 +9,25 @@
                     Enviar mensagem de Finalização do Atendimento?
                 </span>
                 <br />
-                <span style="display: block; margin-top: 10px;">
+                <span>
                     <input class="uk-checkbox" type="checkbox" id="enviaMsgInatividade" name="enviaMsgInatividade" value="1" />
                     Enviar mensagem de Desconexão por Inatividade?
                 </span>
-                <span id="spanMsgInatividade" style="display: none; width: 100%; margin-top: 10px;">
-                    <textarea id="msgInatividade" name="msgInatividade" style="width: 100%; height: 80px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                <span id="spanMsgInatividade" style="display: none; width: 100%;">
+                    <textarea id="msgInatividade" name="msgInatividade" style="width: 100%; height: 100px;"></textarea>
                 </span>
                 <br />
-                <span style="display: block; margin-top: 10px;">
+                <span>
                     <input class="uk-checkbox" type="checkbox" id="VinculaObs" name="VinculaObs" value="1" />
                      Adicionar uma Observação, para ficar vinculada aos próximos chamados?
                 </span>
-                <span id="spanMsgObs" style="display: none; width: 100%; margin-top: 10px;">
-                    <textarea id="msgObs" name="msgObs" style="width: 100%; height: 80px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                <span id="spanMsgObs" style="display: none; width: 100%;">
+                    <textarea id="msgObs" name="msgObs" style="width: 100%; height: 100px;"></textarea>
                 </span>
                 <br />
-                <div class="uk-width-1-1@m" style="margin-top: 15px;">
-                    <div class="uk-form-label" style="margin-bottom: 8px;">Escolha a TAG</div>     
-                    <select class="js-example-basic-multiple pesqEtiquetas" name="id_etiqueta[]" multiple="multiple" id="id_etiqueta" style="width: 100%">
+                <div class="uk-width-1-1@m">
+                    <div class="uk-form-label">Escolha a TAG </div>     
+                    <select class="js-example-basic-multiple pesqEtiquetas" name="id_etiqueta[]" multiple="multiple" id="id_etiqueta" style="width:90%">
                         <?php
                     //Crio a lista de etiquetas e defino as cores a exibir
                         $query = mysqli_query($conexao, "SELECT * FROM tbetiquetas");                       
@@ -39,8 +39,8 @@
                     </div>
             </p>
         
-            <p class="uk-text-right" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
-                <button class="uk-button uk-button-default uk-modal-close fechar" type="button" style="margin-right: 10px;"> Cancelar</button>
+            <p class="uk-text-right">
+                <button class="uk-button uk-button-default uk-modal-close fechar" type="button"> Cancelar</button>
                 <input id="btnFinalizarAtendimento" class="uk-button uk-button-success fechar" type="button" value="Finalizar Atendimento">
             </p>
         </form>

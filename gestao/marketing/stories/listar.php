@@ -7,7 +7,8 @@
           <th>Imagem</th>
 		  <th>Repostar</th>
 		  <th>Postado</th>
-		  <th>Ações</th>
+		  <th>Último Post</th>
+          <th>Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -96,17 +97,39 @@
   $('.botaoAlterar').on('click', function (){
 		// Busco os dados do Produto Selecionado  
 		var IdStorie = $(this).parent().parent("tr").find('#IdStorie').val();
-		
-		$.get("marketing/stories/carregardados.php?codigo="+IdStorie, function(retorno){
-			var dados = $.parseJSON(retorno);
-			
-			$("#acao").val(1);
-			$("#id").val(dados.id);
-			$("#arquivo_carregado").html(dados.nome_arquivo);
-			$("#republicar").prop('checked', dados.renovar == 1 ? true : false);
-			$("#btnCancelar").css({"visibility" : "visible"});
-		});
-	});
-	// FIM Alteração do Registro //
+
+    $("#btnCancelar").css({"visibility" : "visible"});
+
+		// Alterando Displays //
+		$("#gravaStorie").css("display","block");
+
+
+		$.getJSON('marketing/stories/carregardados.php?codigo='+IdStorie, function(registro){
+	
+            $("#id").val(registro.id);
+
+			$("#respostaautomatica").trigger('blur');
+            
+            
+            if (registro.arquivo!=null && registro.arquivo!=""){
+                $("#arquivo_carregado").html("Arquivo:"+registro.nome_arquivo);
+                $("#arquivo_carregado").css({ 'color': 'red', 'font-size': '150%' });
+            } else {             
+                $("#arquivo_carregado").html("Não Existe um arquivo carregado");
+                $("#arquivo_carregado").css({ 'color': 'black', 'font-size': '150%' });
+            }
+            $("#foto").val('');
+            
+        });
+              
+        // Mudo a Ação para Alterar    
+		$("#acao").val("2");
+		$("#menu_resposta").focus();
+	});  
+
+
 });
   </script>
+
+ 
+

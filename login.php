@@ -15,10 +15,12 @@
       echo "Dados inválidos!";
     }
     else{
-      $stmt = mysqli_prepare($conexao, "SELECT * FROM tbusuario WHERE login = ?");
-      mysqli_stmt_bind_param($stmt, "s", $usuario);
-      mysqli_stmt_execute($stmt);
-      $validaLogin = mysqli_stmt_get_result($stmt);
+      $validaLogin = mysqli_query(
+        $conexao
+        , "SELECT *
+            FROM tbusuario 
+              WHERE login = '".$usuario."'"
+      );
   
       $arrUsuario = mysqli_fetch_assoc($validaLogin);
       

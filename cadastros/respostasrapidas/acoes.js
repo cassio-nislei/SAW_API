@@ -3,20 +3,20 @@ $(document).ready(function() {
     // Adicionar Novo Registro //
 		$('#btnNovaRespostaRapida').click(function(e){
 			e.preventDefault();
-			$("#gravarAgendamento")[0].reset();
-			$("#FormAgendamento").css("display","block");
-			$("#ListaAgendamento").css("display","none");
-			$("#acaoAgendamento").val("0");
+			$("#gravaRespostaRapida")[0].reset();
+			$("#FormRespostaRapida").css("display","block");
+			$("#ListaRespostasRapidas").css("display","none");
+			$("#acaoRespostaRapida").val("0");
 		});
 	// Adicionar Novo Registro //
 
     // Cadastro/Alteração de Usuário //
-	$('#btnGravarAgendamento').click(function(e){
+	$('#btnGravarRespostaRapida').click(function(e){
         e.preventDefault();
 	   
-        var mensagem1 = "<strong>Agendamento Cadastrada com sucesso!</strong>";
-        var mensagem2 = "<strong>Agendamento Atualizada com sucesso!</strong>";
-        var mensagem3 = 'Agendamento já cadastrada anteriormente!';
+        var mensagem1 = "<strong>Resposta Rápida Cadastrada com sucesso!</strong>";
+        var mensagem2 = "<strong>Resposta Rápida Atualizada com sucesso!</strong>";
+        var mensagem3 = 'Resposta Rápida já cadastrada anteriormente!';
         var mensagem9 = 'Falha ao Cadastrar/Atualizar o Registro!';
   
         $("input:text").css({"border-color" : "#999"});
@@ -43,13 +43,13 @@ $(document).ready(function() {
             return false;
         }
 	  
-	    $('#gravaAgendamento').ajaxForm({
+	    $('#gravaRespostaRapida').ajaxForm({
 		    resetForm: false, 			  
             beforeSend:function() { 
-                $("#btnAgendamento").attr('value', 'Salvando ...');
-                $('#btnAgendamento').attr('disabled', true);
-				$('#btnFecharCadastroAgendamento').attr('disabled', true);
-				$('#FormAgendamento').find('input, button').prop('disabled', true);
+                $("#btnGravarRespostaRapida").attr('value', 'Salvando ...');
+                $('#btnGravarRespostaRapida').attr('disabled', true);
+				$('#btnFecharCadastroRespostaRapida').attr('disabled', true);
+				$('#FormRespostaRapida').find('input, button').prop('disabled', true);
             },
             success: function( retorno ){
                 // Mensagem de Cadastro efetuado //
@@ -60,8 +60,9 @@ $(document).ready(function() {
                 else if (retorno == 3){ mostraDialogo(mensagem3, "danger", 2500); }
                 // Mensagem de Falha no Cadastro //
                 else{ mostraDialogo(mensagem9, "danger", 2500); }
+            //    alert(retorno);
 
-                $.ajax("cadastros/agendamento/listar.php").done(function(data) {
+                $.ajax("cadastros/respostasrapidas/listar.php").done(function(data) {
                     var lista = data.split("#@#");
                     $("#todaLista").html(lista[0]);
                     $("#minhaLista").html(lista[1]);
@@ -70,12 +71,12 @@ $(document).ready(function() {
                 });
             },		 
 		    complete:function() {
-                $("#btnGravarAgendamento").attr('value', 'Salvar');
-                $('#btnGravarAgendamento').attr('disabled', false);
-				$('#btnFecharCadastroAgendamento').attr('disabled', false);
-				$('#FormAgendamento').find('input, button').prop('disabled', false);
-				$("#ListAgendamento").css("display","block");
-				$("#FormAgendamento").css("display","none");
+                $("#btnGravarRespostaRapida").attr('value', 'Salvar');
+                $('#btnGravarRespostaRapida').attr('disabled', false);
+				$('#btnFecharCadastroRespostaRapida').attr('disabled', false);
+				$('#FormRespostaRapida').find('input, button').prop('disabled', false);
+				$("#ListaRespostasRapidas").css("display","block");
+				$("#FormRespostaRapida").css("display","none");
             },
             error: function (retorno) { mostraDialogo(mensagem5, "danger", 2500); }
 	    }).submit();

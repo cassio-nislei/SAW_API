@@ -34,10 +34,11 @@
 		ORDER BY dt_atend, hr_atend;"
 	);
 
-
+  /* Removi a exibição da mensagem porque na tela agora tem o contador
 	if (!$qryTriagem || mysqli_num_rows($qryTriagem)==0){
-		echo "<font size=\"2\" color=\"#CCC\"><b>&nbsp;&nbsp;&nbsp;&nbsp;Nenhum atendimento para Triagem</b></font>";
+		// echo "<font size=\"2\" color=\"#CCC\"><b>&nbsp;&nbsp;&nbsp;&nbsp;Nenhum atendimento para Triagem</b></font>";
 	}
+	*/
 
 
 	// Aqui faz a listagem dos Atendimentos Pendentes //
@@ -55,7 +56,8 @@
 		$not = mysqli_fetch_array($qtdNovas);
 
 		if ($not["qtd_novas"] > 0){									 
-			$notificacoes = $not["qtd_novas"];
+			//$notificacoes = $not["qtd_novas"];
+			$notificacoes = '<span class="OUeyt messages-count-new">'.$not["qtd_novas"].'</span>';
 
 			// Dispara o Alerta Sonoro - Se definido no Painel de Configurações //
 			if( $_SESSION["parametros"]["alerta_sonoro"] ){

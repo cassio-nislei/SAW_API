@@ -1,6 +1,9 @@
 <?php
-session_start();
-$arquivoexcluido = $_POST["file"];   
+//session_start();
+require_once("../../includes/padrao.inc.php");
+$arquivoexcluido = $_POST["file"];
+$id = $_POST["id"];   
+
 
 if (isset($_SESSION["anexos"])){ 
   foreach($_SESSION["anexos"] as $value){
@@ -15,6 +18,16 @@ if (isset($_SESSION["anexos"])){
 	}
 	}
   }
+  if (file_exists('arquivos/'.$arquivoexcluido)){
+	unlink('arquivos/'.$arquivoexcluido);
+  }
+
+  $excluir = mysqli_query(
+	$conexao,
+	"DELETE FROM base_conhecimento_anexos WHERE id = '".$id."'"
+) or die("Erro BCA: " . mysqli_error($conexao));
+
+ 
 
 //$_SESSION["anexos"] = $newArr;	  
 //print_r($_SESSION["anexos"]);

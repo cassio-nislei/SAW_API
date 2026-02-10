@@ -139,6 +139,20 @@ if($interval->format('%i%h%d%m%y')=="00000")
                 Gerenciamento
             </div>
 
+            <!-- Nav Item - Gerenciar Collapse Menu -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseGerenciar"
+                    aria-expanded="true" aria-controls="collapseGerenciar">
+                    <i class="fas fa-fw fa-tasks"></i>
+                    <span>Gerenciar</span>
+                </a>
+                <div id="collapseGerenciar" class="collapse" aria-labelledby="headingGerenciar"
+                    data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">      
+                        <a class="collapse-item" href="?pg=Kanban">Kanban</a>  
+                    </div>
+                </div>
+            </li>
 
             <!-- Nav Item - Utilities Collapse Menu -->
             <li class="nav-item">
@@ -157,7 +171,10 @@ if($interval->format('%i%h%d%m%y')=="00000")
                         <a class="collapse-item" href="?pg=Respostas_automaticas">Respostas Automáticas</a> 
                         <a class="collapse-item" href="?pg=Agendamentos">Mensagens Agendadas</a>  
                         <a class="collapse-item" href="?pg=Horarios">Horários de Atendimentos</a>  
-                        <a class="collapse-item" href="?pg=Usuarios">Usuários</a>  
+                        <a class="collapse-item" href="?pg=Usuarios">Usuários</a>
+                        <a class="collapse-item" href="?pg=Contatos">Contatos</a>
+                        <a class="collapse-item" href="?pg=Etiquetas">Etiquetas</a>
+                        <a class="collapse-item" href="?pg=RespostasRapidas">Respostas Rápidas</a>  
                     </div>
                 </div>
             </li>
@@ -184,7 +201,35 @@ if($interval->format('%i%h%d%m%y')=="00000")
                 </a>
                 <div id="collapseMarketing" class="collapse" aria-labelledby="headingMarketing" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">   
-                       <a class="collapse-item" href="?pg=Stories">Stories</a>                        
+                       <a class="collapse-item" href="?pg=Stories">Stories</a>
+                       <a class="collapse-item" href="?pg=EnvioemMassa">Envio em massa</a>                        
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseConhecimento"
+                    aria-expanded="true" aria-controls="collapseConhecimento">
+                    <i class="fas fa-fw fa-book"></i>
+                    <span>Conhecimento</span>
+                </a>
+                <div id="collapseConhecimento" class="collapse" aria-labelledby="headingConhecimento" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">   
+                       <a class="collapse-item" href="?pg=BaseConhecimento">Base de Conhecimento</a>                        
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseChat"
+                    aria-expanded="true" aria-controls="collapseChat">
+                    <i class="fas fa-fw fa-comments"></i>
+                    <span>Chat</span>
+                </a>
+                <div id="collapseChat" class="collapse" aria-labelledby="headingChat" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">   
+                       <a class="collapse-item" href="?pg=ChatSite">Chat Site</a>
+                       <a class="collapse-item" href="?pg=WebChat">Web Chat</a>                        
                     </div>
                 </div>
             </li>
@@ -353,6 +398,8 @@ if($interval->format('%i%h%d%m%y')=="00000")
 					if (isset($_GET["pg"])){
                         
 						switch ($_GET["pg"]){
+                            case 'Kanban'                       : $incluir = 'kanban/index.php'; break;
+                            
                             case 'Menu'                         : $incluir = 'cadastros/menu/index.php'; break;
                             case 'Departamentos'                : $incluir = 'cadastros/departamentos/index.php'; break;
                             case 'Telefones'                    : $incluir = 'cadastros/telefoneaviso/index.php'; break;
@@ -362,12 +409,19 @@ if($interval->format('%i%h%d%m%y')=="00000")
                             case 'Usuarios'                     : $incluir = 'cadastros/usuarios/index.php'; break;	
                             case 'Config'                       : $incluir = 'cadastros/configuracoes/index.php'; break;
                             case 'Perfil'                       : $incluir = 'cadastros/perfil/index.php'; break;
-                            
+                            case 'Contatos'                     : $incluir = 'cadastros/contatos/index.php'; break;
+                            case 'Etiquetas'                    : $incluir = 'cadastros/etiquetas/index.php'; break;
+                            case 'RespostasRapidas'             : $incluir = 'cadastros/respostasrapidas/index.php'; break;
 
                             case 'RelAtendimentos'              : $incluir = 'relatorios/atendimentos/index.php'; break;
                             case 'RelClassificacaoMedia'        : $incluir = 'relatorios/classificacao_media/index.php'; break;
                             
                             case 'Stories'                      : $incluir = 'marketing/stories/index.php'; break;
+                            case 'EnvioemMassa'                 : $incluir = 'marketing/envios_massa/index.php'; break;
+                            
+                            case 'BaseConhecimento'             : $incluir = '../modulos/baseconhecimento/index.php'; break;
+                            case 'ChatSite'                     : $incluir = '../modulos/chatsite/index.php'; break;
+                            case 'WebChat'                      : $incluir = '../webchat/index.php'; break;
 							default : $incluir = "dashboard/index.php"; break;
 						}
 						include($incluir);

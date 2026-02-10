@@ -108,8 +108,8 @@ else{ $strMensagem  = ''; }
 
 // Antes a mensagem estava fixa agora adicionei a mensagem do Parametro
 if( trim($strMensagem) !== "" ){
-	$sqlInsert = "INSERT INTO tbmsgatendimento(id,seq,numero,msg,nome_chat,situacao,dt_msg,hr_msg,id_atend,canal,chatid)
-					VALUES('".$s_id_atendimento."','".$newSequence."','".$s_celular_atendimento."',(CONCAT_WS(REPLACE('\\\ n', ' ', ''), ".$strMensagem."),'".$s_nome."','E',CURDATE(),CURTIME(),'".$id_atend."','".$idCanal."', '".uniqid()."')";
+	$sqlInsert = "INSERT INTO tbmsgatendimento(id,seq,numero,msg,nome_chat,situacao,dt_msg,hr_msg,id_atend,canal)
+					VALUES('".$s_id_atendimento."','".$newSequence."','".$s_celular_atendimento."',(CONCAT_WS(REPLACE('\\\ n', ' ', ''), ".$strMensagem."),'".$s_nome."','E',CURDATE(),CURTIME(),'".$id_atend."','".$idCanal."')";
 	$qryaux = mysqli_query($conexao, $sqlInsert)
 		or die($sqlInsert ."<br/>".mysqli_error($conexao));
 }
@@ -124,10 +124,11 @@ if( trim($strMensagem) !== "" ){
    $qryaux = mysqli_query($conexao, $sqlUpdate)
    or die($sqlUpdate ."<br/>".mysqli_error($conexao));
 
-   //Busco o Numero de protocolo do Atendimento anterior para manter o mesmo
-   	$qryprotocolo = mysqli_query($conexao, "select  protocolo from tbatendimento WHERE id = '$s_id_atendimento' AND numero = '$s_celular_atendimento' AND canal = '$idCanal'");
+   //Busco o Numero de protocolo do Atendimento anterior para manter o mesmo e o Lid
+   	$qryprotocolo = mysqli_query($conexao, "select  protocolo, Lid from tbatendimento WHERE id = '$s_id_atendimento' AND numero = '$s_celular_atendimento' AND canal = '$idCanal'");
 	$objprotocolo = mysqli_fetch_object($qryprotocolo);
 	$protocolo = $objprotocolo->protocolo;
+	$Lid = $objprotocolo->Lid;
 
 // Gera um novo atendimento pendente de Atendimento no departamento selecionado
 $qryaux = mysqli_query(
@@ -156,8 +157,8 @@ if( $id_usuario == 0 ){ $atendimento = 'P'; }
 else{ $atendimento = 'A'; }
 
 
-$sqlInsertTbAtendimento = "INSERT INTO tbatendimento(id, situacao,numero,dt_atend,hr_atend,id_atend,nome,setor,canal,protocolo)
-							VALUES('$newId','$atendimento','$s_celular_atendimento',CURDATE(),CURTIME(),'$id_usuario','$s_nome','$id_departamento','$idCanal', '$protocolo')";
+$sqlInsertTbAtendimento = "INSERT INTO tbatendimento(id, situacao,numero,dt_atend,hr_atend,id_atend,nome,setor,canal,protocolo, Lid)
+							VALUES('$newId','$atendimento','$s_celular_atendimento',CURDATE(),CURTIME(),'$id_usuario','$s_nome','$id_departamento','$idCanal', '$protocolo', '$Lid')";
   $qryaux = mysqli_query($conexao, $sqlInsertTbAtendimento)
   or die($sqlInsertTbAtendimento ."<br/>".mysqli_error($conexao));
 
@@ -192,8 +193,8 @@ if ($_POST["paramim"]=='S'){
 		//Faz o Insert da Mensagem
 		$qryaux = mysqli_query(
 			$conexao
-			, "INSERT INTO tbmsgatendimento(id, seq, numero, msg, nome_chat, situacao, dt_msg, hr_msg, id_atend, canal, chatid)
-				VALUES('".$newId."', '".$newSequence."', '".$s_celular_atendimento."', '".$strMensagem."', '".$nome_atend."', 'E', NOW(), CURTIME(), '".$id_atend."', '".$idCanal."', '".uniqid()."')"
+			, "INSERT INTO tbmsgatendimento(id, seq, numero, msg, nome_chat, situacao, dt_msg, hr_msg, id_atend, canal)
+				VALUES('".$newId."', '".$newSequence."', '".$s_celular_atendimento."', '".$strMensagem."', '".$nome_atend."', 'E', NOW(), CURTIME(), '".$id_atend."', '".$idCanal."')"
 		);
 	}
 

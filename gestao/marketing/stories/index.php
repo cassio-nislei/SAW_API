@@ -81,12 +81,12 @@ $( document ).ready(function() {
 	$('#btnGravar').click(function(e){
 		e.preventDefault();	
 
-		var mensagem  = "<strong>Storie Cadastrado com sucesso!</strong>";
+		var mensagem  = "<strong>Resposta Automatica Cadastrada com sucesso!</strong>";
         var mensagem2 = 'Falha ao Efetuar Cadastro!';
-        var mensagem3 = 'Storie Já Cadastrado!';
-        var mensagem4 = 'Storie Atualizado com Sucesso!';
+        var mensagem3 = 'Resposta Automática Já Cadastrado!';
+        var mensagem4 = 'Resposta Automática Atualizada com Sucesso!';
         var mensagem5 = 'Já existe um departamento vinculado ao Item de Menu Selecionado!';
-        var mensagem6 = 'Existe um storie vinculado ao Item de Menu Selecionado!';
+        var mensagem6 = 'Existe uma resposta Automática vinculada ao Item de Menu Selecionado!';
   
         $("input:text").css({"border-color" : "#999"});
         $(".msgValida").css({"display" : "none"});
@@ -108,7 +108,7 @@ $( document ).ready(function() {
 					mostraDialogo(mensagem4, "success", 2500); 
 					$("#btnCancelar").click();
 				}
-                // Storie já existe //
+                // Departamento já existe //
                 else if (retorno == 3){ 
 					mostraDialogo(mensagem3, "danger", 2500);			
 				}
@@ -116,7 +116,7 @@ $( document ).ready(function() {
                 else if (retorno == 4){ 
 					mostraDialogo(mensagem5, "danger", 2500);					
 				 }
-                // Já existe um storie Cadastrado para o Item de Menu selecionado //
+                // Já existe uma resposta automática Cadastrada para o Item de Menu selecionado //
                 else if (retorno == 5){ 
 					mostraDialogo(mensagem6, "danger", 2500); 				
 				}
@@ -128,7 +128,7 @@ $( document ).ready(function() {
                 });
             },		 
 		    complete:function() {
-                $("#btnGravar").attr('value', 'Gravar');
+                $("#btnGravar").attr('value', 'Salvar');
 				$('#FormStorie').find('input, button').prop('disabled', false);
             },
             error: function (retorno) { mostraDialogo(mensagem5, "danger", 2500); }

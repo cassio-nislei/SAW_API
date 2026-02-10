@@ -2,6 +2,10 @@
   require_once("../../includes/padrao.inc.php");
 
   $id = $_POST['id'];
+  //Apago o anexo vinculado
+  $anexo = mysqli_query($conexao, "select arquivo from tbrespostasrapidas where id = '$id'");
+  $anexoSelecionado = mysqli_fetch_assoc($anexo);
+  unlink($anexoSelecionado["arquivo"]);
   $sql = "DELETE FROM tbrespostasrapidas WHERE id = '".$id."'";
 	$excluir = mysqli_query($conexao,$sql);
    

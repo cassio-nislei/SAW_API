@@ -1,3 +1,5 @@
+<span id="msgContatos"></span>
+
 <?php
 	// Quando vier pela Pesquisa, passa por aqui //
 	if( !isset($conexao) ){
@@ -23,40 +25,38 @@
 			$tipo_pesquisa = 0;
 		}
 
-		if ($pesquisa == "") {
-    $pesquisa = "%";
-}
+		if ($pesquisa==""){
+			$pesquisa=="%";
+		}
 
-$Consulta = "SELECT tbc.*, tbe.cor, tbe.descricao as etiqueta  
-             FROM tbcontatos tbc 
-             LEFT JOIN tbetiquetascontatos tec ON tec.numero = tbc.numero
-             LEFT JOIN tbetiquetas tbe ON tbe.id = tec.id_etiqueta ";
 
-if ($tipo_pesquisa == 1) { // TELEFONE
-    $Consulta .= " WHERE tbc.numero LIKE '%$pesquisa%' ";
-    if ($etiqueta != '0') {
-        $Consulta .= " AND tbe.cor = '$etiqueta' ";
-    }
-    $Consulta .= " GROUP BY tbc.numero, tbe.cor, tbe.descricao ";
-}
-else if ($tipo_pesquisa == 2) { // CPF/CNPJ
-    $Consulta .= " WHERE cpf_cnpj LIKE '%$pesquisa%' ";
-    if ($etiqueta != '0') {
-        $Consulta .= " AND tbe.cor = '$etiqueta' ";
-    }
-    $Consulta .= " GROUP BY tbc.numero, tbe.cor, tbe.descricao ";
-}
-else { // NOME
-    $Consulta .= " WHERE UPPER(nome) LIKE UPPER('%$pesquisa%') ";
-    if ($etiqueta != '0') {
-        $Consulta .= " AND tbe.cor = '$etiqueta' ";
-    }
-    $Consulta .= " GROUP BY tbc.numero, tbe.cor, tbe.descricao ";
-    $Consulta .= " ORDER BY POSITION(UPPER('$pesquisa') IN UPPER(nome)), UPPER(nome) ";
-}
-
-$Consulta .= " LIMIT 30";
-
+        $Consulta = "SELECT tbc.*, tbe.cor, tbe.descricao as etiqueta  FROM tbcontatos tbc 
+			   left join tbetiquetascontatos tec on tec.numero = tbc.numero
+               left join tbetiquetas tbe on tbe.id = tec.id_etiqueta ";
+			   if ($tipo_pesquisa==1){	//Pesquisa por Telefone		
+		      	   $Consulta = $Consulta ." WHERE (tbc.numero LIKE '%".$pesquisa."%')";
+				   if ($etiqueta != '0'){
+					$Consulta = $Consulta ." AND  tbe.cor = '$etiqueta'";  
+				   }
+				   $Consulta = $Consulta . "group by tbc.numero ";
+				}else if ($tipo_pesquisa==2){ //CPF ou CNPJ
+				  $Consulta = $Consulta ." WHERE (cpf_cnpj LIKE '%".$pesquisa."%')";
+				  if ($etiqueta != '0'){
+					$Consulta = $Consulta ." AND  tbe.cor = '$etiqueta'";  
+				   }
+				   $Consulta = $Consulta . "group by tbc.numero ";
+				}else if ($tipo_pesquisa==2){ //CPF ou CNPJ
+				}else{ //Aqui a Consulta por nome
+					$Consulta = $Consulta ." WHERE (upper(nome) LIKE upper('%".$pesquisa."%')) ";
+					if ($etiqueta != '0'){
+						$Consulta = $Consulta ." AND  tbe.cor = '$etiqueta'";  
+					   }
+					$Consulta = $Consulta . "group by tbc.numero ";
+					$Consulta = $Consulta . "  ORDER BY POSITION(upper('$pesquisa') IN upper(nome) ), upper(nome)";
+				}
+				
+				
+				$Consulta = $Consulta . "LIMIT 30";
 		
 		//	echo $Consulta;
 
@@ -154,7 +154,7 @@ $Consulta .= " LIMIT 30";
 			</div>';
 	}
 ?>
-<span id="msgContatos"></span>
+
 <script type='text/javascript' src="cadastros/contatos/contatosList.js"></script>
 <script>
 	$(document).ready(function(){

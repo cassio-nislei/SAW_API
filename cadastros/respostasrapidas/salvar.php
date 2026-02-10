@@ -6,6 +6,18 @@
 	$titulo	= $_POST['titulo'];
 	$resposta = $_POST['resposta'];
 
+	$arqData="";
+
+	if(isset($_FILES['foto'])){
+		$Nome_Arquivo   = $_FILES['foto']['name'];
+		$file_tmp            = $_FILES['foto']['tmp_name'];
+		$extensao = pathinfo($Nome_Arquivo, PATHINFO_EXTENSION);
+		$caminhoArquivo = 'anexos/'.md5(uniqid()) . '-' . time() . '.'.$extensao;
+		
+	      move_uploaded_file($file_tmp,$caminhoArquivo);	
+	}
+
+
 	if( $acao == 0 ){
 		// Verifico se já existe uma registro com o mesmo 'Título'
 		$existe = mysqli_query(
@@ -16,7 +28,7 @@
 		);
 		
 		if( mysqli_num_rows($existe) == 0 ){
-			$sql = "INSERT INTO tbrespostasrapidas (id_usuario, titulo, resposta) VALUES (NULL, '".$titulo."', '".$resposta."')";
+			$sql = "INSERT INTO tbrespostasrapidas (id_usuario, titulo, resposta, arquivo, nome_arquivo) VALUES (NULL, '".$titulo."', '".$resposta."', '$caminhoArquivo', '$Nome_Arquivo')";
 
 			// Substituindo o Id do Usuário ///
 			if( intval($idUser) > 0 ){ $sql = str_replace("NULL", "'".$idUser."'", $sql); }
@@ -30,9 +42,19 @@
 		else{ echo "3"; }
 	}
 	else{
-		$sql = "UPDATE tbrespostasrapidas 
+		if ($arqData!="") {
+			$sql = "UPDATE tbrespostasrapidas 
+					SET resposta = '$resposta'
+						, titulo = '$titulo'
+						, arquivo = '$caminhoArquivo'
+						, nome_arquivo = '$Nome_Arquivo'
+						 WHERE id = '".$id."'";			
+		} else {
+			$sql = "UPDATE tbrespostasrapidas 
 					SET resposta = '".$resposta."'
 						, titulo = '".$titulo."' WHERE id = '".$id."'";
+		}
+		
 		$atualizar = mysqli_query($conexao, $sql)
 			or die($sql . "<br/>" . mysqli_error($conexao));
 

@@ -27,17 +27,19 @@
 							LEFT JOIN tbcontatos tc ON taa.numero = tc.numero
 							/*LEFT JOIN tbfotoperfil tfp ON(tfp.numero = taa.numero)*/
 							LEFT JOIN tbetiquetas tbe on tbe.id = tc.idetiqueta
-								WHERE ta.situacao = 'A' {$permissaoAdmin}
+								WHERE ta.situacao = 'A' ${permissaoAdmin}
 								$filtroDepartamento
 									ORDER BY ordem DESC";
 	$qryAtendimento = mysqli_query(
 		$conexao
 		, $strAtendimento
 	);
-							
+	
+	/* Removi a exibição da mensagem porque na tela agora tem o contador
 	if( @mysqli_num_rows($qryAtendimento) == 0 ){
 		echo "<font size=\"2\" color=\"#CCC\"><b>&nbsp;&nbsp;&nbsp;&nbsp;Nenhum atendimento iniciado</b></font>";
 	}
+	*/
 
 	// Aqui faz a listagem dos Atendimentos Pendentes //
 	while( $registros = mysqli_fetch_object($qryAtendimento) ){
