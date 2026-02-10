@@ -43,30 +43,29 @@
 					$Consulta = $Consulta ." AND  tbe.cor = '$etiqueta'";  
 				   }
 				   $Consulta = $Consulta . "group by tbc.numero ";
-				}else if ($tipo_pesquisa==2){ //CPF ou CNPJ
-				}else{ //Aqui a Consulta por nome
-					$Consulta = $Consulta ." WHERE (upper(nome) LIKE upper('%".$pesquisa."%')) ";
-?>
-<span id="msgContatos"></span>
-					if ($etiqueta != '0'){
-						$Consulta = $Consulta ." AND  tbe.cor = '$etiqueta'";  
-					   }
-					$Consulta = $Consulta . "group by tbc.numero ";
-					$Consulta = $Consulta . "  ORDER BY POSITION(upper('$pesquisa') IN upper(nome) ), upper(nome)";
-				}
-				
-				
-				$Consulta = $Consulta . "LIMIT 30";
-		
-		//	echo $Consulta;
+			}else{ //Aqui a Consulta por nome
+				$Consulta = $Consulta ." WHERE (upper(nome) LIKE upper('%".$pesquisa."%')) ";
+				if ($etiqueta != '0'){
+					$Consulta = $Consulta ." AND  tbe.cor = '$etiqueta'";  
+				   }
+				$Consulta = $Consulta . "group by tbc.numero ";
+				$Consulta = $Consulta . "  ORDER BY POSITION(upper('$pesquisa') IN upper(nome) ), upper(nome)";
+			}
+			
+			
+			$Consulta = $Consulta . "LIMIT 30";
+	
+	//	echo $Consulta;
 
-		$qryContatos = mysqli_query($conexao, $Consulta	);
+	$qryContatos = mysqli_query($conexao, $Consulta);
 
 
 	
 
 	$qtdeContatos = mysqli_num_rows($qryContatos);
-							
+						
+	echo '<span id="msgContatos"></span>';
+	
 	if( $qtdeContatos == 0 ){
 		echo "<font size=\"2\" color=\"#CCC\"><b>&nbsp;&nbsp;&nbsp;&nbsp;Nenhum contato encontrado</b></font>";
 	}
