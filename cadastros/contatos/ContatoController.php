@@ -1,5 +1,5 @@
 <?php 
-    require_once("../../includes/padrao.inc.php");
+    require_once("../includes/padrao.inc.php");
 
     // Declaração de Variáveis //
         $_method = (isset($_POST) && !empty($_POST)) ? "_Post" : "_Get";
