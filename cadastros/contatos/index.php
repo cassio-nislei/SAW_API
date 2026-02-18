@@ -99,6 +99,17 @@
     </p>
 </div>
 
+<!-- BLOQUEIO IMEDIATO DO JQUERY.FORM.JS -->
+<script>
+// Bloquear jquery.form.js ANTES dele interceptar o formulário
+if (typeof $.fn.ajaxForm !== 'undefined') {
+  // Se jquery.form.js já carregou, desabilitar ele
+  console.log("jquery.form.js detectado - bloqueando...");
+  $.fn.ajaxForm = function() { return this; };
+  $.fn.ajaxSubmit = function() { return this; };
+}
+</script>
+
 
 <script>
 $(document).ready(function() {
