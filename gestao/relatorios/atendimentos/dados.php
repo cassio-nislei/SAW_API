@@ -26,29 +26,13 @@
   }else{
 	$etiquetas_selecionadas = '0';
   }
-
-
-   //Verifico se possui etiquetas para filtrar
- if(isset($_POST['id_atendente'])){
-	$etiquetas = $_POST['id_atendente'];
-
-	//Mnto uma string separada por virgula
-	$atendentes_selecionados = '';
-	foreach ($atendentes as $atendente) {
-		$atendentes_selecionados .= $etiqueta . ','; 
-	}
-	$atendentes_selecionads = substr($atendentes_selecionados, 0, strlen($atendentes_selecionados) - 1);
-  }else{
-	$atendentes_selecionados = '0';
-  }
-
  $situacao = $_POST["situacao"];
  $numero = $_POST["celular"];
  $protocolo = $_POST["protocolo"];
 
  //echo "De: $de Ate: $ate Etiqueta: $etiquetas_selecionadas Situacao: $situacao Numero: $numero protocolo:  ";
   
- $relatorio = mysqli_query($conexao, "CALL sprRelatorioAtendimentos('$de','$ate', '$situacao', '$etiquetas_selecionadas', '$numero', '$protocolo', '$atendentes_selecionados'  );");
+ $relatorio = mysqli_query($conexao, "CALL sprRelatorioAtendimentos('$de','$ate', '$situacao', '$etiquetas_selecionadas', '$numero', '$protocolo' );");
  //$relatorio = mysqli_query($conexao, "CALL sprRelatorioAtendimentos('2023-05-04', '2023-05-04', '0', '0','','' );");
 ?>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />

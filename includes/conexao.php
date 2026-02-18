@@ -1,4 +1,4 @@
-﻿<?php
+<?php
   $usuarioBD = getenv('DB_USER') ?: 'root';
   $senhaBD   = getenv('DB_PASS') ?: 'Ncm@647534';
   $servidorBD= getenv('DB_HOST') ?: '104.234.173.105';
@@ -9,4 +9,3 @@
   
   // Define timezone do MySQL para Brasília (sincroniza com PHP)
   mysqli_query($conexao, "SET time_zone = 'America/Sao_Paulo'");
-?>

@@ -1,6 +1,6 @@
-<?php require_once("../../includes/padrao.inc.php"); ?>
-
-
+<?php 
+// Este arquivo é incluído de gestao/index.php que já carrega padrao.inc.php
+?>
 
 <style>
 /* HIDE RADIO */

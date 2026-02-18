@@ -24,7 +24,7 @@ function qtdLinhas($query){
     global $conexao;
     $query = mysqli_query($conexao, $query);
     return !$query || mysqli_num_rows($query);
-    mysqli_close($conexao);
+    mysqli_close($link);
 }
 function RetornaTempo($date){
   
@@ -121,7 +121,7 @@ if($interval->format('%i%h%d%m%y')=="00000")
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
                 <div class="sidebar-brand-icon">
-                    <img src="imgs/net-solutions-logo.png" width="48">
+                    <img src="imgs/logo.png" width="48">
                 </div>
                 <div class="sidebar-brand-text mx-3">Início</div>
             </a>
@@ -139,6 +139,20 @@ if($interval->format('%i%h%d%m%y')=="00000")
                 Gerenciamento
             </div>
 
+            <!-- Nav Item - Gerenciar Collapse Menu -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseGerenciar"
+                    aria-expanded="true" aria-controls="collapseGerenciar">
+                    <i class="fas fa-fw fa-tasks"></i>
+                    <span>Gerenciar</span>
+                </a>
+                <div id="collapseGerenciar" class="collapse" aria-labelledby="headingGerenciar"
+                    data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">      
+                        <a class="collapse-item" href="?pg=Kanban">Kanban</a>  
+                    </div>
+                </div>
+            </li>
 
             <!-- Nav Item - Utilities Collapse Menu -->
             <li class="nav-item">
@@ -152,25 +166,15 @@ if($interval->format('%i%h%d%m%y')=="00000")
                     <div class="bg-white py-2 collapse-inner rounded">      
                         <a class="collapse-item" href="?pg=Menu">Menus</a>  
                         <a class="collapse-item" href="?pg=Departamentos">Departamentos</a>
-                        <a class="collapse-item" href="?pg=Telefones">Telefones Notificações</a>        
-                        <a class="collapse-item" href="?pg=Respostas_automaticas">Respostas Automáticas</a>  
+                        <a class="collapse-item" href="?pg=Telefones">Telefones Notificações</a> 
+                        <a class="collapse-item" href="?pg=Telefones">Notificações Agendadas</a>       
+                        <a class="collapse-item" href="?pg=Respostas_automaticas">Respostas Automáticas</a> 
+                        <a class="collapse-item" href="?pg=Agendamentos">Mensagens Agendadas</a>  
                         <a class="collapse-item" href="?pg=Horarios">Horários de Atendimentos</a>  
-                        <a class="collapse-item" href="?pg=Usuarios">Usuários</a>  
-                    </div>
-                </div>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMKT"
-                    aria-expanded="true" aria-controls="collapseMKT">
-                    <i class="fas fa-fw fa-cog"></i>
-                    <span>Marketing</span>
-                </a>
-                <div id="collapseMKT" class="collapse" aria-labelledby="headingMKT" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">   
-                       <a class="collapse-item" href="?pg=Stories">Status</a> 
-                       <a class="collapse-item" href="?pg=ListaTransmissao">Listas de Transmissão</a>      
-                       <a class="collapse-item" href="?pg=EnvioemMassa">Envio em massa</a>                     
+                        <a class="collapse-item" href="?pg=Usuarios">Usuários</a>
+                        <a class="collapse-item" href="?pg=Contatos">Contatos</a>
+                        <a class="collapse-item" href="?pg=Etiquetas">Etiquetas</a>
+                        <a class="collapse-item" href="?pg=RespostasRapidas">Respostas Rápidas</a>  
                     </div>
                 </div>
             </li>
@@ -183,8 +187,49 @@ if($interval->format('%i%h%d%m%y')=="00000")
                 </a>
                 <div id="collapseOutros" class="collapse" aria-labelledby="headingOutros" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">   
-                       <a class="collapse-item" href="?pg=RelAtendimentos">Atendimentos</a> 
-                       <a class="collapse-item" href="?pg=RelClassificacaoMedia">Classificação Média</a>                          
+                       <a class="collapse-item" href="?pg=RelAtendimentos">Atendimentos</a>
+                       <a class="collapse-item" href="?pg=RelClassificacaoMedia">Classificação Média</a>                        
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMarketing"
+                    aria-expanded="true" aria-controls="collapseMarketing">
+                    <i class="fas fa-fw fa-share-alt"></i>
+                    <span>Marketing</span>
+                </a>
+                <div id="collapseMarketing" class="collapse" aria-labelledby="headingMarketing" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">   
+                       <a class="collapse-item" href="?pg=Stories">Stories</a>
+                       <a class="collapse-item" href="?pg=EnvioemMassa">Envio em massa</a>                        
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseConhecimento"
+                    aria-expanded="true" aria-controls="collapseConhecimento">
+                    <i class="fas fa-fw fa-book"></i>
+                    <span>Conhecimento</span>
+                </a>
+                <div id="collapseConhecimento" class="collapse" aria-labelledby="headingConhecimento" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">   
+                       <a class="collapse-item" href="?pg=BaseConhecimento">Base de Conhecimento</a>                        
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseChat"
+                    aria-expanded="true" aria-controls="collapseChat">
+                    <i class="fas fa-fw fa-comments"></i>
+                    <span>Chat</span>
+                </a>
+                <div id="collapseChat" class="collapse" aria-labelledby="headingChat" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">   
+                       <a class="collapse-item" href="?pg=ChatSite">Chat Site</a>
+                       <a class="collapse-item" href="?pg=WebChat">Web Chat</a>                        
                     </div>
                 </div>
             </li>
@@ -201,8 +246,8 @@ if($interval->format('%i%h%d%m%y')=="00000")
             <!-- Sidebar Message -->
             <div class="sidebar-card">
                 <img class="sidebar-card-illustration mb-2" src="imgs/undraw_rocket.svg" alt="">
-                <p class="text-center mb-2"><strong>Net Solutions</strong> nós criamos as ferramentas para você crescer!</p>
-                <a class="btn btn-success btn-sm" href="https://www.sistemasnetsolutions.com.br">Acesse nosso site!</a>
+                <p class="text-center mb-2"><strong>BSSI Tech Info</strong> nós criamos as ferramentas para você crescer!</p>
+                <a class="btn btn-success btn-sm" href="https://www.bitstreamsi.com.br">Acesse nosso site!</a>
             </div>
 
         </ul>
@@ -353,24 +398,32 @@ if($interval->format('%i%h%d%m%y')=="00000")
 					if (isset($_GET["pg"])){
                         
 						switch ($_GET["pg"]){
+                            case 'Kanban'                       : $incluir = 'kanban/index.php'; break;
+                            
                             case 'Menu'                         : $incluir = 'cadastros/menu/index.php'; break;
                             case 'Departamentos'                : $incluir = 'cadastros/departamentos/index.php'; break;
                             case 'Telefones'                    : $incluir = 'cadastros/telefoneaviso/index.php'; break;
                             case 'Respostas_automaticas'        : $incluir = 'cadastros/respostasautomaticas/index.php'; break;
+                            case 'ListaTransmissao'             : $incluir = 'cadastros/lista_transmissao/index.php'; break;
+                            case 'Agendamentos'                 : $incluir = 'cadastros/agendamentos/index.php'; break;
                             case 'Horarios'                     : $incluir = 'cadastros/horarios/index.php'; break;
                             case 'Usuarios'                     : $incluir = 'cadastros/usuarios/index.php'; break;	
                             case 'Config'                       : $incluir = 'cadastros/configuracoes/index.php'; break;
                             case 'Perfil'                       : $incluir = 'cadastros/perfil/index.php'; break;
+                            case 'Contatos'                     : $incluir = '../cadastros/contatos/index.php'; break;
+                            case 'Etiquetas'                    : $incluir = '../cadastros/etiquetas/index.php'; break;
+                            case 'RespostasRapidas'             : $incluir = '../cadastros/respostasrapidas/index.php'; break;
 
-                            case 'Stories'                      : $incluir = 'marketing/stories/index.php'; break;
-                            case 'ListaTransmissao'             : $incluir = 'cadastros/lista_transmissao/index.php'; break;
-                            case 'EnvioemMassa'                 : $incluir = 'marketing/envios_massa/index.php'; break;
-                            case 'RelClassificacaoMedia'        : $incluir = 'relatorios/classificacao_media/index.php'; break;
-                            
                             case 'RelAtendimentos'              : $incluir = 'relatorios/atendimentos/index.php'; break;
                             case 'RelClassificacaoMedia'        : $incluir = 'relatorios/classificacao_media/index.php'; break;
-							
-                            default : $incluir = "dashboard/index.php"; break;
+                            
+                            case 'Stories'                      : $incluir = 'marketing/stories/index.php'; break;
+                            case 'EnvioemMassa'                 : $incluir = 'marketing/envios_massa/index.php'; break;
+                            
+                            case 'BaseConhecimento'             : $incluir = '../modulos/baseconhecimento/index.php'; break;
+                            case 'ChatSite'                     : $incluir = '../modulos/chatsite/index.php'; break;
+                            case 'WebChat'                      : $incluir = '../webchat/index.php'; break;
+							default : $incluir = "dashboard/index.php"; break;
 						}
 						include($incluir);
 					}else{
@@ -391,7 +444,7 @@ if($interval->format('%i%h%d%m%y')=="00000")
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>Desenvolvido por <a href="https://www.sistemasnetsolutions.com.br">Net Solutions</a></span>
+                        <span>Desenvolvido por <a href="https://www.bitstreamsi.com.br">BSSI Tech Info</a></span>
                     </div>
                 </div>
             </footer>

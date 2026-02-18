@@ -1,5 +1,3 @@
-
-</div>
 <?php
 	// Requires //
 	require_once("../includes/padrao.inc.php");
@@ -32,16 +30,18 @@
 		}
 		else{
 			// Atualizo as visualizações das mensagens para zerar o contador conforme atualiza a conversa //
-			  $intUserId = $_SESSION["usuariosaw"]["id"]; //Atualizo a mensagem como visualizada apenas se o Dono do chamado visualiza-la
-			  $mesmoUsuario = mysqli_query($conexao, "select id_atend from tbatendimento WHERE id = '".$idAtendimento."' AND  numero = '".$numero."'") ;
-			  $mesmousuariologado = mysqli_fetch_assoc($mesmoUsuario);
-			  if ($mesmousuariologado["id_atend"]==$intUserId){
-                $sqlUpdateTbMsgAtendimento = "UPDATE tbmsgatendimento 
-												SET visualizada = true
-													WHERE id = '".$idAtendimento."' AND  numero = '".$numero."'";
-				$qryConversa = mysqli_query($conexao, $sqlUpdateTbMsgAtendimento) 
-					or die("Erro ao atualizar as visualizações das mensagens: " . $sqlUpdateTbMsgAtendimento . "<br/>" . mysqli_error($conexao));
-			  }
+			if( isset($_SESSION["usuariosaw"]["id"]) ){
+				$intUserId = $_SESSION["usuariosaw"]["id"]; //Atualizo a mensagem como visualizada apenas se o Dono do chamado visualiza-la
+				$mesmoUsuario = mysqli_query($conexao, "select id_atend from tbatendimento WHERE id = '".$idAtendimento."' AND  numero = '".$numero."'") ;
+				$mesmousuariologado = mysqli_fetch_assoc($mesmoUsuario);
+				if ($mesmousuariologado["id_atend"]==$intUserId){
+					$sqlUpdateTbMsgAtendimento = "UPDATE tbmsgatendimento 
+													SET visualizada = true
+														WHERE id = '".$idAtendimento."' AND  numero = '".$numero."'";
+					$qryConversa = mysqli_query($conexao, $sqlUpdateTbMsgAtendimento) 
+						or die("Erro ao atualizar as visualizações das mensagens: " . $sqlUpdateTbMsgAtendimento . "<br/>" . mysqli_error($conexao));
+				}
+			}
 				
 			// FIM Atualizo as visualizações das mensagens para zerar o contador conforme atualiza a conversa //
 
@@ -164,14 +164,19 @@
 
 			// Cria o arquivo se ele ainda não existir //
 				if( !file_exists($fileRootImage) ){
-					// GAMBI, POG PLUS+ //
-					// if( strlen(($objAnexos->nome_contato)) === 0 ){ $img = imagecreatefromstring( $objAnexos->arquivo ); }
-					// else{ $img = imagecreatefromstring( base64_decode($objAnexos->arquivo) ); }
-					
-					$img = imagecreatefromstring( $objAnexos->arquivo );
-					imagejpeg( $img, $fileRootImage );
+				// Tenta criar a imagem - primeiro tenta dados brutos, depois base64 //
+				$img = @imagecreatefromstring( $objAnexos->arquivo );
+				
+				// Se falhar, tenta decodificar base64 //
+				if( $img === false ){
+					$img = @imagecreatefromstring( base64_decode($objAnexos->arquivo, true) );
 				}
-			// FIM Cria o arquivo se ele ainda não existir //
+				
+				// Só salva se conseguiu criar a imagem //
+				if( $img !== false ){
+					imagejpeg( $img, $fileRootImage );
+					imagedestroy( $img );
+				}
 
 			// Montando a Mensagem //
 				$mensagem = '<a href="'.$fileName.'" data-lightbox-title="">
@@ -182,7 +187,8 @@
 					$mensagem = $mensagem .'<br>'.  $objConversa->msg;
 				}
 			// FIM Montando a Mensagem //
-		}
+		}  // FIM if (!file_exists)
+		}  // FIM elseif IMAGE
 		else if ( $objConversa->tipo_arquivo == 'DOCUMENT'
 			|| $objConversa->tipo_arquivo == 'APPLI'
 			|| $objConversa->tipo_arquivo == 'TEXT/' ) {
@@ -206,9 +212,9 @@
 
 			$mensagem = '<a href="atendimento/anexo.php?id='.$objConversa->id.'&numero='.$objConversa->numero.'&seq='.$objConversa->seq.'"><img src="images/'.$imgIcone.'" width="100" height="100"></a><br>'.$objConversa->nome_original.'<br>'. $objConversa->msg;
 		}
-		else if (strlen($objConversa->msg)>0) {
+		else if (!empty($objConversa->msg) && strlen($objConversa->msg)>0) {
 			$mensagem = $objConversa->msg;	
-			$mensagemResposta = $objConversa->resp_msg;	
+			$mensagemResposta = $objConversa->resp_msg ?? "";	
 		}
 
 		$mensagem = nl2br($mensagem);
@@ -391,7 +397,7 @@
 						<div class="Tkt2p">
 						  ';	
 					//Trato a existencia de mensagem de resposta
-					if (strlen($mensagemResposta)>0){						
+				if (!empty($mensagemResposta) && strlen($mensagemResposta)>0){						
 						echo '
 						<div style="border-left: solid green;border-radius:3px;background-color:#CCC;opacity: 0.2;color:#000">							
 								<span dir="ltr" class="selectable-text invisible-space message-text">'. str_replace("\\n","<br/>",$mensagemResposta) .'</span>

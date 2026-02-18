@@ -1,4 +1,4 @@
-<?php require_once("../../includes/padrao.inc.php"); ?>
+<?php require_once("../includes/padrao.inc.php"); ?>
 <script type='text/javascript' src="cadastros/etiquetas/acoesListar.js"></script>
 
 <!-- Htmls Novos -->

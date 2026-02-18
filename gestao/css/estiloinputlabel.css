@@ -1,14 +1,13 @@
 @charset "utf-8";
 /* CSS Document */
 
-.form-group {
+   .form-group {
     margin-top: 20px;
     position: relative;
     display: flex;
     height: 45px;
+   
 }
-
-/* Estilo para o label */
 .control-label {
     opacity: 0.4;
     pointer-events: none;
@@ -18,53 +17,28 @@
     transition: 240ms;
     z-index: 2;
 }
-
-/* Quando o campo está em foco ou preenchido */
-.form-group.focused .control-label,
-.form-group-select.focused .control-label {
+.form-group.focused .control-label, .form-group-select.focused .control-label {
     opacity: 1;
     transform: scale(0.75);
-    top: -10px; /* Move o label para cima */
 }
-
-/* Específico para textarea */
-textarea + .control-label {
-    top: 10px; /* Ajusta a posição inicial do label no textarea */
-}
-
-.form-group.focused textarea + .control-label {
-    top: -10px; /* Move o label para cima quando em foco ou preenchido */
-    transform: scale(0.75);
-}
-
-/* Campos de entrada e textarea */
-.form_campos,
-textarea.form_textArea {
+.form_campos {
+    height: 31px;
     width: 100%;
     color: #484848;
     z-index: 1;
-    padding: 8px 5px; /* Espaçamento interno */
+    align-self: flex-end;
+    padding: 5px;
     outline: none;
     border: 0 solid #484848;
     border-bottom-width: 1px;
     background: transparent;
-    font-size: 14px;
-    line-height: 1.5;
-    resize: none; /* Bloquear redimensionamento para inputs */
 }
-
-/* Hover e foco */
-.form_campos:hover, .form_campos:focus,
-textarea.form_textArea:hover, textarea.form_textArea:focus {
+.form_campos:hover, .form_campos:focus {
     border-color: #0091FF;
 }
-
-/* Estilo para campos desabilitados */
 .form_disabled, .form_disabled:hover, .form_disabled:focus {
     border-color: #D7D7D7;
 }
-
-/* Selects personalizados */
 .select {
     height: 31px;
     color: #484848;
@@ -81,46 +55,25 @@ textarea.form_textArea:hover, textarea.form_textArea:focus {
     text-overflow: ellipsis;
     overflow: hidden;
 }
-
 select::-ms-expand {
     display: none;
 }
-
 .select:hover, .select:focus {
     border: 0 solid;
     border-bottom-width: 1px;
 }
-
 .form-group-select {
     margin-top: 20px;
     position: relative;
     height: 45px;
     float: left;
 }
-
 .form-group-select:after {
-    content: "\279C";
-    color: #484848;
-    transform: rotate(90deg);
-    right: 8px; 
-    top: 24px;
-    position: absolute;
-    pointer-events: none;
-}
-
-
-textarea.form_textArea {
-    height: auto; /* Ajustável dinamicamente */
-    min-height: 80px; /* Altura mínima */
-    max-height: 300px; /* Opcional: limite de altura */
-    width: 100%; /* Largura total */
-    color: #484848;
-    padding: 8px 5px;
-    outline: none;
-    border: 0 solid #484848;
-    border-bottom-width: 1px;
-    background: transparent;
-    font-size: 14px;
-    line-height: 1;
-    resize: vertical; /* Permite ajuste vertical */
+    content:"\279C";
+    color:#484848;
+    transform:rotate(90deg);
+    right:8px; 
+    top:24px;
+    position:absolute;
+    pointer-events:none;
 }

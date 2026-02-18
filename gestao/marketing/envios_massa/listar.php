@@ -16,7 +16,7 @@
 
 			$respostasautomaticas = mysqli_query(
 				$conexao
-				, "SELECT *, (select count(id) from tbenviomassanumero where id_msg = tbenviomgsmassa.id) as importados from tbenviomgsmassa order by id desc limit 20"
+				, "SELECT * from tbenviomgsmassa order by id desc limit 20"
 			  );
 			  while ($ListaRespostasAutomaticas = mysqli_fetch_array($respostasautomaticas)){	
 

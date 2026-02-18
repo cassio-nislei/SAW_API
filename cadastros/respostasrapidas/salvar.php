@@ -1,5 +1,5 @@
 <?php
-	require_once("../../includes/padrao.inc.php");
+	require_once("../includes/padrao.inc.php");
 	$acao	= $_POST['acaoRespostaRapida'];
 	$id		= $_POST['IdRespostaRapida'];
 	$idUser	= (intval($_POST['id_usuario']) == 2) ? $_SESSION["usuariosaw"]["id"] : 0;

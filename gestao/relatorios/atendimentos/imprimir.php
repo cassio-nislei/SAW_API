@@ -1,15 +1,42 @@
 <?php
+	// IMPORTANTE: Ativar output buffering ANTES de qualquer include que envia headers
+	ob_start();
+	
     // Requires //
 	require_once("../../../includes/padrao.inc.php");
+	
+	// Descartar todo output anterior (session headers, etc)
+	ob_end_clean();
+	
 	require_once("../../../includes/dompdf/autoload.inc.php");
 	use Dompdf\Dompdf;
-	define("DOMPDF_ENABLE_CSS_FLOAT", true);
+	use Dompdf\Options;
+	
+	// Configuração do DomPDF
+	$options = new Options();
+	$options->set('isRemoteEnabled', true);
+	$options->set('isHtml5ParserEnabled', true);
+	$options->set('defaultFont', 'Arial');
+	$options->set('fontSize', 12);
+	
+	$dompdf = new Dompdf($options);
+
 $html = '
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="UTF-8">
     <title>Conversa</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        table td { padding: 5px; border-bottom: 1px solid #eee; }
+        #mensagem-recebida { margin-bottom: 15px; }
+        #mensagem-enviada { margin-bottom: 15px; }
+        .msg-time { font-size: 10px; color: #999; }
+        h2 { margin-top: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; font-size: 14px; }
+        .msg-box { padding: 8px; margin-bottom: 10px; }
+    </style>
   </head>
   <body>
     <div>';
@@ -277,7 +304,7 @@ $html = '
         <span class="msg-time">Enviado '.$datamensagem. ' às '. $horamensagem.'</span><br>
           '. str_replace("\\n","<br/>",$mensagem) ;
            	//Trato a existencia de mensagem de resposta
-					if (strlen($mensagemResposta)>0){
+					if (!empty($mensagemResposta) && strlen($mensagemResposta)>0){
 						$html .= '
 						<div style="border-left: solid green;border-radius:3px;">							
 								<span dir="ltr" >'. str_replace("\\n","<br/>",$mensagemResposta) .'</span>
@@ -299,14 +326,10 @@ $html = '
    </body>
  </html>';
 
-
-	// print_r($html); 
-
-	$dompdf = new Dompdf();
+	// Gera o PDF com DomPDF
 	$dompdf->loadHtml($html);
 	$dompdf->setPaper('A4', 'portrait');
 	$dompdf->render();
-	$dompdf->stream("Conversa",["Attachment" => false]);
+	$dompdf->stream('Conversa_' . date('dmY_His') . '.pdf', array('Attachment' => false));
 
 ?>
- 

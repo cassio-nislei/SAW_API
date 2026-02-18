@@ -275,7 +275,7 @@ $html = '
           '. str_replace("\\n","<br/>",$mensagem) .'
             ';
             //Trato a existencia de mensagem de resposta
-            if (strlen($mensagemResposta)>0){
+            if (!empty($mensagemResposta) && strlen($mensagemResposta)>0){
 				$html .= '
               <div style="border-left: solid green;border-radius:3px;background-color:#CCC;opacity: 0.2;color:#000">							
                   <span dir="ltr" class="selectable-text invisible-space message-text">'. str_replace("\\n","<br/>",$mensagemResposta) .'</span>
@@ -318,7 +318,7 @@ $html = '
         <span class="msg-time">Enviado '.$datamensagem. ' às '. $horamensagem.'</span><br>
           '. str_replace("\\n","<br/>",$mensagem) ;
            	//Trato a existencia de mensagem de resposta
-					if (strlen($mensagemResposta)>0){
+					if (!empty($mensagemResposta) && strlen($mensagemResposta)>0){
 						$html .= '
 						<div style="border-left: solid green;border-radius:3px;background-color:#CCC;opacity: 0.2;color:#000">							
 								<span dir="ltr" class="selectable-text invisible-space message-text">'. str_replace("\\n","<br/>",$mensagemResposta) .'</span>
@@ -348,4 +348,3 @@ $html = '
 
 
 ?>
- 

@@ -4,9 +4,9 @@
 	$dtIni = isset($_GET["dtIni"]) ? reverseDate($_GET["dtIni"]) : null;
     $dtFim = isset($_GET["dtFim"]) ? reverseDate($_GET["dtFim"]) : null;
     $atendente = isset($_GET["atendente"]) ? $_GET["atendente"] : "0";
-    $numero = (isset($_GET["numero"]) && !empty($_GET["numero"])) ? SomenteNumero($_GET['numero']) : null;
-    $ddi = substr($numero, 0, 2);
-    $ddd = substr($numero, 2, 2);
+    $numero = (isset($_GET["numero"]) && !empty($_GET['numero'])) ? SomenteNumero($_GET['numero']) : null;
+    $ddi = $numero !== null ? substr($numero, 0, 2) : "";
+    $ddd = $numero !== null ? substr($numero, 2, 2) : "";
     $situacao = (isset($_GET["situacao"]) && !empty($_GET["situacao"])) ? $_GET["situacao"] : null;
     $ordenacao = isset($_GET["ordenacao"]) ? $_GET["ordenacao"] : "ASC";
     $fotoPerfil = fotoPerfil;
@@ -18,19 +18,12 @@
     }
 
     // Montando a Query de Pesquisa //
-   /*     $sql = "SELECT tba.numero, tba.dt_atend, tba.hr_atend, tba.nome, tbu.nome AS atendente, tbd.departamento, tfp.foto AS foto_perfil 
+        $sql = "SELECT tba.numero, tba.dt_atend, tba.hr_atend, tba.nome, tbu.nome AS atendente, tbd.departamento, tfp.foto AS foto_perfil 
                     FROM tbatendimento tba
                         LEFT JOIN tbusuario tbu ON(tba.id_atend=tbu.id)
                         LEFT JOIN tbdepartamentos tbd ON(tba.setor=tbd.id)
                         LEFT JOIN tbfotoperfil tfp ON tfp.numero = tba.numero
                             WHERE dt_atend BETWEEN '".$dtIni."' AND '".$dtFim."'";
-                            */
-//Removi a foto do Perfil para Ganhar performance
-        $sql = "SELECT tba.numero, tba.dt_atend, tba.hr_atend, tba.nome, tbu.nome AS atendente, tbd.departamento 
-        FROM tbatendimento tba
-            LEFT JOIN tbusuario tbu ON(tba.id_atend=tbu.id)
-            LEFT JOIN tbdepartamentos tbd ON(tba.setor=tbd.id)
-                WHERE dt_atend BETWEEN '".$dtIni."' AND '".$dtFim."'";
 
         // Atendente //
         if( $atendente !== "0" ){ $sql .= " AND tbu.id = " . $atendente; }
@@ -42,7 +35,7 @@
         if( $situacao !== null ){ $sql .= " AND tba.situacao = '" . $situacao . "'"; }
 
         // Agrupamento //
-        $sql .= " GROUP BY tba.numero";
+        $sql .= " GROUP BY tba.numero, tba.dt_atend, tba.hr_atend, tba.nome, tbu.nome, tbd.departamento, tfp.foto";
 
         // Ordenação //
         $sql .= " ORDER BY dt_atend " . $ordenacao . ", hr_atend " . $ordenacao;
@@ -58,12 +51,10 @@
             $nomeCliente = limpaNome($registros->nome);
 
             // Pego a foto de perfil //
-          //  if( $_SESSION["parametros"]["exibe_foto_perfil"] ){
-          //      $fotoPerfil = getFotoPerfil($conexao, $registros->numero);
-        //    }
-         //   else{ 
-                $fotoPerfil = 'images/cliente.png'; 
-        //    }
+            if( $_SESSION["parametros"]["exibe_foto_perfil"] ){
+                $fotoPerfil = getFotoPerfil($conexao, $registros->numero);
+            }
+            else{ $fotoPerfil = fotoPerfil; }
 ?>''
     <tr data-numero="<?php echo $registros->numero; ?>" data-nome="<?php echo $nomeCliente; ?>">
         <td><?php echo Mask($registros->numero); ?></td>

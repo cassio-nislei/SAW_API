@@ -4,8 +4,8 @@
 	$dt          = explode('/', $_POST['dt_envio']) ;
     $data_envio = $dt[2].'-'.$dt[1].'-'.$dt[0];
 	$hora_envio          = $_POST['hr_envio'];
-	$celular             = $_POST['celular'];
-	$mensagem            = $_POST['mensagem'];
+	$celular             = mysqli_real_escape_string($conexao, $_POST['celular']);
+	$mensagem            = mysqli_real_escape_string($conexao, $_POST['mensagem']);
 	
 		
 		$sql = "INSERT INTO tbmsgsenviadaspelosaw (numero, dt_inclusao, dt_programada, hora_programada, msg) VALUES ('$celular', current_date(), '$data_envio', '$hora_envio', '$mensagem')";

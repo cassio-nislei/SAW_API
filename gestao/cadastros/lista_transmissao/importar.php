@@ -32,11 +32,11 @@ if($arquivo['type'] == "text/csv"){
         //var_dump($linha);
 
         // Criar a QUERY para salvar o usuário no banco de dados
-        $numero = ($linha[0] ?? "NULL");
+        $numero = mysqli_real_escape_string($conexao, ($linha[0] ?? "NULL"));
         $dt          = explode('/', ($linha[1] ?? "NULL")) ;
         $data_envio = $dt[2].'-'.$dt[1].'-'.$dt[0];
-        $hr     = ($linha[2] ?? "NULL");
-        $msg    = ($linha[3] ?? "NULL");
+        $hr     = mysqli_real_escape_string($conexao, ($linha[2] ?? "NULL"));
+        $msg    = mysqli_real_escape_string($conexao, ($linha[3] ?? "NULL"));
 
       //  echo "Numero: $numero, Data: $dt, Hora: $dt, MSG: $msg";
       //  exit();

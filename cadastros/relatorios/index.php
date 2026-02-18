@@ -48,7 +48,7 @@
         $("#ultimosAtendimentos").on("click", function() {
             // Muda a Ordenação para Decrescente //
             $("#hstOrdenacao").val('DESC');
-            
+
             pesquisa();
         });
 
@@ -66,12 +66,8 @@
             }
             // Efetua a Pesquisa //
             else{
-                $("#ultimosAtendimentos").val("Buscando Dados");
-                $("#ultimosAtendimentos").attr("disabled", true);
                 $.ajax("cadastros/relatorios/listar.php?numero="+numer+"&atendente="+atend+"&dtIni="+dtIni+"&dtFim="+dtFim+"&situacao="+situa+"&ordenacao="+orden).done(function(data) {
                     $('#ListarConversas').html(data);
-                    $("#ultimosAtendimentos").val("Buscar Últimos Atendimentos");
-                    $("#ultimosAtendimentos").attr("disabled", false);
                 });
             }
         }
