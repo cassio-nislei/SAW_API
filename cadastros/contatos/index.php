@@ -147,8 +147,16 @@ $('#id_etiqueta2').on('select2:open', function() {
     fecharModal();
   });
 });
+
+// Fallback para mostraDialogo se não estiver definido
+if (typeof mostraDialogo === 'undefined') {
+  window.mostraDialogo = function(msg, tipo, tempo) {
+    alert(msg);
+    console.log(msg);
+  };
+}
 </script>
 
-<script src="gestao/js/funcoes.js"></script>
+<script src="/gestao/js/funcoes.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 <script src="../cadastros/contatos/contatosForms.js"></script>
