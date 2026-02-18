@@ -113,11 +113,13 @@ $(function () {
     $("#gravaContato").find("input, button").prop("disabled", true);
     $("#btnGravarContato").attr("value", "Salvando ...");
 
-    var urlCompleta = "./ContatoController.php";
-    console.log("Enviando para URL relativa:", urlCompleta);
+    var urlCompleta = "../../cadastros/contatos/ContatoController.php";
     console.log(
-      "URL absoluta seria:",
-      window.location.origin + "/cadastros/contatos/ContatoController.php",
+      "Enviando para URL relativa (a partir de gestao/):",
+      urlCompleta,
+    );
+    console.log(
+      "Resolução: sai de gestao/ com ../, volta à raiz e entra em cadastros/contatos/",
     );
 
     $.ajax({
@@ -216,7 +218,7 @@ $(document).on("click", "#btnConfirmaRemoveContato", function () {
   var acaoContato = $("#acaoContatoExcluir").val();
 
   $.post(
-    "./ContatoController.php",
+    "../../cadastros/contatos/ContatoController.php",
     { id: idContato, acao: acaoContato },
     function (resultado) {
       var mensagem = "<strong>Contato Removido com sucesso!</strong>";
