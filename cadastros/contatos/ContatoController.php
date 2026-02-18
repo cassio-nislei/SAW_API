@@ -1,6 +1,15 @@
 <?php 
-    require_once("../../includes/padrao.inc.php");
-
+    // Debug - Verificar se arquivo existe
+    $includePath = "../../includes/padrao.inc.php";
+    
+    if (!file_exists($includePath)) {
+        header("Content-Type: application/json");
+        echo json_encode(array("erro" => "Arquivo não encontrado: " . $includePath . " (Path atual: " . __DIR__ . ")"));
+        exit;
+    }
+    
+    require_once($includePath);
+    
     // Envolver tudo em try-catch para garantir resposta
     try {
         // Declaração de Variáveis //

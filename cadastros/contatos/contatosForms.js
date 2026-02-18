@@ -2,8 +2,8 @@
 console.log("contatosForms.js carregado com sucesso!");
 
 // Formatando o 'Número do Telefone' //
-$(document).ready(function() {
-  if (typeof $.fn.mask === 'function') {
+$(document).ready(function () {
+  if (typeof $.fn.mask === "function") {
     var behavior = function (val) {
         return val.replace(/\D/g, "").length === 13
           ? "+00 (00) 00000-0000"
@@ -19,12 +19,17 @@ $(document).ready(function() {
   } else {
     console.log("jQuery Mask Plugin não está carregado");
   }
+
+  // REMOVER Comportamento padrão de form submit
+  $(document).off("submit", "#gravaContato");
+  $("#gravaContato").off("submit");
 });
 // FIM Formatando o 'Número do Telefone' //
 
 // Adicionar/Alterar Registro //
-$("#btnGravarContato").click(function (e) {
+$(document).on("click", "#btnGravarContato", function (e) {
   e.preventDefault();
+  e.stopPropagation();
   console.log("Botão Salvar clicado!");
 
   // Declaração de Variáveis //
@@ -74,62 +79,67 @@ $("#btnGravarContato").click(function (e) {
   console.log("Validações passaram, enviando formulário...");
 
   // Coleta os dados do formulário
-  var formData = new FormData(document.getElementById('gravaContato'));
-  
+  var formData = new FormData(document.getElementById("gravaContato"));
+
   // Log dos dados que serão enviados
   console.log("FormData items:");
   for (var pair of formData.entries()) {
     console.log(pair[0] + ": " + pair[1]);
   }
-  
-  $.ajax({
-    url: "/cadastros/contatos/ContatoController.php",
-    type: "POST",
-    data: formData,
-    processData: false,
-    contentType: false,
-    beforeSend: function () {
-      console.log("Enviando dados via AJAX para: cadastros/contatos/ContatoController.php");
-      console.log("Full URL: " + window.location.origin + "/cadastros/contatos/ContatoController.php");
-      $("#gravaContato").find("input, button").prop("disabled", true);
-      $("#btnGravarContato").attr("value", "Salvando ...");
-      $("#btnGravarContato").attr("disabled", true);
-      $("#btnCancelaContato").attr("disabled", true);
-    },
-    success: function (retorno) {
-      console.log("Resposta recebida (tipo):", typeof retorno);
-      console.log("Resposta recebida (conteúdo):", retorno);
 
-      // Se a resposta é uma string JSON, faz o parsing
-      if (typeof retorno === "string") {
-        try {
-          retorno = JSON.parse(retorno);
-          console.log("Resposta em JSON:", retorno);
-        } catch (e) {
-          console.log("Falha ao fazer parse do JSON", e);
-        }
-      }
+  // Desabilita botões
+  $("#gravaContato").find("input, button").prop("disabled", true);
+  $("#btnGravarContato").attr("value", "Salvando ...");
+
+  $.ajax({
+    type: "POST",
+    url: "/cadastros/contatos/ContatoController.php",
+    data: formData,
+    cache: false,
+    contentType: false,
+    processData: false,
+    dataType: "json",
+    success: function (retorno) {
+      console.log("Resposta recebida:", retorno);
 
       if (retorno == 1) {
-        console.log("Contato cadastrado com sucesso!");
-        mostraDialogo(mensagem, "success", 2500);
-      } else if (retorno == 2) {
-        console.log("Contato atualizado com sucesso!");
-        mostraDialogo(mensagem2, "success", 2500);
-      } else if (retorno == 3) {
-        console.log("Contato duplicado!");
-        mostraDialogo(mensagem3, "danger", 2500);
-      } else if (retorno == 8) {
-        console.log("Número internacional não permitido!");
-        mostraDialogo(mensagem8, "danger", 2500);
-      } else {
-        // Trata como objeto com erro
-        if (typeof retorno === "object" && retorno.erro) {
-          console.log("Erro do servidor:", retorno.erro);
-          mostraDialogo(retorno.erro, "danger", 2500);
+        console.log("✓ Contato cadastrado com sucesso!");
+        if (typeof mostraDialogo === "function") {
+          mostraDialogo(mensagem, "success", 2500);
         } else {
-          console.log("Resposta não esperada:", retorno);
-          mostraDialogo("Erro desconhecido: " + JSON.stringify(retorno), "danger", 2500);
+          alert(mensagem);
+        }
+      } else if (retorno == 2) {
+        console.log("✓ Contato atualizado com sucesso!");
+        if (typeof mostraDialogo === "function") {
+          mostraDialogo(mensagem2, "success", 2500);
+        } else {
+          alert(mensagem2);
+        }
+      } else if (retorno == 3) {
+        console.log("✗ Contato duplicado!");
+        if (typeof mostraDialogo === "function") {
+          mostraDialogo(mensagem3, "danger", 2500);
+        } else {
+          alert(mensagem3);
+        }
+      } else if (retorno == 8) {
+        console.log("✗ Número internacional!");
+        if (typeof mostraDialogo === "function") {
+          mostraDialogo(mensagem8, "danger", 2500);
+        } else {
+          alert(mensagem8);
+        }
+      } else {
+        console.log("✗ Erro:", retorno);
+        var erro =
+          typeof retorno === "object" && retorno.erro
+            ? retorno.erro
+            : JSON.stringify(retorno);
+        if (typeof mostraDialogo === "function") {
+          mostraDialogo(erro, "danger", 2500);
+        } else {
+          alert(erro);
         }
       }
 
@@ -143,26 +153,29 @@ $("#btnGravarContato").click(function (e) {
         fecharModal();
       }
     },
-    complete: function () {
-      console.log("Requisição completa");
-      $("#btnGravarContato").attr("value", "Salvar");
-      $("#btnGravarContato").attr("disabled", false);
-    },
     error: function (xhr, status, error) {
-      console.log("Erro na requisição:");
-      console.log("Status:", status);
-      console.log("Error:", error);
-      console.log("XHR Status:", xhr.status);
-      console.log("XHR Response:", xhr.responseText);
-      mostraDialogo(mensagem4 + " - Status: " + xhr.status + " - " + error, "danger", 2500);
-    }
+      console.log("✗ Erro AJAX:", status, error);
+      console.log("Status Code:", xhr.status);
+      console.log("Response:", xhr.responseText);
+      if (typeof mostraDialogo === "function") {
+        mostraDialogo(mensagem4 + " - " + error, "danger", 2500);
+      } else {
+        alert(mensagem4 + " - " + error);
+      }
+    },
+    complete: function () {
+      // Re-habilita botões
+      $("#btnGravarContato").attr("value", "Salvar");
+      $("#gravaContato").find("input, button").prop("disabled", false);
+    },
   });
-});
+
+  return false;
 });
 // FIM Adicionar/Alterar Registro //
 
 // Exclusão de Registro //
-$("#btnConfirmaRemoveContato").on("click", function () {
+$(document).on("click", "#btnConfirmaRemoveContato", function () {
   // Desabilitando os Botões //
   $("#btnConfirmaRemoveContato").attr("value", "Removendo ...");
   $("#btnConfirmaRemoveContato").attr("disabled", true);
@@ -179,13 +192,23 @@ $("#btnConfirmaRemoveContato").on("click", function () {
       var mensagem = "<strong>Contato Removido com sucesso!</strong>";
       var mensagem2 = "Falha ao Remover Contato!";
 
-      if ((resultado = 2)) {
-        mostraDialogo(mensagem, "success", 2500);
+      if (resultado == 2) {
+        if (typeof mostraDialogo === "function") {
+          mostraDialogo(mensagem, "success", 2500);
+        } else {
+          alert(mensagem);
+        }
 
         // Atualiza a Lista de Contatos //
-        atualizaContatos();
+        if (typeof atualizaContatos === "function") {
+          atualizaContatos();
+        }
       } else {
-        mostraDialogo(mensagem, "danger", 2500);
+        if (typeof mostraDialogo === "function") {
+          mostraDialogo(mensagem2, "danger", 2500);
+        } else {
+          alert(mensagem2);
+        }
       }
 
       // Habilitando os Botões //
@@ -194,7 +217,9 @@ $("#btnConfirmaRemoveContato").on("click", function () {
       $("#btnCancelaRemoveContato").attr("disabled", false);
 
       // Fechando a Modal //
-      fecharModal();
+      if (typeof fecharModal === "function") {
+        fecharModal();
+      }
     },
   );
 });
