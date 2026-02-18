@@ -76,6 +76,12 @@ $("#btnGravarContato").click(function (e) {
   // Coleta os dados do formulário
   var formData = new FormData(document.getElementById('gravaContato'));
   
+  // Log dos dados que serão enviados
+  console.log("FormData items:");
+  for (var pair of formData.entries()) {
+    console.log(pair[0] + ": " + pair[1]);
+  }
+  
   $.ajax({
     url: "cadastros/contatos/ContatoController.php",
     type: "POST",
@@ -84,21 +90,25 @@ $("#btnGravarContato").click(function (e) {
     contentType: false,
     beforeSend: function () {
       console.log("Enviando dados via AJAX para: cadastros/contatos/ContatoController.php");
-      console.log("Dados:", {
-        numero: numero,
-        nome: nome,
-        acao: $("#acaoContato").val(),
-        razao_social: $("#razao_social").val(),
-        cpf_cnpj: $("#cpf_cnpj").val(),
-        id_etiqueta2: $("#id_etiqueta2").val()
-      });
+      console.log("Full URL: " + window.location.origin + "/cadastros/contatos/ContatoController.php");
       $("#gravaContato").find("input, button").prop("disabled", true);
       $("#btnGravarContato").attr("value", "Salvando ...");
       $("#btnGravarContato").attr("disabled", true);
       $("#btnCancelaContato").attr("disabled", true);
     },
     success: function (retorno) {
-      console.log("Resposta recebida:", retorno);
+      console.log("Resposta recebida (tipo):", typeof retorno);
+      console.log("Resposta recebida (conteúdo):", retorno);
+
+      // Se a resposta é uma string JSON, faz o parsing
+      if (typeof retorno === "string") {
+        try {
+          retorno = JSON.parse(retorno);
+          console.log("Resposta em JSON:", retorno);
+        } catch (e) {
+          console.log("Falha ao fazer parse do JSON", e);
+        }
+      }
 
       if (retorno == 1) {
         console.log("Contato cadastrado com sucesso!");
@@ -113,13 +123,13 @@ $("#btnGravarContato").click(function (e) {
         console.log("Número internacional não permitido!");
         mostraDialogo(mensagem8, "danger", 2500);
       } else {
-        try {
-          var jsonRetorno = JSON.parse(retorno);
-          console.log("Erro:", jsonRetorno.erro);
-          mostraDialogo(jsonRetorno.erro, "danger", 2500);
-        } catch (e) {
+        // Trata como objeto com erro
+        if (typeof retorno === "object" && retorno.erro) {
+          console.log("Erro do servidor:", retorno.erro);
+          mostraDialogo(retorno.erro, "danger", 2500);
+        } else {
           console.log("Resposta não esperada:", retorno);
-          mostraDialogo("Erro: " + retorno, "danger", 2500);
+          mostraDialogo("Erro desconhecido: " + JSON.stringify(retorno), "danger", 2500);
         }
       }
 
@@ -139,9 +149,12 @@ $("#btnGravarContato").click(function (e) {
       $("#btnGravarContato").attr("disabled", false);
     },
     error: function (xhr, status, error) {
-      console.log("Erro na requisição:", status, error);
-      console.log("Resposta do servidor:", xhr.responseText);
-      mostraDialogo(mensagem4 + " - " + error, "danger", 2500);
+      console.log("Erro na requisição:");
+      console.log("Status:", status);
+      console.log("Error:", error);
+      console.log("XHR Status:", xhr.status);
+      console.log("XHR Response:", xhr.responseText);
+      mostraDialogo(mensagem4 + " - Status: " + xhr.status + " - " + error, "danger", 2500);
     }
   });
 });

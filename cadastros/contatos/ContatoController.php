@@ -1,18 +1,20 @@
 <?php 
     require_once("../../includes/padrao.inc.php");
 
-    // Declaração de Variáveis //
-        $_method = (isset($_POST) && !empty($_POST)) ? "_Post" : "_Get";
-        $_id     = isset($_GET["id"]) ? mysqli_real_escape_string($conexao, $_GET["id"]) : (isset($_POST["id"]) ? mysqli_real_escape_string($conexao, $_POST["id"]) : null);
-        $_acao   = (isset($_POST['acao']) && !empty($_POST['acao'])) ? mysqli_real_escape_string($conexao, $_POST['acao']) : null;
-        $_numero = (isset($_POST['numero_contato']) && !empty($_POST['numero_contato'])) ? mysqli_real_escape_string($conexao, $_POST['numero_contato']) : null;
-        $_nome   = (isset($_POST['nome_contato']) && !empty($_POST['nome_contato'])) ? mysqli_real_escape_string($conexao, $_POST['nome_contato']) : null;
-        $_razao_social   = (isset($_POST['razao_social']) && !empty($_POST['razao_social'])) ? mysqli_real_escape_string($conexao, $_POST['razao_social']) : null;
-        $_cpf_cnpj   = (isset($_POST['cpf_cnpj']) && !empty($_POST['cpf_cnpj'])) ? mysqli_real_escape_string($conexao, $_POST['cpf_cnpj']) : null;
-        $_etiqueta   = (isset($_POST['tag']) && !empty($_POST['tag'])) ? mysqli_real_escape_string($conexao, $_POST['tag']) : '0';
-        $tabela  = "tbcontatos";
-        $result  = "";
-    // FIM Declaração de Variáveis //
+    // Envolver tudo em try-catch para garantir resposta
+    try {
+        // Declaração de Variáveis //
+            $_method = (isset($_POST) && !empty($_POST)) ? "_Post" : "_Get";
+            $_id     = isset($_GET["id"]) ? mysqli_real_escape_string($conexao, $_GET["id"]) : (isset($_POST["id"]) ? mysqli_real_escape_string($conexao, $_POST["id"]) : null);
+            $_acao   = (isset($_POST['acao']) && !empty($_POST['acao'])) ? mysqli_real_escape_string($conexao, $_POST['acao']) : null;
+            $_numero = (isset($_POST['numero_contato']) && !empty($_POST['numero_contato'])) ? mysqli_real_escape_string($conexao, $_POST['numero_contato']) : null;
+            $_nome   = (isset($_POST['nome_contato']) && !empty($_POST['nome_contato'])) ? mysqli_real_escape_string($conexao, $_POST['nome_contato']) : null;
+            $_razao_social   = (isset($_POST['razao_social']) && !empty($_POST['razao_social'])) ? mysqli_real_escape_string($conexao, $_POST['razao_social']) : null;
+            $_cpf_cnpj   = (isset($_POST['cpf_cnpj']) && !empty($_POST['cpf_cnpj'])) ? mysqli_real_escape_string($conexao, $_POST['cpf_cnpj']) : null;
+            $_etiqueta   = (isset($_POST['tag']) && !empty($_POST['tag'])) ? mysqli_real_escape_string($conexao, $_POST['tag']) : '0';
+            $tabela  = "tbcontatos";
+            $result  = "";
+        // FIM Declaração de Variáveis //
 
     // Carrega Dados //
         if( $_method !== "_Post" && $_id !== null ){
@@ -79,8 +81,12 @@
                         $sql = "INSERT INTO tbcontatos (numero, nome, razao_social, cpf_cnpj ) VALUES ('".$_numero."', '".$_nome."','".$_razao_social."','".$_cpf_cnpj."')";
                         $inserir = mysqli_query($conexao,$sql);
             
-                        if( $inserir ){ $result = 1; }
-                        else{ $result = 4; }
+                        if( $inserir ){ 
+                            $result = 1;
+                        }
+                        else{ 
+                            $result = array("erro" => "Erro ao inserir: " . mysqli_error($conexao) . " SQL: " . $sql);
+                        }
                     }
                     else{ $result = 3; }
                 }
@@ -115,6 +121,15 @@
     }
     // FIM Tratamento de Exceção //
 
+    } catch (Exception $e) {
+        $result = array(
+            "erro" => "Erro no sistema: " . $e->getMessage()
+        );
+    }
+
+    // Header para garantir resposta JSON
+    header("Content-Type: application/json");
 
     // Imprime o Resultado //
     echo json_encode($result);
+    exit;
