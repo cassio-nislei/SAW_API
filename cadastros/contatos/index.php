@@ -148,4 +148,6 @@ $('#id_etiqueta2').on('select2:open', function() {
   });
 });
 </script>
-<script type='text/javascript' src="cadastros/contatos/contatosForms.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js"></script>
+<script src="../cadastros/contatos/contatosForms.js"></script>

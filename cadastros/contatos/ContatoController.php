@@ -3,13 +3,13 @@
 
     // Declaração de Variáveis //
         $_method = (isset($_POST) && !empty($_POST)) ? "_Post" : "_Get";
-        $_id     = isset($_GET["id"]) ? $_GET["id"] : (isset($_POST["id"]) ? $_POST["id"] : null);
-        $_acao   = (isset($_POST['acao']) && !empty($_POST['acao'])) ? $_POST['acao'] : null;
-        $_numero = (isset($_POST['numero_contato']) && !empty($_POST['numero_contato'])) ? $_POST['numero_contato'] : null;
-        $_nome   = (isset($_POST['nome_contato']) && !empty($_POST['nome_contato'])) ? $_POST['nome_contato'] : null;
-        $_razao_social   = (isset($_POST['razao_social']) && !empty($_POST['razao_social'])) ? $_POST['razao_social'] : null;
-        $_cpf_cnpj   = (isset($_POST['cpf_cnpj']) && !empty($_POST['cpf_cnpj'])) ? $_POST['cpf_cnpj'] : null;
-        $_etiqueta   = (isset($_POST['tag']) && !empty($_POST['tag'])) ? $_POST['tag'] : '0';
+        $_id     = isset($_GET["id"]) ? mysqli_real_escape_string($conexao, $_GET["id"]) : (isset($_POST["id"]) ? mysqli_real_escape_string($conexao, $_POST["id"]) : null);
+        $_acao   = (isset($_POST['acao']) && !empty($_POST['acao'])) ? mysqli_real_escape_string($conexao, $_POST['acao']) : null;
+        $_numero = (isset($_POST['numero_contato']) && !empty($_POST['numero_contato'])) ? mysqli_real_escape_string($conexao, $_POST['numero_contato']) : null;
+        $_nome   = (isset($_POST['nome_contato']) && !empty($_POST['nome_contato'])) ? mysqli_real_escape_string($conexao, $_POST['nome_contato']) : null;
+        $_razao_social   = (isset($_POST['razao_social']) && !empty($_POST['razao_social'])) ? mysqli_real_escape_string($conexao, $_POST['razao_social']) : null;
+        $_cpf_cnpj   = (isset($_POST['cpf_cnpj']) && !empty($_POST['cpf_cnpj'])) ? mysqli_real_escape_string($conexao, $_POST['cpf_cnpj']) : null;
+        $_etiqueta   = (isset($_POST['tag']) && !empty($_POST['tag'])) ? mysqli_real_escape_string($conexao, $_POST['tag']) : '0';
         $tabela  = "tbcontatos";
         $result  = "";
     // FIM Declaração de Variáveis //
@@ -88,7 +88,7 @@
                 else{
                     $existe = mysqli_query(
                         $conexao
-                        , "SELECT 1 FROM tbcontatos WHERE ( numero = '".$_numero."' OR nome = '".$_nome."' ) && numero != '".$_id."'"
+                        , "SELECT 1 FROM tbcontatos WHERE ( numero = '".$_numero."' OR nome = '".$_nome."' ) AND numero != '".$_id."'"
                     );
             
                     if( mysqli_num_rows($existe) <= 0 ){
