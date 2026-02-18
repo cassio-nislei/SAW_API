@@ -28,24 +28,27 @@ require_once(__DIR__ . '/../../includes/padrao.inc.php');
         .kanban-container {
             display: flex;
             gap: 15px;
-            overflow-x: auto;
+            overflow-x: hidden;
             overflow-y: visible;
             padding: 0 15px 15px 15px;
             min-height: auto;
             width: 100%;
             box-sizing: border-box;
+            flex-wrap: wrap;
+            justify-content: flex-start;
         }
         
         .kanban-column {
             background-color: #e8eef5;
             border-radius: 8px;
             padding: 12px;
-            min-width: 280px;
-            max-width: 280px;
-            flex-shrink: 0;
+            min-width: calc(25% - 12px);
+            max-width: calc(25% - 12px);
+            flex-shrink: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            margin-bottom: 15px;
         }
         
         .kanban-column-header {
@@ -281,10 +284,29 @@ require_once(__DIR__ . '/../../includes/padrao.inc.php');
         }
         
         /* Responsivo */
+        @media (max-width: 1400px) {
+            .kanban-column {
+                min-width: calc(33.333% - 11px);
+                max-width: calc(33.333% - 11px);
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .kanban-column {
+                min-width: calc(50% - 8px);
+                max-width: calc(50% - 8px);
+            }
+        }
+        
         @media (max-width: 768px) {
             .kanban-column {
-                min-width: 250px;
-                max-width: 250px;
+                min-width: 100%;
+                max-width: 100%;
+                margin-bottom: 15px;
+            }
+            
+            .kanban-container {
+                flex-direction: column;
             }
         }
         
