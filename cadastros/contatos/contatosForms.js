@@ -83,7 +83,7 @@ $("#btnGravarContato").click(function (e) {
   }
   
   $.ajax({
-    url: "cadastros/contatos/ContatoController.php",
+    url: "/cadastros/contatos/ContatoController.php",
     type: "POST",
     data: formData,
     processData: false,
@@ -173,7 +173,7 @@ $("#btnConfirmaRemoveContato").on("click", function () {
   var acaoContato = $("#acaoContatoExcluir").val();
 
   $.post(
-    "cadastros/contatos/ContatoController.php",
+    "/cadastros/contatos/ContatoController.php",
     { id: idContato, acao: acaoContato },
     function (resultado) {
       var mensagem = "<strong>Contato Removido com sucesso!</strong>";

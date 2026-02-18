@@ -149,5 +149,6 @@ $('#id_etiqueta2').on('select2:open', function() {
 });
 </script>
 
+<script src="gestao/js/funcoes.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 <script src="../cadastros/contatos/contatosForms.js"></script>
