@@ -95,7 +95,7 @@
 
     <p class="uk-text-right" style="margin-top:1rem">
         <button id="btnCancelaContato" class="uk-button uk-button-default uk-modal-close fechar" type="button">Cancelar</button>
-        <input id="btnGravarContato" class="uk-button uk-button-primary" type="submit" value="Salvar">
+        <input id="btnGravarContato" class="uk-button uk-button-primary" type="button" value="Salvar">
     </p>
 </div>
 
