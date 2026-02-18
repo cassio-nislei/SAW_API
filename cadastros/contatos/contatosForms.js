@@ -67,63 +67,78 @@ $("#btnGravarContato").click(function (e) {
 
   console.log("Validações passaram, enviando formulário...");
 
-  $("#gravaContato")
-    .ajaxForm({
-      resetForm: false,
-      beforeSend: function () {
-        console.log("Enviando dados via AJAX...");
-        $("#gravaContato").find("input, button").prop("disabled", true);
-        $("#btnGravarContato").attr("value", "Salvando ...");
-        $("#btnGravarContato").attr("disabled", true);
-        $("#btnCancelaContato").attr("disabled", true);
-      },
-      success: function (retorno) {
-        console.log("Resposta recebida:", retorno);
+  // Coleta os dados do formulário
+  var formData = new FormData(document.getElementById('gravaContato'));
+  
+  $.ajax({
+    url: "cadastros/contatos/ContatoController.php",
+    type: "POST",
+    data: formData,
+    processData: false,
+    contentType: false,
+    beforeSend: function () {
+      console.log("Enviando dados via AJAX para: cadastros/contatos/ContatoController.php");
+      console.log("Dados:", {
+        numero: numero,
+        nome: nome,
+        acao: $("#acaoContato").val(),
+        razao_social: $("#razao_social").val(),
+        cpf_cnpj: $("#cpf_cnpj").val(),
+        id_etiqueta2: $("#id_etiqueta2").val()
+      });
+      $("#gravaContato").find("input, button").prop("disabled", true);
+      $("#btnGravarContato").attr("value", "Salvando ...");
+      $("#btnGravarContato").attr("disabled", true);
+      $("#btnCancelaContato").attr("disabled", true);
+    },
+    success: function (retorno) {
+      console.log("Resposta recebida:", retorno);
 
-        if (retorno == 1) {
-          console.log("Contato cadastrado com sucesso!");
-          mostraDialogo(mensagem, "success", 2500);
-        } else if (retorno == 2) {
-          console.log("Contato atualizado com sucesso!");
-          mostraDialogo(mensagem2, "success", 2500);
-        } else if (retorno == 3) {
-          console.log("Contato duplicado!");
-          mostraDialogo(mensagem3, "danger", 2500);
-        } else if (retorno == 8) {
-          console.log("Número internacional não permitido!");
-          mostraDialogo(mensagem8, "danger", 2500);
-        } else {
-          try {
-            retorno = JSON.parse(retorno);
-            console.log("Erro:", retorno.erro);
-            mostraDialogo(retorno.erro, "danger", 2500);
-          } catch (e) {
-            console.log("Resposta não esperada:", retorno);
-            mostraDialogo("Erro: " + retorno, "danger", 2500);
-          }
+      if (retorno == 1) {
+        console.log("Contato cadastrado com sucesso!");
+        mostraDialogo(mensagem, "success", 2500);
+      } else if (retorno == 2) {
+        console.log("Contato atualizado com sucesso!");
+        mostraDialogo(mensagem2, "success", 2500);
+      } else if (retorno == 3) {
+        console.log("Contato duplicado!");
+        mostraDialogo(mensagem3, "danger", 2500);
+      } else if (retorno == 8) {
+        console.log("Número internacional não permitido!");
+        mostraDialogo(mensagem8, "danger", 2500);
+      } else {
+        try {
+          var jsonRetorno = JSON.parse(retorno);
+          console.log("Erro:", jsonRetorno.erro);
+          mostraDialogo(jsonRetorno.erro, "danger", 2500);
+        } catch (e) {
+          console.log("Resposta não esperada:", retorno);
+          mostraDialogo("Erro: " + retorno, "danger", 2500);
         }
+      }
 
-        // Atualiza a Lista de Contatos //
-        if (typeof atualizaContatos === "function") {
-          atualizaContatos();
-        }
+      // Atualiza a Lista de Contatos //
+      if (typeof atualizaContatos === "function") {
+        atualizaContatos();
+      }
 
-        // Fechando a Modal //
-        if (typeof fecharModal === "function") {
-          fecharModal();
-        }
-      },
-      complete: function () {
-        console.log("Requisição completa");
-        $("#btnGravarContato").attr("value", "Salvar");
-        $("#btnGravarContato").attr("disabled", false);
-      },
-      error: function (retorno) {
-        console.log("Erro na requisição:", retorno);
-        mostraDialogo(mensagem4, "danger", 2500);
-      },
-    })
-    .submit();
+      // Fechando a Modal //
+      if (typeof fecharModal === "function") {
+        fecharModal();
+      }
+    },
+    complete: function () {
+      console.log("Requisição completa");
+      $("#btnGravarContato").attr("value", "Salvar");
+      $("#btnGravarContato").attr("disabled", false);
+    },
+    error: function (xhr, status, error) {
+      console.log("Erro na requisição:", status, error);
+      console.log("Resposta do servidor:", xhr.responseText);
+      mostraDialogo(mensagem4 + " - " + error, "danger", 2500);
+    }
+  });
+});
 });
 // FIM Adicionar/Alterar Registro //
 

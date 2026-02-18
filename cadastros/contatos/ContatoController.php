@@ -1,5 +1,10 @@
 <?php 
-    require_once("../includes/padrao.inc.php");
+    require_once("../../includes/padrao.inc.php");
+    
+    // Debug
+    error_log("ContatoController.php chamado");
+    error_log("POST data: " . json_encode($_POST));
+    error_log("GET data: " . json_encode($_GET));
 
     // Declaração de Variáveis //
         $_method = (isset($_POST) && !empty($_POST)) ? "_Post" : "_Get";
