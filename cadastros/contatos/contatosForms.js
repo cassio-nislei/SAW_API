@@ -2,18 +2,24 @@
 console.log("contatosForms.js carregado com sucesso!");
 
 // Formatando o 'Número do Telefone' //
-var behavior = function (val) {
-    return val.replace(/\D/g, "").length === 13
-      ? "+00 (00) 00000-0000"
-      : "+00 (00) 0000-00009";
-  },
-  options = {
-    onKeyPress: function (val, e, field, options) {
-      field.mask(behavior.apply({}, arguments), options);
-    },
-  };
+$(document).ready(function() {
+  if (typeof $.fn.mask === 'function') {
+    var behavior = function (val) {
+        return val.replace(/\D/g, "").length === 13
+          ? "+00 (00) 00000-0000"
+          : "+00 (00) 0000-00009";
+      },
+      options = {
+        onKeyPress: function (val, e, field, options) {
+          field.mask(behavior.apply({}, arguments), options);
+        },
+      };
 
-$("#numero_contato").mask(behavior, options);
+    $("#numero_contato").mask(behavior, options);
+  } else {
+    console.log("jQuery Mask Plugin não está carregado");
+  }
+});
 // FIM Formatando o 'Número do Telefone' //
 
 // Adicionar/Alterar Registro //
