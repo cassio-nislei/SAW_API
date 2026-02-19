@@ -1,5 +1,10 @@
 <?php
-session_start();
+// Session already started in padrao.inc.php when accessed via gestao/index.php
+// Only start session if not already active
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
     ?>
 <!doctype html>
 <html lang="en">

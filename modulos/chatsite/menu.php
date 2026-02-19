@@ -1,5 +1,8 @@
 <?php
-  @session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
   require_once("includes/conexao.php");
 
   if (!isset($_POST["itemMenu"])){

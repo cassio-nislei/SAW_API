@@ -1,6 +1,9 @@
 <?php
-  session_start();
-  if (isset($_POST["nome"])){
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
+if (isset($_POST["nome"])){
     $_SESSION["chat"]["nome"] = $_POST["nome"];
 
  

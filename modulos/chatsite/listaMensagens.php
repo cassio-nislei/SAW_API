@@ -1,7 +1,9 @@
 <?php
-session_start();
-
- require_once("includes/conexao.php");
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
+require_once("includes/conexao.php");
   if ($_SESSION["chat"]["menu"]==true){
      echo'<div id="ListarMenu">'; 
      include("menu.php");
