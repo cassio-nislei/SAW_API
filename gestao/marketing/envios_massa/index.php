@@ -1,3 +1,5 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/jquery.form.js"></script>
 <link href="css/estiloinputlabel.css" rel="stylesheet">
 <script>
@@ -151,7 +153,8 @@ $( document ).ready(function() {
             success: function( retorno ){				
                 // Mensagem de Cadastro efetuado //
                 if (retorno == 1){ 
-					$('#mdlImporta').modal('hide');
+					const mdlImporta = bootstrap.Modal.getInstance(document.getElementById('mdlImporta'));
+					if (mdlImporta) mdlImporta.hide();
 					mostraDialogo("Dados Importados", "success", 2500); 	
 					$.ajax("marketing/envios_massa/listar.php").done(function(data) {
                     $('#Listar').html(data);

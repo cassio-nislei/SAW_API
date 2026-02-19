@@ -82,7 +82,8 @@
     </div>
 </div>
 
-
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 $(document).ready(function() {
@@ -96,12 +97,13 @@ function listarAlmocoAtendente(){
               //Verifico se o Checkbox está marcado para mostrar ou oculta o campo da mensagem de almoço             
                  if( dadosalomoco.em_almoco==1 ){                    
                     $('#horario_almoco').prop('checked', true);                   
-                    $("#mdlAlmocando").modal("show");         
+                    new bootstrap.Modal(document.getElementById('mdlAlmocando')).show();         
                       
                 } else{ 
 
                     $('#horario_almoco').prop('checked', false);   
-                    $("#mdlAlmocando").modal("hide");                 
+                    const mdlAlmocando = bootstrap.Modal.getInstance(document.getElementById('mdlAlmocando'));
+                    if (mdlAlmocando) mdlAlmocando.hide();
                 }
             $('#msgAlmocoAtendente').val(dadosalomoco.msg_almoco);
         })

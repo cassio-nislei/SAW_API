@@ -1,4 +1,6 @@
 <?php require_once("../../../includes/padrao.inc.php"); ?>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <div class="table-responsive">
     <table class="table table-striped table-bordered table-hover" id="grid1">
@@ -93,7 +95,7 @@
 		e.preventDefault();	
 		var id = $(this).parent().parent("tr").find('#IdRespostaAutomatica').val();
 		$("#id_msg").val(id);
-	$('#mdlImporta').modal('show');
+	new bootstrap.Modal(document.getElementById('mdlImporta')).show();
 });
 
 

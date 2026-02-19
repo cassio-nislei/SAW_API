@@ -1,6 +1,7 @@
 <?php require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php"); ?>
 <link rel="stylesheet" href="/css/quill.snow.css">
 <link rel="stylesheet" href="/css/tagsinput.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
 	.table address, dl, fieldset, figure, ol, p, pre, ul{
 		margin:0;
@@ -209,6 +210,7 @@
 <script src="/js/quill.js"></script>
 <script src="/js/tagsinput.js"></script>
 <script src="/js/ajaxupload.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     // JavaScript Document
@@ -297,7 +299,7 @@ $( document ).ready(function() {
 	// Exclusão //
 	$('.ConfirmaExclusaoBC').on('click', function (){
 	    var id = $(this).closest("tr").find('#IdBC').val();
-		$('#modalBaseConhecimentoExclusao').modal('show');
+		new bootstrap.Modal(document.getElementById('modalBaseConhecimentoExclusao')).show();
 		$("#IdBC2").val(id);
 	});
 
@@ -323,7 +325,8 @@ $( document ).ready(function() {
 			else{ mostraDialogo(mensagem9, "danger", 2500); }
 
 			// Fechando a Modal de Confirmação //
-			$('#modalBaseConhecimentoExclusao').modal('hide');
+			const mdlExclusao = bootstrap.Modal.getInstance(document.getElementById('modalBaseConhecimentoExclusao'));
+			if (mdlExclusao) mdlExclusao.hide();
 			$("#btnConfirmaRemoveBC").attr('value', 'Confirmar Exclusão!');
         	$('#btnConfirmaRemoveBC').attr('disabled', false);
 		});
