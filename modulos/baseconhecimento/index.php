@@ -183,11 +183,11 @@
                         <td>'.limitarTexto($objResult->problema,40).'</td>
                         <td>'.limitarTexto($objResult->solucao,40).'</td>
                         <td>
-                            <button class="btn btn-sm btn-danger" style="padding: 2px 6px;" title="Excluir">
-                                <i class="fas fa-trash ConfirmaExclusaoBC"></i>
+                            <button class="btn btn-sm btn-danger ConfirmaExclusaoBC" style="padding: 2px 6px;" title="Excluir">
+                                <i class="fas fa-trash"></i>
                             </button>
-                            <button class="btn btn-sm btn-primary" style="padding: 2px 6px;" title="Editar">
-                                <i class="fas fa-pencil-alt botaoAlterarBC"></i>
+                            <button class="btn btn-sm btn-primary botaoAlterarBC" style="padding: 2px 6px;" title="Editar">
+                                <i class="fas fa-pencil-alt"></i>
                             </button>
                             '.$downloads.'
                         </td>                     
@@ -292,8 +292,8 @@ $( document ).ready(function() {
 	// Ações do Arquivo Listar //
 	// Exclusão //
 	$('.ConfirmaExclusaoBC').on('click', function (){
-	    var id = $(this).parent().parent().parent("tr").find('#IdBC').val();
-		abrirModal("#modalBaseConhecimentoExclusao");
+	    var id = $(this).closest("tr").find('#IdBC').val();
+		$('#modalBaseConhecimentoExclusao').modal('show');
 		$("#IdBC2").val(id);
 	});
 
@@ -308,7 +308,7 @@ $( document ).ready(function() {
 			var mensagem1  = "<strong>Base de Conhecimento Removido com sucesso!</strong>";
 			var mensagem9 = 'Falha ao Remover Base de Conhecimento!';
 
-			if( resultado = 1 ){
+			if( resultado == 1 ){
 				mostraDialogo(mensagem1, "success", 2500);	
 
 				$.ajax("modulos/baseconhecimento/index.php").done(function(data) {
@@ -319,7 +319,7 @@ $( document ).ready(function() {
 			else{ mostraDialogo(mensagem9, "danger", 2500); }
 
 			// Fechando a Modal de Confirmação //
-			$('#modalBaseConhecimentoExclusao').attr('style', 'display: none');
+			$('#modalBaseConhecimentoExclusao').modal('hide');
 			$("#btnConfirmaRemoveBC").attr('value', 'Confirmar Exclusão!');
         	$('#btnConfirmaRemoveBC').attr('disabled', false);
 		});
@@ -329,7 +329,7 @@ $( document ).ready(function() {
 	// Alteração //
 		$('.botaoAlterarBC').on('click', function (){
 			// Busco os dados do Produto Selecionado  
-			var codigo = $(this).parent().parent().parent("tr").find('input:hidden').val();
+			var codigo = $(this).closest("tr").find('input:hidden').val();
 
 			// Alterando Displays //
 			$("#FormBC").css("display","block");
@@ -376,13 +376,6 @@ $( document ).ready(function() {
 
 	// Fechar Cadastro //
 	$('#btnFecharCadastroBC').on('click', function (){
-		$("#ListaBC").css("display","block");
-		$("#FormBC").css("display","none");
-	});
-	$('#btnCancelaRemoveBC').on('click', function (){
-		// Fechando a Modal de Confirmação //
-		$('#modalBaseConhecimentoExclusao').attr('style', 'display: none');
-		
 		$("#ListaBC").css("display","block");
 		$("#FormBC").css("display","none");
 	});
