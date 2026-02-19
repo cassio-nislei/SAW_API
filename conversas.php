@@ -976,7 +976,7 @@ if (!isset($_SESSION["usuariosaw"])){
                 MenuLateral.style.display = 'none';
                      
                 $("#Verchat").css("display","none");  //Oculto o chat de Atendentes
-                $("#btManipulaChat").css("display","flex").css("z-index","999");  //Mostro o botão do chat de Atendentes
+                $("#btManipulaChat").css("display","none");  //Oculto o botão do chat de Atendentes
                 $("._1FKgS").css("overflow","hidden");  //Oculto a barra de rolagem inferior
                 $("#btnVoltarResponsivo").css("display","block");   //Mostro o Botão voltar do lado da foto de perfil < azul
    
@@ -986,6 +986,26 @@ if (!isset($_SESSION["usuariosaw"])){
 
                 
             });
+
+            //Mostrar Conversas
+            $("#btnMinimuiConversas2").on("click", function() {   
+                  var MenuLateral = document.querySelector('#MenuLateral');
+                  MenuLateral.style.display = 'block';                      
+                 
+                  $("#Verchat").css("display","block");  //Mostro o chat de Atendentes
+                  $("#btManipulaChat").css("display","block");  //Mostro o botão do chat de Atendentes
+                  $("._1FKgS").css("overflow","visible"); //Mostro a barra de rolagem inferior
+
+                 
+
+                 $("#btnMinimuiConversas2").css("display","none");  
+                 $('._1Iexl').css("-webkit-flex","100%");   
+                    
+                 $("#btnVoltarResponsivo").css("display","none");   //Mostro o Botão voltar do lado da foto de perfil < azul
+             
+               
+
+        });
 
             //Botão para Ocultar/Mostrar Menu Lateral
             $("#btManipulaChat").click(function() {
