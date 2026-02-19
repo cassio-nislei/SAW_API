@@ -304,6 +304,13 @@ if (!isset($_SESSION["usuariosaw"])){
         var globalEhupload = false;
         
         $(document).ready(function() {
+            // Inicializa o estado visível do menu e do botão na primeira carga
+            var MenuLateral = document.querySelector('#MenuLateral');
+            if (MenuLateral && MenuLateral.style.display === '') {
+                MenuLateral.style.display = 'block';  // Estado padrão: menu visível
+                document.getElementById('btManipulaChat').style.display = 'none';  // Seta oculta
+            }
+            
             // Pesquisa de Contatos //
                 // Carregando a Lista de Contatos, ao pesquisar um nome //
                 $("#pesquisaContato").keyup(function() { 
@@ -1015,29 +1022,6 @@ if (!isset($_SESSION["usuariosaw"])){
                     document.getElementById('btManipulaChat').style.display = 'flex';
                 }
             });
-
-            //Mostrar Conversas
-            $("#btnMinimuiConversas2").on("click", function() {   
-                  var MenuLateral = document.querySelector('#MenuLateral');
-                  MenuLateral.style.display = 'block';                      
-                 
-                  $("#Verchat").css("display","block");  //Mostro o chat de Atendentes
-                  $("#btManipulaChat").css("display","block");  //Mostro o botão do chat de Atendentes
-                  $("._1FKgS").css("overflow","visible"); //Mostro a barra de rolagem inferior
-
-                 
-
-                 $("#btnMinimuiConversas2").css("display","none");  
-                 $('._1Iexl').css("-webkit-flex","100%");   
-                    
-                 $("#btnVoltarResponsivo").css("display","none");   //Mostro o Botão voltar do lado da foto de perfil < azul
-             
-               
-
-        });
-            
-              
-
         });
     </script>
   <script>
