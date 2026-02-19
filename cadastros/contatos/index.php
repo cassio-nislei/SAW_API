@@ -2,101 +2,68 @@
 // Este arquivo é incluído de gestao/index.php que já carrega padrao.inc.php
 ?>
 
-<style>
-/* HIDE RADIO */
-[type=radio] { 
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-/* IMAGE STYLES */
-[type=radio] + i {
-  cursor: pointer;
-}
-
-/* CHECKED STYLES */
-[type=radio]:checked + i {
-  outline: 2px solid #f00;
-}
-
-          .red {
-  background-color: red;
-}
-
-
-        </style>
-</style>
 <div class="box-modal">
-    <form method="post" id="gravaContato" name="gravaContato" action="cadastros/contatos/ContatoController.php">
-        <h2 class="title" id="titleCadastroContato">Adicionar Novo Contato</h2>
-        <div class="">
-            <input type="hidden" name="id" id="idContato" />
-            <input type="hidden" value="1" name="acao" id="acaoContato" />
+    <h2 class="title" id="titleCadastroContato">Adicionar Novo Contato</h2>
+    <form method="post" id="gravaContato" name="gravaContato" action="/cadastros/contatos/ContatoController.php">
+        <input type="hidden" name="id" id="idContato" />
+        <input type="hidden" value="1" name="acao" id="acaoContato" />
 
-            <div class="uk-width-1-1@m">
-                <div class="uk-form-label"> Celular com Whatsapp <b>(DDI Brasil 55)</b></div>
-                <input type="text" id="numero_contato" name="numero_contato" class="uk-input" placeholder="Informe o Celular com DDD e DDI (com Whatsapp)" />
-                <div id="valida_numero_contato" style="display: none" class="msgValida">
-                    Por favor, informe o Número do Telefone com DDD e DDI.
-                </div>
+        <div class="form-group">
+            <label for="numero_contato">Celular com Whatsapp <b>(DDI Brasil 55)</b></label>
+            <input type="text" id="numero_contato" name="numero_contato" class="form-control" placeholder="Informe o Celular com DDD e DDI (com Whatsapp)" />
+            <div id="valida_numero_contato" style="display: none" class="text-danger small mt-1">
+                Por favor, informe o Número do Telefone com DDD e DDI.
             </div>
-
-            <div class="uk-width-1-1@m">
-                <div class="uk-form-label"> Nome </div>
-                <input type="text" id="nome_contato" name="nome_contato" class="uk-input" placeholder="Informe o Nome do Contato" />
-                <div id="valida_nome_contato" style="display: none" class="msgValida">
-                  Por favor, informe o NOME do Contato.
-                </div>
-            </div>
-
-            <div class="uk-width-2-2@m">
-                <div class="uk-form-label"> Razão Social </div>
-                <input type="text" id="razao_social" name="razao_social" class="uk-input" placeholder="Informe a Razão Social" />
-                <div id="valida_nome_contato" style="display: none" class="msgValida">
-                  Por favor, informe a Razão Social.
-                </div>
-            </div>
-
-            <div class="uk-width-2-2@m">
-                <div class="uk-form-label">CPF/CNPJ </div>
-                <input type="text" id="cpf_cnpj" name="cpf_cnpj" class="uk-input" placeholder="Informe o CPF ou CNPJ" />
-                <div id="valida_cpf_cnpj" style="display: none" class="msgValida">
-                  Por favor, informe um CPF ou CNPJ Válido.
-                </div>
-            </div>
-
         </div>
 
-        <div class="uk-width-1-1@m">
-          <div class="uk-form-label">Escolha a TAG </div>
-          
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="nome_contato">Nome</label>
+                    <input type="text" id="nome_contato" name="nome_contato" class="form-control" placeholder="Informe o Nome do Contato" />
+                    <div id="valida_nome_contato" style="display: none" class="text-danger small mt-1">
+                        Por favor, informe o NOME do Contato.
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="razao_social">Razão Social</label>
+                    <input type="text" id="razao_social" name="razao_social" class="form-control" placeholder="Informe a Razão Social" />
+                </div>
+            </div>
+        </div>
 
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="cpf_cnpj">CPF/CNPJ</label>
+                    <input type="text" id="cpf_cnpj" name="cpf_cnpj" class="form-control" placeholder="Informe o CPF ou CNPJ" />
+                    <div id="valida_cpf_cnpj" style="display: none" class="text-danger small mt-1">
+                        Por favor, informe um CPF ou CNPJ Válido.
+                    </div>
+                </div>
+            </div>
+        </div>
 
-          <select class="js-example-basic-multiple pesqEtiquetas" name="id_etiqueta2[]" multiple="multiple" id="id_etiqueta2" style="width:90%">
-            <?php
-           //Crio a lista de etiquetas e defino as cores a exibir
-            $query = mysqli_query($conexao, "SELECT * FROM tbetiquetas");                       
-            while ($ListarEtiquetas = mysqli_fetch_array($query)){       
-               echo  '<option value="'.$ListarEtiquetas["id"].'" data-color="'.$ListarEtiquetas["cor"].'" >'.$ListarEtiquetas["descricao"].'</otpion>';                     
-              }
-            ?>
-         </select>
+        <div class="form-group">
+            <label for="id_etiqueta2">Escolha as TAGs</label>
+            <select class="form-control js-example-basic-multiple pesqEtiquetas" name="id_etiqueta2[]" multiple="multiple" id="id_etiqueta2">
+                <?php
+                    //Crio a lista de etiquetas e defino as cores a exibir
+                    $query = mysqli_query($conexao, "SELECT * FROM tbetiquetas");                       
+                    while ($ListarEtiquetas = mysqli_fetch_array($query)){       
+                        echo  '<option value="'.$ListarEtiquetas["id"].'" data-color="'.$ListarEtiquetas["cor"].'" >'.$ListarEtiquetas["descricao"].'</option>';                     
+                    }
+                ?>
+            </select>
+        </div>
 
-               
-   
-
-       
-   
-
+        <div class="form-group mt-4">
+            <button id="btnCancelaContato" class="btn btn-secondary" type="button">Cancelar</button>
+            <button id="btnGravarContato" class="btn btn-primary" type="button">Salvar</button>
         </div>
     </form>
-
-    <p class="uk-text-right" style="margin-top:1rem">
-        <button id="btnCancelaContato" class="uk-button uk-button-default uk-modal-close fechar" type="button">Cancelar</button>
-        <input id="btnGravarContato" class="uk-button uk-button-primary" type="button" value="Salvar">
-    </p>
 </div>
 
 <!-- BLOQUEIO IMEDIATO DO JQUERY.FORM.JS -->
