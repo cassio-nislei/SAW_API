@@ -1,5 +1,6 @@
 <?php
-  include "../../../includes/conexao.php";
+  require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
+  
   if (isset($_POST["de"])){
 	//Formata data De para o BD
    $deF = explode('/', $_POST["de"]) ;
@@ -8,16 +9,14 @@
    $ateF = explode('/', $_POST["ate"]) ;
    $ate = $ateF[2].'-'.$ateF[1].'-'.$ateF[0];
  }else{
-   //$de = date('d-m-Y');  
-   //$ate = date('d-m-Y'); 
    $de = date('Y-m-d');  
    $ate = date('Y-m-d');
  }
+ 
  //Verifico se possui etiquetas para filtrar
- if(isset($_POST['id_etiqueta'])){
+ if(isset($_POST['id_etiqueta']) && !empty($_POST['id_etiqueta'])){
 	$etiquetas = $_POST['id_etiqueta'];
-
-	//Mnto uma string separada por virgula
+	//Monto uma string separada por virgula
 	$etiquetas_selecionadas = '';
 	foreach ($etiquetas as $etiqueta) {
 		$etiquetas_selecionadas .= $etiqueta . ','; 
@@ -26,15 +25,14 @@
   }else{
 	$etiquetas_selecionadas = '0';
   }
- $situacao = $_POST["situacao"];
- $numero = $_POST["celular"];
- $protocolo = $_POST["protocolo"];
-
- //echo "De: $de Ate: $ate Etiqueta: $etiquetas_selecionadas Situacao: $situacao Numero: $numero protocolo:  ";
-  
- $relatorio = mysqli_query($conexao, "CALL sprRelatorioAtendimentos('$de','$ate', '$situacao', '$etiquetas_selecionadas', '$numero', '$protocolo' );");
- //$relatorio = mysqli_query($conexao, "CALL sprRelatorioAtendimentos('2023-05-04', '2023-05-04', '0', '0','','' );");
-?>
+ 
+ $situacao = (isset($_POST["situacao"])) ? $_POST["situacao"] : '0';
+ $numero = (isset($_POST["celular"]) && !empty($_POST["celular"])) ? $_POST["celular"] : '';
+ $protocolo = (isset($_POST["protocolo"]) && !empty($_POST["protocolo"])) ? $_POST["protocolo"] : '';
+ $atendentes = '0';  // 7º parâmetro - Atendentes (padrão vazio)
+ 
+  $relatorio = mysqli_query($conexao, "CALL sprRelatorioAtendimentos('$de','$ate', '$situacao', '$etiquetas_selecionadas', '$numero', '$protocolo', '$atendentes');");
+ ?>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 col-12">
