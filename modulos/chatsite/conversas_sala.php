@@ -645,7 +645,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
         function carregarSalas() {
             console.log('📡 Carregando conversas...');
             $.ajax({
-                url: 'api_conversas.php',
+                url: '/modulos/chatsite/api_conversas.php',
                 type: 'GET',
                 dataType: 'json',
                 timeout: 10000,  // 10 segundos de timeout
@@ -777,7 +777,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
             if (!salaAtual) return;
 
             $.ajax({
-                url: 'api_mensagens.php?id=' + salaAtual,
+                url: '/modulos/chatsite/api_mensagens.php?id=' + salaAtual,
                 type: 'GET',
                 dataType: 'json',
                 timeout: 10000,
@@ -845,7 +845,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
             $(this).prop('disabled', true).html('<i class="bi bi-hourglass-split"></i>');
 
             $.ajax({
-                url: 'enviar_resposta.php',
+                url: '/modulos/chatsite/enviar_resposta.php',
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -888,7 +888,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
             console.log('➕ Criando nova conversa com nome:', nome);
             
             $.ajax({
-                url: 'criar_conversa.php',
+                url: '/modulos/chatsite/criar_conversa.php',
                 type: 'POST',
                 dataType: 'json',
                 data: { nome: nome.trim() },

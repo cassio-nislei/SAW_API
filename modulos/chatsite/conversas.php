@@ -453,7 +453,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
         // Carregar conversas
         function carregarConversas() {
             $.ajax({
-                url: 'api_conversas.php',
+                url: '/modulos/chatsite/api_conversas.php',
                 type: 'GET',
                 dataType: 'json',
                 timeout: 10000,
@@ -561,7 +561,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
         function abrirConversa(id) {
             conversaSelecionada = id;
             $.ajax({
-                url: 'api_mensagens.php?id=' + id,
+                url: '/modulos/chatsite/api_mensagens.php?id=' + id,
                 type: 'GET',
                 dataType: 'json',
                 timeout: 10000,

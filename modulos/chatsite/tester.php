@@ -126,7 +126,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
             elem.style.display = 'block';
             
             $.ajax({
-                url: 'api_conversas.php',
+                url: '/modulos/chatsite/api_conversas.php',
                 type: 'GET',
                 dataType: 'json',
                 success: function(data) {
@@ -153,7 +153,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
             elem.style.display = 'block';
             
             $.ajax({
-                url: 'criar_conversa.php',
+                url: '/modulos/chatsite/criar_conversa.php',
                 type: 'POST',
                 data: { nome: nome },
                 success: function(response) {
@@ -162,7 +162,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
                         mostrarResposta('responseCriar', '✓ Conversa criada com sucesso!', 'json');
                         // Recarregar conversas
                         jQuery.ajax({
-                            url: 'api_conversas.php',
+                            url: '/modulos/chatsite/api_conversas.php',
                             dataType: 'json',
                             success: function(data) {
                                 console.log('Conversas atualizadas:', data);
@@ -192,7 +192,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
             elem.style.display = 'block';
             
             $.ajax({
-                url: 'api_mensagens.php?id=' + id,
+                url: '/modulos/chatsite/api_mensagens.php?id=' + id,
                 type: 'GET',
                 dataType: 'json',
                 success: function(data) {
@@ -221,7 +221,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
             elem.style.display = 'block';
             
             $.ajax({
-                url: 'enviar_resposta.php',
+                url: '/modulos/chatsite/enviar_resposta.php',
                 type: 'POST',
                 data: { 
                     id_atendimento: id,
@@ -245,7 +245,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
         // Carregar status geral
         function carregarStatus() {
             $.ajax({
-                url: 'status.php',
+                url: '/modulos/chatsite/status.php',
                 type: 'GET',
                 dataType: 'html',
                 success: function(data) {
