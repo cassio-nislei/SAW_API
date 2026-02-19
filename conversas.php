@@ -317,6 +317,58 @@ if (!isset($_SESSION["usuariosaw"])){
                 document.getElementById('btManipulaChat').style.display = 'none';  // Seta oculta
             }
             
+            // Aguarda um tempo mínimo para garantir que o DOM está totalmente pronto
+            setTimeout(function() {
+                var btnMini = document.getElementById('btnMinimuiConversas');
+                var btnMini2 = document.getElementById('btnMinimuiConversas2');
+                var btManip = document.getElementById('btManipulaChat');
+                
+                console.log("btnMinimuiConversas element:", btnMini);
+                console.log("btnMinimuiConversas2 element:", btnMini2);
+                console.log("btManipulaChat element:", btManip);
+                
+                if (btnMini) {
+                    btnMini.addEventListener('click', function(e) {    
+                        console.log("✓ btnMinimuiConversas CLICADO!");
+                        var MenuLateral = document.querySelector('#MenuLateral');
+                        MenuLateral.style.display = 'none';
+                        document.getElementById('Verchat').style.display = 'none';
+                        document.getElementById('btManipulaChat').style.display = 'block';
+                        document.querySelector('._1FKgS').style.overflow = 'hidden';
+                        document.getElementById('btnVoltarResponsivo').style.display = 'block';
+                        document.getElementById('btnMinimuiConversas2').style.display = 'block';
+                        document.querySelector('._1Iexl').style.webkitFlex = '100%';
+                    });
+                } else {
+                    console.error("btnMinimuiConversas NÃO ENCONTRADO!");
+                }
+                
+                if (btnMini2) {
+                    btnMini2.addEventListener('click', function(e) {   
+                        console.log("✓ btnMinimuiConversas2 CLICADO!");
+                        var MenuLateral = document.querySelector('#MenuLateral');
+                        MenuLateral.style.display = 'block';
+                        document.getElementById('Verchat').style.display = 'block';
+                        document.getElementById('btManipulaChat').style.display = 'none';
+                        document.querySelector('._1FKgS').style.overflow = 'visible';
+                        document.getElementById('btnMinimuiConversas2').style.display = 'none';
+                        document.querySelector('._1Iexl').style.webkitFlex = '100%';
+                        document.getElementById('btnVoltarResponsivo').style.display = 'none';
+                    });
+                } else {
+                    console.error("btnMinimuiConversas2 NÃO ENCONTRADO!");
+                }
+                
+                if (btManip) {
+                    btManip.addEventListener('click', function(e) {   
+                        console.log("✓ btManipulaChat CLICADO!");
+                        document.getElementById('btnMinimuiConversas').click();
+                    });
+                } else {
+                    console.error("btManipulaChat NÃO ENCONTRADO!");
+                }
+            }, 100);  // Aguarda 100ms para garantir que tudo está carregado
+            
             // Pesquisa de Contatos //
                 // Carregando a Lista de Contatos, ao pesquisar um nome //
                 $("#pesquisaContato").keyup(function() { 
@@ -976,63 +1028,45 @@ if (!isset($_SESSION["usuariosaw"])){
                
             //Ocultar Conversas
             
-            $("#btnMinimuiConversas").on("click", function(e) {    
+            document.getElementById('btnMinimuiConversas').addEventListener('click', function(e) {    
                 console.log("btnMinimuiConversas clicado");
-                e.preventDefault();
-                e.stopPropagation();
-                
                 var MenuLateral = document.querySelector('#MenuLateral');
                 MenuLateral.style.display = 'none';
                      
-                $("#Verchat").css("display","none");  //Oculto o chat de Atendentes
-                $("#btManipulaChat").css("display","block");  //Mostro o botão do chat de Atendentes
-                $("._1FKgS").css("overflow","hidden");  //Oculto a barra de rolagem inferior
-                $("#btnVoltarResponsivo").css("display","block");   //Mostro o Botão voltar do lado da foto de perfil < azul
+                document.getElementById('Verchat').style.display = 'none';  //Oculto o chat de Atendentes
+                document.getElementById('btManipulaChat').style.display = 'block';  //Mostro o botão do chat de Atendentes
+                document.querySelector('._1FKgS').style.overflow = 'hidden';  //Oculto a barra de rolagem inferior
+                document.getElementById('btnVoltarResponsivo').style.display = 'block';   //Mostro o Botão voltar
    
                 
-                $("#btnMinimuiConversas2").css("display","block");       
-                $('._1Iexl').css("-webkit-flex","100%");                 
-
-                
+                document.getElementById('btnMinimuiConversas2').style.display = 'block';       
+                document.querySelector('._1Iexl').style.webkitFlex = '100%';                 
             });
 
             //Mostrar Conversas
-            $("#btnMinimuiConversas2").on("click", function(e) {   
+            document.getElementById('btnMinimuiConversas2').addEventListener('click', function(e) {   
                   console.log("btnMinimuiConversas2 clicado");
-                  e.preventDefault();
-                  e.stopPropagation();
-                  
                   var MenuLateral = document.querySelector('#MenuLateral');
                   MenuLateral.style.display = 'block';                      
                  
-                  $("#Verchat").css("display","block");  //Mostro o chat de Atendentes
-                  $("#btManipulaChat").css("display","none");  //Oculto o botão do chat de Atendentes
-                  $("._1FKgS").css("overflow","visible"); //Mostro a barra de rolagem inferior
-
+                  document.getElementById('Verchat').style.display = 'block';  //Mostro o chat de Atendentes
+                  document.getElementById('btManipulaChat').style.display = 'none';  //Oculto o botão do chat de Atendentes
+                  document.querySelector('._1FKgS').style.overflow = 'visible'; //Mostro a barra de rolagem inferior
                  
-
-                 $("#btnMinimuiConversas2").css("display","none");  
-                 $('._1Iexl').css("-webkit-flex","100%");   
+                  document.getElementById('btnMinimuiConversas2').style.display = 'none';  
+                  document.querySelector('._1Iexl').style.webkitFlex = '100%';   
                     
-                 $("#btnVoltarResponsivo").css("display","none");   //Mostro o Botão voltar do lado da foto de perfil < azul
-             
-               
+                  document.getElementById('btnVoltarResponsivo').style.display = 'none';   //Oculto o Botão voltar
+            });
 
-        });
-
-            // Seta (btManipulaChat) também funciona para recolher (clica para chamar btnMinimuiConversas)
-            $(document).on("click", "#btManipulaChat", function() {   
-                console.log("btManipulaChat clicado - triggerando btnMinimuiConversas");
-                $("#btnMinimuiConversas").trigger("click");
+            // Seta (btManipulaChat) também funciona para recolher
+            document.getElementById('btManipulaChat').addEventListener('click', function(e) {   
+                console.log("btManipulaChat clicado");
+                document.getElementById('btnMinimuiConversas').click();
             });
             
-            // Alternativa: Event listener direto no DOM
-            var btnMinimuiElement = document.getElementById('btnMinimuiConversas');
-            if (btnMinimuiElement) {
-                btnMinimuiElement.addEventListener('click', function(e) {
-                    console.log("Event listener direto: btnMinimuiConversas clicado");
-                }, true); // Capture phase para pegar antes de jQuery
-            }
+              
+
         });
     </script>
   <script>

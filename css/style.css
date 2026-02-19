@@ -19163,7 +19163,7 @@ html[dir="rtl"] ._2ICcy:after {
   cursor: pointer;
   height: 25px;
   z-index: 50000;
-  opacity: 0.2;
+  opacity: 1;
 }
 
 .SetaMostrarAtendimentos {
