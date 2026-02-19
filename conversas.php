@@ -337,6 +337,13 @@ if (!isset($_SESSION["usuariosaw"])){
                         document.getElementById('Verchat').style.display = 'none';
                         document.getElementById('btManipulaChat').style.display = 'block';
                         document.getElementById('btnMinimuiConversas').style.display = 'block';  // Mantém VISÍVEL
+                        
+                        // Rotaciona o ícone chevron
+                        var chevronIcon = btnMini.querySelector('.fa-chevron-right');
+                        if (chevronIcon) {
+                            chevronIcon.classList.add('rotateIconClose');
+                        }
+                        
                         document.querySelector('._1FKgS').style.overflow = 'hidden';
                         document.getElementById('btnVoltarResponsivo').style.display = 'block';
                         document.getElementById('btnMinimuiConversas2').style.display = 'none';  // Oculta a seta de expandir
@@ -354,6 +361,13 @@ if (!isset($_SESSION["usuariosaw"])){
                         document.getElementById('Verchat').style.display = 'block';
                         document.getElementById('btManipulaChat').style.display = 'none';
                         document.getElementById('btnMinimuiConversas').style.display = 'block';  // Chevron VISÍVEL
+                        
+                        // Remove a rotação do ícone chevron
+                        var chevronIcon = btnMini.querySelector('.fa-chevron-right');
+                        if (chevronIcon) {
+                            chevronIcon.classList.remove('rotateIconClose');
+                        }
+                        
                         document.querySelector('._1FKgS').style.overflow = 'visible';
                         document.getElementById('btnMinimuiConversas2').style.display = 'none';  // Seta oculta
                         document.querySelector('._1Iexl').style.webkitFlex = '100%';
@@ -366,6 +380,7 @@ if (!isset($_SESSION["usuariosaw"])){
                 if (btManip) {
                     btManip.addEventListener('click', function(e) {   
                         console.log("✓ btManipulaChat CLICADO!");
+                        // Recolhe o menu - dispara o handler do btnMini
                         document.getElementById('btnMinimuiConversas').click();
                     });
                 } else {
