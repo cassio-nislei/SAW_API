@@ -979,6 +979,25 @@ if (!isset($_SESSION["usuariosaw"])){
                 
             });
 
+            //Botão para Ocultar Chat e Mostrar Menu Lateral
+            $("#btManipulaChat").on("click", function() {
+                var MenuLateral = document.querySelector('#MenuLateral');
+                
+                if (MenuLateral.style.display === 'none' || MenuLateral.style.display === '') {
+                    // Mostrar menu lateral
+                    MenuLateral.style.display = 'block';
+                    $("#Verchat").css("display","block");  //Mostro o chat de Atendentes
+                    $("#btManipulaChat").css("display","block");  //Mostro o botão do chat de Atendentes
+                    $(this).attr("aria-expanded", "false");
+                } else {
+                    // Ocultar menu lateral
+                    MenuLateral.style.display = 'none';
+                    $("#Verchat").css("display","none");  //Oculto o chat de Atendentes
+                    $("#btManipulaChat").css("display","none");  //Oculto o botão do chat de Atendentes
+                    $(this).attr("aria-expanded", "true");
+                }
+            });
+
             //Mostrar Conversas
             $("#btnMinimuiConversas2").on("click", function() {   
                   var MenuLateral = document.querySelector('#MenuLateral');
