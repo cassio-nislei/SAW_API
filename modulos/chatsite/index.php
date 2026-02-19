@@ -5,538 +5,667 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
-    ?>
+?>
 <!doctype html>
-<html lang="en">
-  <head>
-    <!-- Required meta tags -->
+<html lang="pt-BR">
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <script src="js/jquery-3.6.0.min.js"></script>
-    <script src="js/jquery.form.min.js"></script>
-    <script src="js/jquery-ui.min.js"></script>
-    <title>SAW CHAT</title>
+    <title>SAW Chat - Atendimento</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js"></script>
+    
     <style>
+        * {
+            box-sizing: border-box;
+        }
 
-      .stretch-card>.card {
-    width: 100%;
-    min-width: 100%
-}
+        :root {
+            --primary-color: #0d6efd;
+            --primary-dark: #0b5ed7;
+            --secondary-color: #6f42c1;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #0dcaf0;
+            --light-bg: #f8f9fa;
+            --border-color: #e9ecef;
+            --text-dark: #212529;
+            --text-muted: #6c757d;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
 
-body {
-    background-color: #f9f9fa;
-    padding:0;
-    margin:0;
-}
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            padding: 1rem;
+            margin: 0;
+        }
 
-.flex {
-    -webkit-box-flex: 1;
-    -ms-flex: 1 1 auto;
-    flex: 1 1 auto
-}
+        .chat-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem 0;
+        }
 
-@media (max-width:991.98px) {
-    .padding {
-        padding: 1.5rem
-    }
-}
+        .chat-wrapper {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+            max-height: 600px;
+        }
 
-@media (max-width:767.98px) {
-    .padding {
-        padding: 1rem
-    }
-}
+        /* ===== HEADER ===== */
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
 
-.padding {
-    padding: 3rem
-}
+        .chat-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
 
-.box.box-warning {
-    border-top-color: #f39c12;
-}
+        .chat-header h2 i {
+            font-size: 1.75rem;
+        }
 
-.box {
-    position: relative;
-    border-radius: 3px;
-    background: #ffffff;
-    border-top: 3px solid #d2d6de;
-    margin-bottom: 20px;
-    width: 100%;
-    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-}
-.box-header.with-border {
-    border-bottom: 1px solid #f4f4f4
-}
+        .chat-status {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
 
-.box-header.with-border {
-    border-bottom: 1px solid #f4f4f4;
-}
+        /* ===== INICIO ATENDIMENTO ===== */
+        .inicio-atendimento {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: linear-gradient(180deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            text-align: center;
+        }
 
-.box-header {
-    color: #444;
-    display: block;
-    padding: 10px;
-    position: relative;
-}
+        .inicio-icon {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+            animation: float 3s ease-in-out infinite;
+        }
 
-.box-header:before, .box-body:before, .box-footer:before, .box-header:after, .box-body:after, .box-footer:after {
-    content: " ";
-    display: table;
-}
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
 
-.box-header {
-    color: #444;
-    display: block;
-    padding: 10px;
-    position: relative
-}
+        .inicio-title {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
 
-.box-header>.fa, .box-header>.glyphicon, .box-header>.ion, .box-header .box-title {
-    display: inline-block;
-    font-size: 18px;
-    margin: 0;
-    line-height: 1;
-}
+        .inicio-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+        }
 
-.box-header>.box-tools {
-    position: absolute;
-    right: 10px;
-    top: 5px;
-}
+        .form-inicio {
+            width: 100%;
+        }
 
-.box-header>.box-tools [data-toggle="tooltip"] {
-    position: relative;
-}
+        .form-control-moderno {
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
 
-.bg-yellow, .callout.callout-warning, .alert-warning, .label-warning, .modal-warning .modal-body {
-    background-color: #f39c12 !important;
-}
+        .form-control-moderno:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            outline: none;
+        }
 
-.bg-yellow{
-        color: #fff !important;
-}
+        .btn-iniciar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 1rem;
+        }
 
-.btn {
-    border-radius: 3px;
-    -webkit-box-shadow: none;
-    box-shadow: none;
-    border: 1px solid transparent;
-}
+        .btn-iniciar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
 
-.btn-box-tool {
-    padding: 5px;
-    font-size: 12px;
-    background: transparent;
-    color: #97a0b3;
-}
+        .btn-iniciar:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
 
-.direct-chat .box-body {
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
-    position: relative;
-    overflow-x: hidden;
-    padding: 0;
-}
+        /* ===== CHAT MESSAGES ===== */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
 
-.box-body {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 3px;
-    border-bottom-left-radius: 3px;
-    padding: 10px;
-}
-.box-header:before, .box-body:before, .box-footer:before, .box-header:after, .box-body:after, .box-footer:after {
-    content: " ";
-    display: table;
-}
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
 
-.direct-chat-messages {
-    -webkit-transform: translate(0, 0);
-    -ms-transform: translate(0, 0);
-    -o-transform: translate(0, 0);
-    transform: translate(0, 0);
-    padding: 10px;
-    height: 250px;
-    overflow: auto;
-}
+        .chat-messages::-webkit-scrollbar-track {
+            background: var(--light-bg);
+            border-radius: 10px;
+        }
 
-.direct-chat-messages, .direct-chat-contacts {
-    -webkit-transition: -webkit-transform .5s ease-in-out;
-    -moz-transition: -moz-transform .5s ease-in-out;
-    -o-transition: -o-transform .5s ease-in-out;
-    transition: transform .5s ease-in-out;
-}
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 10px;
+        }
 
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #bbb;
+        }
 
+        .message {
+            display: flex;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease;
+        }
 
-.direct-chat-msg {
-    margin-bottom: 10px;
-}
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-.direct-chat-msg, .direct-chat-text {
-    display: block;
-}
+        .message.own {
+            justify-content: flex-end;
+        }
 
-.direct-chat-info {
-    display: block;
-    margin-bottom: 2px;
-    font-size: 12px;
-}
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+            font-weight: 600;
+        }
 
-.direct-chat-timestamp {
-    color: #999;
-}
+        .message.own .message-avatar {
+            background: linear-gradient(135deg, #198754 0%, #0d6efd 100%);
+        }
 
-.btn-group-vertical>.btn-group:after, .btn-group-vertical>.btn-group:before, .btn-toolbar:after, .btn-toolbar:before, .clearfix:after, .clearfix:before, .container-fluid:after, .container-fluid:before, .container:after, .container:before, .dl-horizontal dd:after, .dl-horizontal dd:before, .form-horizontal .form-group:after, .form-horizontal .form-group:before, .modal-footer:after, .modal-footer:before, .modal-header:after, .modal-header:before, .nav:after, .nav:before, .navbar-collapse:after, .navbar-collapse:before, .navbar-header:after, .navbar-header:before, .navbar:after, .navbar:before, .pager:after, .pager:before, .panel-body:after, .panel-body:before, .row:after, .row:before {
-    display: table;
-    content: " ";
-}
+        .message-content {
+            display: flex;
+            flex-direction: column;
+            max-width: 75%;
+        }
 
-.direct-chat-img {
-    border-radius: 50%;
-    float: left;
-    width: 40px;
-    height: 40px;
-}
+        .message-info {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+            padding: 0 0.5rem;
+        }
 
-.direct-chat-text {
-    border-radius: 5px;
-    position: relative;
-    padding: 5px 10px;
-    background: #d2d6de;
-    border: 1px solid #d2d6de;
-    margin: 5px 0 0 50px;
-    color: #444;
-}
+        .message-text {
+            background: var(--light-bg);
+            color: var(--text-dark);
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
 
-.direct-chat-msg, .direct-chat-text {
-    display: block;
-}
+        .message.own .message-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px 2px 12px 12px;
+        }
 
-.direct-chat-text:before {
-    border-width: 6px;
-    margin-top: -6px;
-}
+        .message:not(.own) .message-text {
+            border-radius: 2px 12px 12px 12px;
+        }
 
-.direct-chat-text:after, .direct-chat-text:before {
-    position: absolute;
-    right: 100%;
-    top: 15px;
-    border: solid transparent;
-    border-right-color: #d2d6de;
-    content: ' ';
-    height: 0;
-    width: 0;
-    pointer-events: none;
-}
+        .system-message {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            padding: 1rem;
+            background: var(--light-bg);
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
 
-.direct-chat-text:after {
-    border-width: 5px;
-    margin-top: -5px;
-}
+        /* ===== CHAT FOOTER ===== */
+        .chat-footer {
+            background: white;
+            border-top: 1px solid var(--border-color);
+            padding: 1rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-end;
+        }
 
-.direct-chat-text:after, .direct-chat-text:before {
-    position: absolute;
-    right: 100%;
-    top: 15px;
-    border: solid transparent;
-    border-right-color: #d2d6de;
-    content: ' ';
-    height: 0;
-    width: 0;
-    pointer-events: none;
-}
+        .input-mensagem {
+            flex: 1;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: none;
+            max-height: 100px;
+            transition: all 0.3s ease;
+        }
 
-:after, :before {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-}
+        .input-mensagem:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            outline: none;
+        }
 
-.direct-chat-msg:after {
-    clear: both;
-}
+        .btn-enviar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
 
-.direct-chat-msg:after {
-    content: " ";
-    display: table;
-}
+        .btn-enviar:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+        }
 
-.direct-chat-info {
-    display: block;
-    margin-bottom: 2px;
-    font-size: 12px;
-}
+        .btn-enviar:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
 
-.right .direct-chat-img {
-    float: right;
-}
+        /* ===== TOOLS ===== */
+        .chat-tools {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            padding: 0 0.5rem;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border-color);
+            background: white;
+        }
 
-.direct-chat-warning .right>.direct-chat-text {
-    background: #f39c12;
-    border-color: #f39c12;
-    color: #fff;
-}
+        .badge-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.45rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
 
-.right .direct-chat-text {
-    margin-right: 50px;
-    margin-left: 0;
-}
+        .btn-tool {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
 
-.box-footer {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 3px;
-    border-bottom-left-radius: 3px;
-    border-top: 1px solid #f4f4f4;
-    padding: 10px;
-    background-color: #fff;
-}
+        .btn-tool:hover {
+            color: #667eea;
+        }
 
-.box-header:before, .box-body:before, .box-footer:before, .box-header:after, .box-body:after, .box-footer:after {
-    content: " ";
-    display: table;
-}
+        .btn-sair {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
+        .btn-sair:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(220, 53, 69, 0.3);
+            color: white;
+        }
 
-.input-group-btn {
-    position: relative;
-    font-size: 0;
-    white-space: nowrap;
-}
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 576px) {
+            .chat-wrapper {
+                max-height: 100vh;
+                height: 100vh;
+                border-radius: 0;
+            }
 
-.input-group-btn:last-child>.btn, .input-group-btn:last-child>.btn-group {
-    z-index: 2;
-    margin-left: -1px;
-}
+            body {
+                padding: 0;
+            }
 
-.btn-warning {
-    color: #fff;
-    background-color: #f0ad4e;
-    border-color: #eea236;
-} 
+            .chat-container {
+                min-height: auto;
+                height: 100vh;
+                padding: 0;
+            }
 
+            .chat-header h2 {
+                font-size: 1.25rem;
+            }
 
+            .message-content {
+                max-width: 85%;
+            }
 
+            .message-text {
+                font-size: 0.95rem;
+            }
 
+            .chat-footer {
+                padding: 0.75rem;
+                gap: 0.5rem;
+            }
 
+            .input-mensagem {
+                font-size: 1rem;
+            }
 
+            .btn-enviar {
+                width: 36px;
+                height: 36px;
+            }
+        }
+
+        /* ===== ANIMATIONS ===== */
+        .spin {
+            animation: spin 0.6s linear;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--light-bg);
+            border-radius: 12px;
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #999;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.5; }
+            30% { opacity: 1; }
+        }
     </style>
-  </head>
-  <body>
-  <div class="page-content page-container" id="page-content">
-    <div class="row container d-flex justify-content-center">
-      <div class="col-md-4">
-             
-              <div class="box box-warning direct-chat direct-chat-warning">
-                <div class="box-header with-border">
-    <?php
-    if (!isset($_SESSION["chat"]["nome"])){
-      echo '
-      <h3 class="box-title">Novo Atendimento</h3>
-      <form action="#" method="post">
-      <div class="input-group">
-        <input type="text" id="nome" name="nome" placeholder="Informe seu nome ..." class="form-control">
-        <span class="input-group-btn">
-              <button id="btnIniciarAtendimeto" type="button" class="btn btn-warning btn-flat">INICIAR</button>
-            </span>
-      </div>
-    </form> ';
-
-    
-
-    }else{
-    ?>
-
-                  <h3 class="box-title">Mensagens</h3>
-
-                  <div class="box-tools pull-right">
-                    <span data-toggle="tooltip" title="" class="badge bg-yellow"  id="TotalMensagens" data-original-title="3 New Messages">0</span>
-                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                    </button>
-                    <button type="button" class="btn btn-box-tool" data-toggle="tooltip" title="" data-widget="chat-pane-toggle" data-original-title="Contacts">
-                      <i class="fa fa-comments"></i></button>
-                    <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
-                    </button>
-                  </div>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-wrapper">
+            <!-- HEADER -->
+            <div class="chat-header">
+                <h2><i class="bi bi-chat-dots-fill"></i> Chat SAW</h2>
+                <div class="chat-status">
+                    <?php echo isset($_SESSION["chat"]["nome"]) ? "Bem-vindo, " . $_SESSION["chat"]["nome"] . "!" : "Novo atendimento"; ?>
                 </div>
-              
-                <div class="box-body">
-                  
-                  <div class="direct-chat-messages" id="ListarMensagens">             
-                 
-                  </div>
-                  <!-- Hidden inputs for JavaScript polling -->
-                  <input type="hidden" id="s_numero" value="<?php echo isset($_SESSION["chat"]["numero"]) ? $_SESSION["chat"]["numero"] : ''; ?>">
-                  <input type="hidden" id="s_id_atendimento" value="<?php echo isset($_SESSION["chat"]["id_atendimento"]) ? $_SESSION["chat"]["id_atendimento"] : ''; ?>">
-                  <input type="hidden" id="s_nome" value="<?php echo isset($_SESSION["chat"]["nome"]) ? $_SESSION["chat"]["nome"] : ''; ?>">
-                </div>
-               
-                <div class="box-footer">
-                  <form action="#" method="post">
-                    <div class="input-group">
-                    <textarea name="mensagem" id="mensagem" placeholder="Escreva aqui sua mensagem ..." class="form-control" style="height: 40px;"></textarea>
-                      <span class="input-group-btn">
-                        <input type="hidden" name="numero" id="numero" value="<?php echo $_SESSION["chat"]["numero"]; ?>">
-                            <button type="button" id="btnGravarMensagem" class="btn btn-warning btn-flat">ENVIAR</button>
-                          </span>
+            </div>
+
+            <!-- CONTEÚDO PRINCIPAL -->
+            <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+                <?php if (!isset($_SESSION["chat"]["nome"])): ?>
+                    <!-- FORMULÁRIO DE INÍCIO -->
+                    <div class="inicio-atendimento">
+                        <div class="inicio-icon"><i class="bi bi-chat-heart"></i></div>
+                        <h3 class="inicio-title">Bem-vindo!</h3>
+                        <p class="inicio-subtitle">Informe seu nome para iniciar um atendimento</p>
+                        <form class="form-inicio">
+                            <input type="text" id="nome" name="nome" placeholder="Seu nome..." class="form-control-moderno" required>
+                            <button type="button" id="btnIniciarAtendimeto" class="btn-iniciar">
+                                <i class="bi bi-play-circle" style="margin-right: 0.5rem;"></i> Iniciar Atendimento
+                            </button>
+                        </form>
                     </div>
-                  </form>
-                </div>
-                <div class="row container d-flex justify-content-center">
-                <a href="sair.php"><span data-toggle="tooltip" title="" class="badge bg-yellow" data-original-title="3 New Messages">Sair</span></a>
-                
-              </div>
-             
-              </div>
-              
-           
-         
-      <?php
-     } //Fim da verificação se Tem usuario na Sessão
-    ?>
-       </div>
-     </div>
-  </div>
+                <?php else: ?>
+                    <!-- FERRAMENTAS DO CHAT -->
+                    <div class="chat-tools">
+                        <span class="badge-custom"><i class="bi bi-chat-dots"></i> <span id="TotalMensagens">0</span> mensagens</span>
+                        <div style="margin-left: auto; display: flex; gap: 0.5rem; align-items: center;">
+                            <button type="button" class="btn-tool" title="Minimizar" data-bs-toggle="tooltip">
+                                <i class="bi bi-dash-lg"></i>
+                            </button>
+                            <button type="button" class="btn-tool" title="Fechar" data-bs-toggle="tooltip">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                            <a href="../modulos/chatsite/sair.php" class="btn-sair">
+                                <i class="bi bi-box-arrow-right" style="margin-right: 0.5rem;"></i> Sair
+                            </a>
+                        </div>
+                    </div>
 
- <!-- Bootstrap -->
- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
-        integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous">
-    </script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
-        integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous">
-    </script>
+                    <!-- MENSAGENS -->
+                    <div class="chat-messages" id="ListarMensagens">
+                        <div class="system-message">
+                            <i class="bi bi-info-circle" style="margin-right: 0.5rem;"></i>
+                            Em breve um de nossos atendentes o atenderá. Aguarde por favor!
+                        </div>
+                    </div>
+
+                    <!-- FOOTER -->
+                    <div class="chat-footer">
+                        <textarea id="mensagem" name="mensagem" placeholder="Digite sua mensagem..." class="input-mensagem" rows="1"></textarea>
+                        <button type="button" id="btnGravarMensagem" class="btn-enviar" title="Enviar">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </div>
+
+                    <!-- Hidden inputs for JavaScript polling -->
+                    <input type="hidden" id="s_numero" value="<?php echo isset($_SESSION["chat"]["numero"]) ? $_SESSION["chat"]["numero"] : ''; ?>">
+                    <input type="hidden" id="s_id_atendimento" value="<?php echo isset($_SESSION["chat"]["id_atendimento"]) ? $_SESSION["chat"]["id_atendimento"] : ''; ?>">
+                    <input type="hidden" id="s_nome" value="<?php echo isset($_SESSION["chat"]["nome"]) ? $_SESSION["chat"]["nome"] : ''; ?>">
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-        $(document).ready(function() {
-    
-          $("#btnIniciarAtendimeto").click(function(e){
-             e.preventDefault();
-             var nome = $("#nome").val();
-             if ($("#nome").val()==''){               
-               return false;
-             }
-             $("#btnIniciarAtendimeto").html("Iniciando...");
-             $("#btnIniciarAtendimeto").attr("disabled",true); 
-             $.post("../modulos/chatsite/iniciaAtendimento.php", {nome:nome},function(retorno){
-          //    alert(retorno);
-               if (retorno==1){
-                location.reload(true);
-               } 
-               $("#btnIniciarAtendimeto").html("INICIAR");
-               $("#btnIniciarAtendimeto").attr("disabled",false)
-             })
-          })
+        // Auto-resize textarea
+        const textarea = document.getElementById('mensagem');
+        if (textarea) {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+            });
+        }
 
+        // Initialize tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
 
-          // Processa e Submita os Dados digitados no campo de Mensagem //
-          function processaMensagem(event){
-                    var strMensagem = $.trim($("#mensagem").val());
-                    var eventCodes = ",8,9,13,16,17,18,20,27,32,33,34,35,36,37,38,39,40,45,46,91,93,112,113,114,115,116,117,118,119,120,121,122,123,144,173,174,175,";
-                    var padrao = ","+event.keyCode+",";
-                    var regex = new RegExp(padrao);
+        // Iniciar Atendimento
+        $("#btnIniciarAtendimeto").click(function(e){
+            e.preventDefault();
+            var nome = $("#nome").val();
+            if ($("#nome").val()==''){               
+                return false;
+            }
+            $(this).html('<i class="bi bi-hourglass-split spin"></i> Iniciando...').prop('disabled', true);
+            $.post("../modulos/chatsite/iniciaAtendimento.php", {nome:nome},function(retorno){
+                if (retorno==1){
+                    location.reload(true);
+                } 
+                $("#btnIniciarAtendimeto").html('<i class="bi bi-play-circle"></i> Iniciar Atendimento').prop('disabled', false);
+            });
+        });
 
-                    if( strMensagem.length === 0 && !regex.test(eventCodes) ){
-                     //   $("#btnGravarMensagem").attr("style", "display: block");
-                     //   $("#divAudio").attr("style", "display: none");
+        // Processar Mensagem
+        function processaMensagem(event){
+            var strMensagem = $.trim($("#mensagem").val());
+            
+            // Permitir quando pressionar <Shift> e <Enter>
+            if( event.keyCode == 13 && event.shiftKey ){
+                var content = $("#mensagem").val();
+                var caret = getCaret(this);
+                this.value = content.substring(0,caret) + "\n" + content.substring(caret,content.length-1);
+                event.stopPropagation();
+            }
+            else if( event.keyCode == 13 ){
+                event.preventDefault();
+                $("#mensagem").focus();
+                $("#btnGravarMensagem").click();
+                return false;
+            }
+        }
+
+        $("#mensagem").keydown(function(event) { processaMensagem(event); });
+
+        // Gravar Mensagem
+        $("#btnGravarMensagem").click(function(e){
+            e.preventDefault();
+            var mensagem = $("#mensagem").val();
+            if ($("#mensagem").val()==''){               
+                return false;
+            }
+            $(this).html('<i class="bi bi-hourglass-split spin"></i>').prop('disabled', true);
+            $.post("../modulos/chatsite/gravaMensagem.php", {mensagem:mensagem},function(retorno){
+                if (retorno==1){
+                    $("#mensagem").val("").css('height', 'auto');
+                    if ( $( "#ListarMensagens" ).length ) { 
+                        $( "#ListarMensagens" ).load( "../modulos/chatsite/listaMensagens.php" );
                     }
-                    else if( ( strMensagem.length === 1 && event.key === "Backspace" )
-                        || strMensagem === "" ){
-                   //     $("#btnGravarMensagem").attr("style", "display: none");
-                      //  $("#divAudio").attr("style", "display: block");
-                    }
-                    
-                    // Permitir quando pressionar <Shift> e <Enter>	//
-                        if( event.keyCode == 13 && event.shiftKey ){
-                            var content = $("#mensagem").val();
-                            var caret = getCaret(this);
-                            this.value = content.substring(0,caret) 
-                                            + "\n" 
-                                            + content.substring(caret,content.length-1);
-                            event.stopPropagation();
-                        }
-                        else if( event.keyCode == 13 ){
-                            // Submita os Dados //	 
-                            event.preventDefault();
-                            $("#mensagem").focus();
-                            $("#btnGravarMensagem").click();
-                          //  $("#btnGravarMensagem").attr("style", "display: none");
-                          //  $("#divAudio").attr("style", "display: block");
-                            return false;
-                        }
-                    // FIM Permitir quando pressionar <Shift> e <Enter>	//
-                }
+                } 
+                $("#btnGravarMensagem").html('<i class="bi bi-send-fill"></i>').prop('disabled', false);
+            });
+        });
 
-                $("#mensagem").keydown(function(event) { processaMensagem(event); });
-
-          //GRava a nova mensagem
-          $("#btnGravarMensagem").click(function(e){
-             e.preventDefault();
-             var mensagem = $("#mensagem").val();
-             if ($("#mensagem").val()==''){               
-               return false;
-             }
-             $("#btnGravarMensagem").html("Enviando...");
-             $("#btnGravarMensagem").attr("disabled",true); 
-             $.post("../modulos/chatsite/gravaMensagem.php", {mensagem:mensagem},function(retorno){
-             // alert(retorno);
-               if (retorno==1){
-                $("#mensagem").val("");
-                if ( $( "#ListarMensagens" ).length ) { 
-                     $( "#ListarMensagens" ).load( "../modulos/chatsite/listaMensagens.php" );
-                 }
-               } 
-               $("#btnGravarMensagem").html("ENVIAR");
-               $("#btnGravarMensagem").attr("disabled",false)
-             })
-          })
-          
-
-
-          if ( $( "#ListarMensagens" ).length ) { 
+        // Carregar Mensagens
+        if ( $( "#ListarMensagens" ).length ) { 
             $( "#ListarMensagens" ).load( "../modulos/chatsite/listaMensagens.php" );
-          }
+        }
 
-          function ajustaScroll(){	
-            $('#ListarMensagens').animate({
-                scrollTop: $(this).height()*100 // aqui introduz o numero de px que quer no scroll, neste caso é a altura da propria div, o que faz com que venha para o fim
-            }, 100);
+        // Scroll para o final
+        function ajustaScroll(){	
+            var el = document.getElementById('ListarMensagens');
+            if (el) {
+                el.scrollTop = el.scrollHeight;
+            }
         }
 
         ajustaScroll();
 
-          function atualizaQtdMensagens() {
+        // Atualizar quantidade de mensagens
+        function atualizaQtdMensagens() {
             var numero       = $("#s_numero").val();
             var id           = $("#s_id_atendimento").val();
             var qtdMensagens = $("#TotalMensagens").text();
-            var nome         = encodeURIComponent($("#s_nome").val());
 
             $.post("../modulos/chatsite/qtdnovasmensagens.php", {
                 numero: numero,
                 id: id
             }, function(retorno) {
-                //Válida se é para Atualizar a conversa, só faz a atualização da tela se existirem novas mensagens
                 if (parseInt(retorno) > parseInt(qtdMensagens)) {
                     if ( $( "#ListarMensagens" ).length ) { 
-                         $( "#ListarMensagens" ).load( "../modulos/chatsite/listaMensagens.php" );
-                     
-                   }
-
-                   ajustaScroll(); //desço a barra de rolagem da conversa
+                        $( "#ListarMensagens" ).load( "../modulos/chatsite/listaMensagens.php" );
+                    }
+                    ajustaScroll();
                 }
                 $("#TotalMensagens").html(retorno);
             });
         }
 
-        // Atualiza a Lista de Atendimentos //
-            var intervalo = setInterval(function() { atualizaQtdMensagens(); }, 5000);
-            atualizaQtdMensagens();
-        // FIM Atualiza a Lista de Atendimentos //
-
-
-        });
-    </script> 
-  </body>
+        // Polling de atualização
+        var intervalo = setInterval(function() { atualizaQtdMensagens(); }, 5000);
+        atualizaQtdMensagens();
+    </script>
+</body>
 </html>

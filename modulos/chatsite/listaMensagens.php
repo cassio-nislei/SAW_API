@@ -3,62 +3,65 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
-  if ($_SESSION["chat"]["menu"]==true){
+
+if ($_SESSION["chat"]["menu"]==true){
      echo'<div id="ListarMenu">'; 
      include("menu.php");
      echo '</div>';  
-  }else{
-    //MEnsagem Inicial
+}else{
+    //Mensagem Inicial do Sistema
     echo '
-    <div class="direct-chat-msg">
-     <div class="direct-chat-info clearfix">
-     <span class="direct-chat-name pull-left">Mensagem do Sistema</span>
-     <span class="direct-chat-timestamp pull-right">23 Jan 2:00 pm</span>
-    </div>
-    <img class="direct-chat-img" src="https://img.icons8.com/color/36/000000/administrator-male.png" alt="message user image">
-                
-    <div class="direct-chat-text">
-       Em breve um de nossos atendentes ira atende-lo, aguarde por favor.
-    </div>
-
-  </div> ';
-     $numero = $_SESSION["chat"]["numero"];
-     $mensagens = mysqli_query($conexao, "select * from tbmsgatendimento where canal = 0 and numero = '$numero'");
-     while ($listarMensagens = mysqli_fetch_assoc($mensagens)){
-    //Verifico se a mensagem é do Atendente ou do Cliente para exibir com estilos diferentes
-      if ($listarMensagens["id_atend"]>0){
-        echo '
-        <div class="direct-chat-msg">
-         <div class="direct-chat-info clearfix">
-         <span class="direct-chat-name pull-left">'.$listarMensagens["nome_chat"].'</span>
-         <span class="direct-chat-timestamp pull-right">23 Jan 2:00 pm</span>
+    <div class="message">
+        <div class="message-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <i class="bi bi-robot" style="font-size: 0.9rem;"></i>
         </div>
-        <img class="direct-chat-img" src="https://img.icons8.com/color/36/000000/administrator-male.png" alt="message user image">
-                    
-        <div class="direct-chat-text">
-          '.$listarMensagens["msg"].'
+        <div class="message-content">
+            <div class="message-info">Sistema</div>
+            <div class="message-text">
+                <i class="bi bi-info-circle" style="margin-right: 0.5rem;"></i>
+                Em breve um de nossos atendentes ira atende-lo, aguarde por favor.
+            </div>
         </div>
- 
-      </div> ';
-         
-    }else{
-    echo'
-        <div class="direct-chat-msg right">
-        <div class="direct-chat-info clearfix">
-          <span class="direct-chat-name pull-right">'.$listarMensagens["nome_chat"].'</span>
-          <span class="direct-chat-timestamp pull-left">23 Jan 2:05 pm</span>
-        </div>
-       
-        <img class="direct-chat-img" src="https://img.icons8.com/office/36/000000/person-female.png" alt="message user image">
-        
-        <div class="direct-chat-text">
-        '.$listarMensagens["msg"].'
-        </div>
-     
-      </div>';
-    } //Fim do IF que verifica se a mensagem é do atendente ou do cliente
-
-  }//Fim do While que lista as mensagens
-} //Fim da Verificação se é para exibir o Menu
+    </div>';
+    
+    $numero = $_SESSION["chat"]["numero"];
+    $mensagens = mysqli_query($conexao, "select * from tbmsgatendimento where canal = 0 and numero = '$numero' order by seq asc");
+    
+    while ($listarMensagens = mysqli_fetch_assoc($mensagens)){
+        // Se a mensagem é do Atendente
+        if ($listarMensagens["id_atend"] > 0){
+            $initials = substr($listarMensagens["nome_chat"], 0, 1);
+            echo '
+            <div class="message">
+                <div class="message-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    ' . $initials . '
+                </div>
+                <div class="message-content">
+                    <div class="message-info">' . htmlspecialchars($listarMensagens["nome_chat"]) . '</div>
+                    <div class="message-text">
+                        ' . nl2br(htmlspecialchars($listarMensagens["msg"])) . '
+                    </div>
+                </div>
+            </div>';
+        }
+        // Mensagem do Cliente
+        else{
+            $initials = substr($listarMensagens["nome_chat"], 0, 1);
+            echo '
+            <div class="message own">
+                <div class="message-content">
+                    <div class="message-info" style="text-align: right;">Você</div>
+                    <div class="message-text">
+                        ' . nl2br(htmlspecialchars($listarMensagens["msg"])) . '
+                    </div>
+                </div>
+                <div class="message-avatar" style="background: linear-gradient(135deg, #198754 0%, #0d6efd 100%);">
+                    ' . $initials . '
+                </div>
+            </div>';
+        }
+    }
+}
 ?>
+
 
