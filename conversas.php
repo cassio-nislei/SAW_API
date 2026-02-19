@@ -980,7 +980,13 @@ if (!isset($_SESSION["usuariosaw"])){
    
                 
                 $("#btnMinimuiConversas2").css("display","block");       
-                $('._1Iexl').css("-webkit-flex","100%");                 
+                $('._1Iexl').css("-webkit-flex","100%");
+                
+                // Rotaciona o ícone chevron
+                var chevron = document.querySelector('#btnMinimuiConversas .fa-chevron-right');
+                if (chevron) {
+                    chevron.classList.add('rotateIconClose');
+                }
 
                 
             });
@@ -1000,6 +1006,12 @@ if (!isset($_SESSION["usuariosaw"])){
                  $('._1Iexl').css("-webkit-flex","100%");   
                     
                  $("#btnVoltarResponsivo").css("display","none");   //Mostro o Botão voltar do lado da foto de perfil < azul
+                 
+                 // Remove a rotação do ícone chevron
+                 var chevron = document.querySelector('#btnMinimuiConversas .fa-chevron-right');
+                 if (chevron) {
+                     chevron.classList.remove('rotateIconClose');
+                 }
              
                
 
