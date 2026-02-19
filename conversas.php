@@ -304,6 +304,12 @@ if (!isset($_SESSION["usuariosaw"])){
         var globalEhupload = false;
         
         $(document).ready(function() {
+            // Debug: Verifica se os elementos existem
+            console.log("btnMinimuiConversas found:", $("#btnMinimuiConversas").length > 0);
+            console.log("btnMinimuiConversas2 found:", $("#btnMinimuiConversas2").length > 0);
+            console.log("MenuLateral found:", $("#MenuLateral").length > 0);
+            console.log("btManipulaChat found:", $("#btManipulaChat").length > 0);
+            
             // Inicializa o estado visível do menu e do botão na primeira carga
             var MenuLateral = document.querySelector('#MenuLateral');
             if (MenuLateral && MenuLateral.style.display === '') {
@@ -970,7 +976,11 @@ if (!isset($_SESSION["usuariosaw"])){
                
             //Ocultar Conversas
             
-            $("#btnMinimuiConversas").on("click", function() {    
+            $("#btnMinimuiConversas").on("click", function(e) {    
+                console.log("btnMinimuiConversas clicado");
+                e.preventDefault();
+                e.stopPropagation();
+                
                 var MenuLateral = document.querySelector('#MenuLateral');
                 MenuLateral.style.display = 'none';
                      
@@ -987,7 +997,11 @@ if (!isset($_SESSION["usuariosaw"])){
             });
 
             //Mostrar Conversas
-            $("#btnMinimuiConversas2").on("click", function() {   
+            $("#btnMinimuiConversas2").on("click", function(e) {   
+                  console.log("btnMinimuiConversas2 clicado");
+                  e.preventDefault();
+                  e.stopPropagation();
+                  
                   var MenuLateral = document.querySelector('#MenuLateral');
                   MenuLateral.style.display = 'block';                      
                  
@@ -1008,11 +1022,17 @@ if (!isset($_SESSION["usuariosaw"])){
 
             // Seta (btManipulaChat) também funciona para recolher (clica para chamar btnMinimuiConversas)
             $(document).on("click", "#btManipulaChat", function() {   
+                console.log("btManipulaChat clicado - triggerando btnMinimuiConversas");
                 $("#btnMinimuiConversas").trigger("click");
             });
             
-              
-
+            // Alternativa: Event listener direto no DOM
+            var btnMinimuiElement = document.getElementById('btnMinimuiConversas');
+            if (btnMinimuiElement) {
+                btnMinimuiElement.addEventListener('click', function(e) {
+                    console.log("Event listener direto: btnMinimuiConversas clicado");
+                }, true); // Capture phase para pegar antes de jQuery
+            }
         });
     </script>
   <script>
