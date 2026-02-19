@@ -30,364 +30,8 @@ if (!isset($_SESSION["usuariosaw"])){
     <script src="js/notification.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <style>
-        /* Estilo para os menus de conversas com efeito WhatsApp */
-        .RLfQR {
-            border-radius: 8px;
-            transition: all 0.2s ease;
-            padding: 10px 12px;
-            margin-bottom: 5px;
-            cursor: pointer;
-        }
-        
-        .RLfQR:hover {
-            background-color: rgba(0, 0, 0, 0.08);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-            border-radius: 8px;
-        }
-        
-        .RLfQR span {
-            padding: 8px 0;
-        }
-
-        /* Estilo para o header do atendimento aberto */
-        ._3AwwN {
-            background-color: #ffffff !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08) !important;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
-            padding: 15px !important;
-            border-radius: 0 8px 0 0 !important;
-        }
-
-        /* Estilo para os ícones do header */
-        ._3AwwN i {
-            color: #333333 !important;
-            transition: all 0.2s ease;
-        }
-
-        ._3AwwN i:hover {
-            color: #128c7e !important;
-        }
-
-        /* Cores específicas para cada ícone */
-        ._3AwwN #btnVoltarResponsivo {
-            color: #333333 !important;
-        }
-
-        ._3AwwN #btnAlterarContato {
-            color: #0066cc !important;
-        }
-
-        ._3AwwN #btnObsAtendimento {
-            color: #00CED1 !important;
-        }
-
-        ._3AwwN .fa-history {
-            color: #9370db !important;
-        }
-
-        ._3AwwN .fa-random {
-            color: #ff9800 !important;
-        }
-
-        ._3AwwN #btnAnexar {
-            color: #666666 !important;
-        }
-
-        ._3AwwN .btnFinalizarChat {
-            color: #dc3545 !important;
-        }
-
-        /* Estilo para a área de digitação de mensagem - WhatsApp Web */
-        ._2bXVy {
-            background-color: #f0f0f0 !important;
-            border-radius: 20px !important;
-            padding: 8px 15px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1) !important;
-            flex: 1 !important;
-            min-height: 42px !important;
-            max-height: 50px !important;
-        }
-
-        /* Estilo para o container interno da textarea */
-        ._3F6QL {
-            flex: 1 !important;
-            display: flex !important;
-            align-items: center !important;
-            width: 100% !important;
-        }
-
-        ._3F6QL.type_msg {
-            width: 100% !important;
-        }
-
-        /* Estilo para a textarea de mensagem */
-        .type_msg {
-            background-color: transparent !important;
-            border: none !important;
-            outline: none !important;
-            resize: none !important;
-            padding: 8px 0 !important;
-            font-size: 15px !important;
-            color: #111111 !important;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
-            width: 100% !important;
-            box-shadow: none !important;
-            max-height: 25px !important;
-            line-height: 1.3 !important;
-        }
-
-        .type_msg::placeholder {
-            color: #9ba5ab !important;
-            opacity: 1 !important;
-        }
-
-        .type_msg:focus {
-            outline: none !important;
-            box-shadow: none !important;
-            border: none !important;
-        }
-
-        /* Ajuste para o botão de envio */
-        ._2lkdt {
-            background-color: transparent !important;
-            border: none !important;
-            padding: 8px 10px !important;
-            cursor: pointer !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            transition: all 0.2s ease !important;
-            flex: 0 0 auto !important;
-        }
-
-        ._2lkdt:hover svg {
-            opacity: 0.7 !important;
-        }
-
-        ._2lkdt svg {
-            width: 24px !important;
-            height: 24px !important;
-        }
-
-        /* Estilo para os ícones de ações */
-        .adjustIconsTalk {
-            color: #128c7e !important;
-            margin-right: 8px !important;
-            cursor: pointer !important;
-            transition: all 0.2s ease !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-        }
-
-        .adjustIconsTalk:hover {
-            transform: scale(1.1) !important;
-            color: #075e54 !important;
-        }
-
-        .adjustFastAns {
-            font-size: 18px !important;
-            color: #128c7e !important;
-        }
-
-        .adjustFastAns:hover {
-            color: #075e54 !important;
-        }
-
-        /* Estilo para o container de gravação de áudio */
-        .audioIcons {
-            display: flex !important;
-            align-items: center !important;
-            gap: 5px !important;
-            justify-content: flex-start !important;
-            flex: 0 0 auto !important;
-        }
-
-        .gravando {
-            display: flex !important;
-            align-items: center !important;
-            gap: 10px !important;
-            padding: 8px 15px !important;
-            background-color: #dcf8c6 !important;
-            border-radius: 15px !important;
-            color: #128c7e !important;
-            justify-content: center !important;
-            margin: 8px 15px 8px 15px !important;
-            width: calc(100% - 30px) !important;
-        }
-
-        .gravando i {
-            color: #dc3545 !important;
-            animation: pulse 1s infinite !important;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .audioIcons .microfone {
-            display: flex !important;
-            gap: 5px !important;
-            justify-content: flex-start !important;
-        }
-
-        .audioIcons button {
-            background-color: #e0f7fa !important;
-            border: none !important;
-            border-radius: 50% !important;
-            width: 40px !important;
-            height: 40px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            cursor: pointer !important;
-            transition: all 0.2s ease !important;
-            color: #128c7e !important;
-        }
-
-        .audioIcons button:hover {
-            background-color: #b2ebf2 !important;
-            transform: scale(1.05) !important;
-        }
-
-        .gravando .bt-cancel,
-        .gravando .bt-send {
-            background: none !important;
-            width: auto !important;
-            height: auto !important;
-            padding: 0 5px !important;
-            color: #128c7e !important;
-        }
-
-        .gravando .bt-cancel:hover,
-        .gravando .bt-send:hover {
-            background: none !important;
-            transform: scale(1.15) !important;
-        }
-
-        /* Container de digitação com layout vertical */
-        #divDigitacao {
-            display: flex !important;
-            flex-direction: column !important;
-            width: 100% !important;
-            background-color: #ffffff !important;
-            padding: 10px 15px !important;
-            gap: 8px !important;
-        }
-
-        /* Container da linha de input */
-        .containerInputMsg {
-            display: flex !important;
-            align-items: flex-end !important;
-            gap: 10px !important;
-            width: 100% !important;
-        }
-
-        /* Espaço para ícones de ações rápidas */
-        #divDigitacao ._2uQuX {
-            display: flex !important;
-            gap: 5px !important;
-            flex: 0 0 auto !important;
-        }
-    </style>
     <script>
-        // Variáveis Globais para Persistência de Estado //
-        var globalForm = new FormData();
-        var globalEhaudio = false;
-        var globalImageClipboard = false;
-        var globalImageCamera = false;
-        var globalEhupload = false;
-        
         $(document).ready(function() {
-            // Debug: Verifica se os elementos existem
-            console.log("btnMinimuiConversas found:", $("#btnMinimuiConversas").length > 0);
-            console.log("btnMinimuiConversas2 found:", $("#btnMinimuiConversas2").length > 0);
-            console.log("MenuLateral found:", $("#MenuLateral").length > 0);
-            console.log("btManipulaChat found:", $("#btManipulaChat").length > 0);
-            
-            // Inicializa o estado visível do menu e do botão na primeira carga
-            var MenuLateral = document.querySelector('#MenuLateral');
-            if (MenuLateral && MenuLateral.style.display === '') {
-                MenuLateral.style.display = 'block';  // Estado padrão: menu visível
-                document.getElementById('btManipulaChat').style.display = 'none';  // Seta oculta
-                document.getElementById('btnMinimuiConversas').style.display = 'block';  // Chevron VISÍVEL
-                document.getElementById('btnMinimuiConversas2').style.display = 'none';  // Seta para expandir oculta
-            }
-            
-            // Aguarda um tempo mínimo para garantir que o DOM está totalmente pronto
-            setTimeout(function() {
-                var btnMini = document.getElementById('btnMinimuiConversas');
-                var btnMini2 = document.getElementById('btnMinimuiConversas2');
-                var btManip = document.getElementById('btManipulaChat');
-                
-                console.log("btnMinimuiConversas element:", btnMini);
-                console.log("btnMinimuiConversas2 element:", btnMini2);
-                console.log("btManipulaChat element:", btManip);
-                
-                if (btnMini) {
-                    btnMini.addEventListener('click', function(e) {    
-                        console.log("✓ btnMinimuiConversas CLICADO!");
-                        var MenuLateral = document.querySelector('#MenuLateral');
-                        MenuLateral.style.display = 'none';
-                        document.getElementById('Verchat').style.display = 'none';
-                        document.getElementById('btManipulaChat').style.display = 'block';
-                        document.getElementById('btnMinimuiConversas').style.display = 'block';  // Mantém VISÍVEL
-                        
-                        // Rotaciona o ícone chevron
-                        var chevronIcon = btnMini.querySelector('.fa-chevron-right');
-                        if (chevronIcon) {
-                            chevronIcon.classList.add('rotateIconClose');
-                        }
-                        
-                        document.querySelector('._1FKgS').style.overflow = 'hidden';
-                        document.getElementById('btnVoltarResponsivo').style.display = 'block';
-                        document.getElementById('btnMinimuiConversas2').style.display = 'none';  // Oculta a seta de expandir
-                        document.querySelector('._1Iexl').style.webkitFlex = '100%';
-                    });
-                } else {
-                    console.error("btnMinimuiConversas NÃO ENCONTRADO!");
-                }
-                
-                if (btnMini2) {
-                    btnMini2.addEventListener('click', function(e) {   
-                        console.log("✓ btnMinimuiConversas2 CLICADO!");
-                        var MenuLateral = document.querySelector('#MenuLateral');
-                        MenuLateral.style.display = 'block';
-                        document.getElementById('Verchat').style.display = 'block';
-                        document.getElementById('btManipulaChat').style.display = 'none';
-                        document.getElementById('btnMinimuiConversas').style.display = 'block';  // Chevron VISÍVEL
-                        
-                        // Remove a rotação do ícone chevron
-                        var chevronIcon = btnMini.querySelector('.fa-chevron-right');
-                        if (chevronIcon) {
-                            chevronIcon.classList.remove('rotateIconClose');
-                        }
-                        
-                        document.querySelector('._1FKgS').style.overflow = 'visible';
-                        document.getElementById('btnMinimuiConversas2').style.display = 'none';  // Seta oculta
-                        document.querySelector('._1Iexl').style.webkitFlex = '100%';
-                        document.getElementById('btnVoltarResponsivo').style.display = 'none';
-                    });
-                } else {
-                    console.error("btnMinimuiConversas2 NÃO ENCONTRADO!");
-                }
-                
-                if (btManip) {
-                    btManip.addEventListener('click', function(e) {   
-                        console.log("✓ btManipulaChat CLICADO!");
-                        // Recolhe o menu - dispara o handler do btnMini
-                        document.getElementById('btnMinimuiConversas').click();
-                    });
-                } else {
-                    console.error("btManipulaChat NÃO ENCONTRADO!");
-                }
-            }, 100);  // Aguarda 100ms para garantir que tudo está carregado
-            
             // Pesquisa de Contatos //
                 // Carregando a Lista de Contatos, ao pesquisar um nome //
                 $("#pesquisaContato").keyup(function() { 
@@ -604,6 +248,8 @@ if (!isset($_SESSION["usuariosaw"])){
         <input type="hidden" id="audio64" name="audio64" />
         <input type="hidden" id="myInterval" />
         <input type="file" id="upload" name="upload" class="imginput" style="display: none;" />
+        <input type="hidden" id="anexomsgRapida" name="anexomsgRapida" value="0" />
+        <input type="hidden" id="nomeanexomsgRapida" name="nomeanexomsgRapida" value="0" />
     <!-- FIM Campos Input Hidden -->
 
     
@@ -689,6 +335,12 @@ if (!isset($_SESSION["usuariosaw"])){
                                             <i id="iModalRedefinirSenha" class="fas fa-lock itemIcon" onclick="abrirModal('#modalRedefinirSenha');" style="padding-top:4px;"></i>
                                             <span class="tooltiptext tooltip-bottom">Mudar Senha</span>
                                         </li>  
+
+                                        <!-- Nova Conversa -->
+                                        <li class="tooltip btNovaConversa" style="z-index:0 !important;">
+                                            <i id="iModalNovaConversa" class="fas fa-pencil-alt itemIcon" onclick="abrirModal('#modalNovaConversa');" style="padding-top:4px;"></i>
+                                            <span class="tooltiptext tooltip-bottom">Nova conversa</span>
+                                        </li> 
                                         
                                            <!-- Sair -->
                                      <li class="tooltip btNovaConversa" style="z-index:0">
@@ -720,57 +372,57 @@ if (!isset($_SESSION["usuariosaw"])){
                                 <div>
                                     <!-- Conversas -->
                                     <div class="RLfQR">
-                                                <span onclick="toggleList('ListaTriagem', 'counterTriagemValue')" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                                                <div style="display: flex; align-items: center;">
-                                                    <i class="fas fa-inbox" style="margin-right: 10px; font-size: 24px; color: #128c7e;"></i><span>Triagem Sem Departamento</span>
-                                                </div>
+                                                <span onclick="toggleList('ListaTriagem', 'counterTriagemValue')" style="background-color:#eee;border-bottom:solid 1px #999;border-top:solid 1px #999">
+                                                <img style="margin-right: 10px; height: 48px; width: 48px; border-radius: 50%; object-fit: cover;" src="img/TriagemSemDepartamento.png"  alt="Ícone Triagem Sem Departamento" ><span>Triagem Sem Departamento</span>
                                                 <div class="_3Bxar">
                                                     <span>
-                                                        <div class="_15G96" id="counterTriagem"><span style ="padding: 5px; background-color: #128c7e; border-radius: 50%; color: white;  margin-left: auto; ">
+                                                        <div class="_15G96" id="counterTriagem"><span style ="padding: 5px; background-color: grey; border-radius: 50%; color: white;  margin-left: auto; ">
                                                         <div class="counter"id="counterTriagemValue">0</div>
                                                         </span></div>
                                                     </span>
-                                                </div>
+                                    </div>
+                                                 
                                                 </span>
                                                 <div id="ListaTriagem" class="sub-list">
                                         <!-- Lista os Atendimentos Triagem Sem Departamento -->
+                                     
                                     </div>
                                     </div>
 
                                                 <div class="RLfQR">
-                                                <span onclick="toggleList('ListaPendentes', 'counterPendentesValue')" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                                                <div style="display: flex; align-items: center;">
-                                                    <i class="fas fa-hourglass-start" style="margin-right: 10px; font-size: 24px; color: #ffa500;"></i><span>Atendimentos em Espera</span>
-                                                </div>
+                                                <span onclick="toggleList('ListaPendentes', 'counterPendentesValue')" style="background-color:#eee;border-bottom:solid 1px #999;border-top:solid 1px #999">
+                                                <img style="margin-right: 10px; height: 48px; width: 48px; border-radius: 50%; object-fit: cover;" src="img/AtendimentosEmEspera.png"  alt="Ícone Atendimentos em Espera" ><span>Atendimentos em Espera</span>
                                                 <div class="_3Bxar">
                                                     <span>
-                                                        <div class="_15G96" id="counterPendentes"><span style ="padding: 5px; background-color: #ffa500; border-radius: 50%; color: white;  margin-left: auto; ">
+                                                        <div class="_15G96" id="counterPendentes"><span style ="padding: 5px; background-color: grey; border-radius: 50%; color: white;  margin-left: auto; ">
                                                         <div class="counter" id="counterPendentesValue">0</div>
                                                         </span></div>
                                                     </span>
                                                 </div>
+                                                   
                                                 </span>
                                                 <div id="ListaPendentes" class="sub-list">
-                                        <!-- Lista os Atendimentos Em Espera -->
-                                    </div>
+                                                      <!-- Lista os Atendimentos Em Espera -->
+                                                    
+                                               </div>
                                     </div>
 
                                                 <div class="RLfQR">
-                                                <span onclick="toggleList('ListaEmAtendimento', 'counterEmAtendimentoValue')" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                                                <div style="display: flex; align-items: center;">
-                                                    <i class="fas fa-comments" style="margin-right: 10px; font-size: 24px; color: #007bff;"></i><span>Atendimentos em Andamento</span>
-                                                </div>
+                                                <span  onclick="toggleList('ListaEmAtendimento', 'counterEmAtendimentoValue')" style="background-color:#eee;border-bottom:solid 1px #999;border-top:solid 1px #999">
+                                                <img style="margin-right: 10px; height: 48px; width: 48px; border-radius: 50%; object-fit: cover;" src="img/AtendimentosEmAndamento.png" alt="Ícone Atendimentos em Andamento" ><span>Atendimentos em Andamento</span>
                                                 <div class="_3Bxar">
                                                     <span>
-                                                        <div class="_15G96" id="counterEmAtendimento"><span style ="padding: 5px; background-color: #007bff; border-radius: 50%; color: white;  margin-left: auto; ">
+                                                        <div class="_15G96" id="counterEmAtendimento"><span style ="padding: 5px; background-color: grey; border-radius: 50%; color: white;  margin-left: auto; ">
                                                         <div class="counter" id="counterEmAtendimentoValue">0</div>
                                                         </span></div>
                                                     </span>
                                                 </div>
+                                                   
                                                 </span>
                                                 <div id="ListaEmAtendimento" class="sub-list">
-                                        <!-- Lista os Atendimentos Atuais -->
-                                    </div>
+                                                    <!-- Lista os Atendimentos Atuais -->
+                                                  
+                                              </div>
                                                 </div>
                                   
                                     <!-- FIM Conversas -->
@@ -788,7 +440,7 @@ if (!isset($_SESSION["usuariosaw"])){
 
                 <!-- ÁREA PRINCIPAL DOS COMENTÁRIOS -->
                 <div class="_3q4NP _1Iexl mostrar">
-                    <div id="btManipulaChat" class="action_arrow" title="Ocultar conversas" aria-expanded="false" style="display: none;">
+                    <div id="btManipulaChat" class="action_arrow" title="" aria-expanded="false">
                         <div class="changebtchat">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
                                 <path fill="#FFF" d="M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.17-11.996z"></path>
@@ -961,7 +613,7 @@ if (!isset($_SESSION["usuariosaw"])){
                 });
 
                 // Modal Respostas Rapidas //
-                $("#aModalRespostasRapidas").on("click", function() {});
+               // $("#aModalRespostasRapidas").on("click", function() {});
 
                 // Modal Respostas Automaticas //
                 $("#aModalRespostasAutomaticas").on("click", function() {
@@ -1029,6 +681,13 @@ if (!isset($_SESSION["usuariosaw"])){
                     });
                 });
 
+                // Modal Nova Conversa //
+               $("#iModalNovaConversa").on("click", function() {
+                    $.ajax("atendimento/novaConversa.php").done(function(data) {                     
+;                        $('#modalNovaConversa').html(data);
+                    });
+                });
+
                  // Modal Canais //
                  $("#aModalEtiquetas").on("click", function() {
                     $.ajax("cadastros/etiquetas/index.php").done(function(data) {
@@ -1047,42 +706,41 @@ if (!isset($_SESSION["usuariosaw"])){
                
             //Ocultar Conversas
             
-            document.getElementById('btnMinimuiConversas').addEventListener('click', function(e) {    
-                console.log("btnMinimuiConversas clicado");
+            $("#btnMinimuiConversas").on("click", function() {    
                 var MenuLateral = document.querySelector('#MenuLateral');
                 MenuLateral.style.display = 'none';
                      
-                document.getElementById('Verchat').style.display = 'none';  //Oculto o chat de Atendentes
-                document.getElementById('btManipulaChat').style.display = 'block';  //Mostro o botão do chat de Atendentes
-                document.querySelector('._1FKgS').style.overflow = 'hidden';  //Oculto a barra de rolagem inferior
-                document.getElementById('btnVoltarResponsivo').style.display = 'block';   //Mostro o Botão voltar
+                $("#Verchat").css("display","none");  //Oculto o chat de Atendentes
+                $("#btManipulaChat").css("display","none");  //Oculto o botão do chat de Atendentes
+                $("._1FKgS").css("overflow","hidden");  //Oculto a barra de rolagem inferior
+                $("#btnVoltarResponsivo").css("display","block");   //Mostro o Botão voltar do lado da foto de perfil < azul
    
                 
-                document.getElementById('btnMinimuiConversas2').style.display = 'block';       
-                document.querySelector('._1Iexl').style.webkitFlex = '100%';                 
+                $("#btnMinimuiConversas2").css("display","block");       
+                $('._1Iexl').css("-webkit-flex","100%");                 
+
+                
             });
 
             //Mostrar Conversas
-            document.getElementById('btnMinimuiConversas2').addEventListener('click', function(e) {   
-                  console.log("btnMinimuiConversas2 clicado");
+            $("#btnMinimuiConversas2").on("click", function() {   
                   var MenuLateral = document.querySelector('#MenuLateral');
                   MenuLateral.style.display = 'block';                      
                  
-                  document.getElementById('Verchat').style.display = 'block';  //Mostro o chat de Atendentes
-                  document.getElementById('btManipulaChat').style.display = 'none';  //Oculto o botão do chat de Atendentes
-                  document.querySelector('._1FKgS').style.overflow = 'visible'; //Mostro a barra de rolagem inferior
-                 
-                  document.getElementById('btnMinimuiConversas2').style.display = 'none';  
-                  document.querySelector('._1Iexl').style.webkitFlex = '100%';   
-                    
-                  document.getElementById('btnVoltarResponsivo').style.display = 'none';   //Oculto o Botão voltar
-            });
+                  $("#Verchat").css("display","block");  //Mostro o chat de Atendentes
+                  $("#btManipulaChat").css("display","block");  //Mostro o botão do chat de Atendentes
+                  $("._1FKgS").css("overflow","visible"); //Mostro a barra de rolagem inferior
 
-            // Seta (btManipulaChat) também funciona para recolher
-            document.getElementById('btManipulaChat').addEventListener('click', function(e) {   
-                console.log("btManipulaChat clicado");
-                document.getElementById('btnMinimuiConversas').click();
-            });
+                 
+
+                 $("#btnMinimuiConversas2").css("display","none");  
+                 $('._1Iexl').css("-webkit-flex","100%");   
+                    
+                 $("#btnVoltarResponsivo").css("display","none");   //Mostro o Botão voltar do lado da foto de perfil < azul
+             
+               
+
+        });
             
               
 
@@ -1135,26 +793,6 @@ if (!isset($_SESSION["usuariosaw"])){
     observeListChanges('ListaTriagem', 'counterTriagemValue');
     observeListChanges('ListaPendentes', 'counterPendentesValue');
     observeListChanges('ListaEmAtendimento', 'counterEmAtendimentoValue');
-    
-    // Verifica se há um parâmetro 'numero' na URL e abre automaticamente
-    var urlParams = new URLSearchParams(window.location.search);
-    var numeroParam = urlParams.get('numero');
-    
-    if (numeroParam) {
-      // Aguarda um tempo para garantir que os elementos estão carregados
-      setTimeout(function() {
-        // Procura por elementos de atendimento (triagem, pendentes, atendendo)
-        var elementos = document.querySelectorAll('.linkDivTriagem, .linkDivPendentes, .linkDivAtendendo');
-        for (var i = 0; i < elementos.length; i++) {
-          var numeroInput = elementos[i].querySelector('#numero');
-          if (numeroInput && numeroInput.value == numeroParam) {
-            // Simula um clique no elemento encontrado
-            elementos[i].click();
-            break;
-          }
-        }
-      }, 1000);
-    }
   };
 </script>
 
