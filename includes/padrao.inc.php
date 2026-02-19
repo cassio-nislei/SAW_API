@@ -8,8 +8,8 @@
         else {
             // Inicializando a Sessão //
             if (session_status() === PHP_SESSION_NONE) {
+                session_cache_expire(180000); // Deixar a sessão um bom tempo - ANTES de session_start()
                 @session_start(); // Inicia a sessão
-                session_cache_expire(180000); // Deixar a sessão um bom tempo - DEPOIS de session_start()
             }
 
             // Validação de Sessão //
