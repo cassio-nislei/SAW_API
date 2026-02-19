@@ -3,13 +3,13 @@
 <!-- Htmls Novos -->
 <div class="topLine">
     <div class="titlesTable w10p">Id</div>
-    <div class="titlesTable w60p">COR</div>
-    <div class="titlesTable w20p">DESCRICAO</div>
+    <div class="titlesTable w20p">COR</div>
+    <div class="titlesTable w60p">DESCRICAO</div>
     <div class="titlesTable w10p">Ações</div>
     <div style="clear: both;"></div>
 </div>
 
-<ul uk-accordion style="margin-top: 0;">
+<div style="max-height: 400px; overflow-y: auto;">
 
 <?php
     // Busncando os Usuários cadastrados //
@@ -18,23 +18,21 @@
     
     while ($registros = mysqli_fetch_object($query)){
 
-        echo '<li id="linha'.$l.'">
+        echo '<div class="topLine" id="linha'.$l.'">
                 <input type="hidden" name="IdEtiqueta" id="IdEtiqueta" value="'.$registros->id.'" />
                 <div class="titlesTable w10p">'.$registros->id.'</div>
-                <div class="titlesTable w60p"><i style="color:'.$registros->cor.'" class="fas fa-tag"></i></div>
-                <div class="titlesTable w20p">'. $registros->descricao.'</div>
+                <div class="titlesTable w20p"><i style="color:'.$registros->cor.'; font-size: 1.5rem;" class="fas fa-square"></i></div>
+                <div class="titlesTable w60p">'. $registros->descricao.'</div>
                 <div class="titlesTable w10p">
-                    <button class="add" style="padding: 0 10px;" title="Excluir"><i class="fas fa-trash ConfirmaExclusaoEtiqueta" style="cursor: pointer;"></i></button>
-                    <button class="add" style="padding: 0 10px;" title="Editar"><i class="fas fa-pencil-alt botaoAlterarEtiqueta" style="cursor: pointer;"></i></button>
+                    <button class="add" style="padding: 0 5px; background: none; border: none; cursor: pointer;" title="Excluir"><i class="fas fa-trash ConfirmaExclusaoEtiqueta" style="cursor: pointer; color: red; font-size: 1.1rem;"></i></button>
+                    <button class="add" style="padding: 0 5px; background: none; border: none; cursor: pointer;" title="Editar"><i class="fas fa-pencil-alt botaoAlterarEtiqueta" style="cursor: pointer; color: blue; font-size: 1.1rem;"></i></button>
                 </div>
-                <div style="clear: both;"></div>
-            </li>';
+            </div>';
           $l = $l+1;
       }
-    // FIM Busncando os Usuários cadastrados //		
+    // FIM Buscando as Etiquetas cadastradas //		
 ?>
-
-</ul>
+</div>
 <script>
 
 // JavaScript Document

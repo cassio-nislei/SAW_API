@@ -36,7 +36,7 @@
 </div>
 
 <div class="box-modal" id="ListaEtiquetas">
-    <h2 class="title">Etiquetas Cadastrados <a id="btnNovaEtiqueta" href="#" class="uk-align-right" uk-icon="plus-circle" title="Novo Canal"></a></h2>
+    <h2 class="title">Etiquetas Cadastrados <a id="btnNovaEtiqueta" href="#" class="uk-align-right" style="cursor: pointer;"><i class="fas fa-plus-circle" title="Adicionar Nova Etiqueta"></i></a></h2>
 
     <div class="panel-body" id="ListarEtiqueta">				
         <!-- Etiquetas Cadastrados -->
