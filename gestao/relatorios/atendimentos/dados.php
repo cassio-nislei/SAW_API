@@ -19,19 +19,33 @@
 	//Monto uma string separada por virgula
 	$etiquetas_selecionadas = '';
 	foreach ($etiquetas as $etiqueta) {
-		$etiquetas_selecionadas .= $etiqueta . ','; 
+		$etiquetas_selecionadas .= intval($etiqueta) . ','; 
 	}
 	$etiquetas_selecionadas = substr($etiquetas_selecionadas, 0, strlen($etiquetas_selecionadas) - 1);
   }else{
 	$etiquetas_selecionadas = '0';
   }
  
- $situacao = (isset($_POST["situacao"])) ? $_POST["situacao"] : '0';
- $numero = (isset($_POST["celular"]) && !empty($_POST["celular"])) ? $_POST["celular"] : '';
- $protocolo = (isset($_POST["protocolo"]) && !empty($_POST["protocolo"])) ? $_POST["protocolo"] : '';
- $atendentes = '0';  // 7º parâmetro - Atendentes (padrão vazio)
+ // Situação: 0 = Todas, A = Em Atendimento, F = Finalizadas
+ $situacao = (isset($_POST["situacao"]) && !empty($_POST["situacao"])) ? $_POST["situacao"] : '0';
  
-  $relatorio = mysqli_query($conexao, "CALL sprRelatorioAtendimentos('$de','$ate', '$situacao', '$etiquetas_selecionadas', '$numero', '$protocolo', '$atendentes');");
+ // Número (celular): opcional - se vazio, passa NULL (procedure ignora)
+ $numero = (isset($_POST["celular"]) && !empty(trim($_POST["celular"]))) ? trim($_POST["celular"]) : '';
+ 
+ // Protocolo: opcional - se vazio, passa NULL (procedure ignora)
+ $protocolo = (isset($_POST["protocolo"]) && !empty(trim($_POST["protocolo"]))) ? trim($_POST["protocolo"]) : '';
+ 
+ // Atendentes: 7º parâmetro - padrão 0 (não há filtro para isso ainda)
+ $atendentes = '0';
+ 
+ // Echo de debug (comentado)
+ // echo "De: $de | Até: $ate | Situação: $situacao | Etiquetas: $etiquetas_selecionadas | Número: '$numero' | Protocolo: '$protocolo' | Atendentes: $atendentes";
+ 
+ $relatorio = mysqli_query($conexao, "CALL sprRelatorioAtendimentos('$de','$ate', '$situacao', '$etiquetas_selecionadas', '$numero', '$protocolo', '$atendentes');");
+ 
+ if (!$relatorio) {
+     echo "Erro na consulta: " . mysqli_error($conexao);
+ }
  ?>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <div class="row">
