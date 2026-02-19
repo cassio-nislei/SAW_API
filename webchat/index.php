@@ -585,6 +585,13 @@
                 btnSend.prop('disabled', !$(this).val().trim());
             });
 
+            // Helper function to escape HTML
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
             // Load messages with smart update (no flashing)
             function carregaChat(idDepartamento) {
                 if (isLoading || $('#carregaWebChat').val() !== "1") return;
@@ -793,9 +800,19 @@
                     timeout: 10000,
                     success: function(response) {
                         if (response.success) {
+                            // Atualizar a mensagem no DOM sem recarregar
+                            const $messageItem = chatContainer.find('[data-msg-id="' + currentEditMsgId + '"]');
+                            if ($messageItem.length > 0) {
+                                const $messageText = $messageItem.find('.message-text');
+                                // Fade out, update, fade in
+                                $messageText.fadeOut(100, function() {
+                                    $(this).data('original', novaMensagem).html(escapeHtml(novaMensagem).replace(/\n/g, '<br>'));
+                                    $(this).fadeIn(100);
+                                });
+                            }
+                            
                             const editModal = bootstrap.Modal.getInstance(document.getElementById('editMessageModal'));
                             editModal.hide();
-                            carregaChat(departamentoInput.val());
                         } else {
                             alert('Erro ao editar: ' + (response.error || 'Tente novamente'));
                         }
@@ -845,9 +862,16 @@
                     timeout: 10000,
                     success: function(response) {
                         if (response.success) {
+                            // Remover a mensagem do DOM com animação
+                            const $messageItem = chatContainer.find('[data-msg-id="' + currentDeleteMsgId + '"]');
+                            if ($messageItem.length > 0) {
+                                $messageItem.fadeOut(200, function() {
+                                    $(this).remove();
+                                });
+                            }
+                            
                             const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
                             deleteModal.hide();
-                            carregaChat(departamentoInput.val());
                         } else {
                             alert('Erro ao deletar: ' + (response.error || 'Tente novamente'));
                         }
