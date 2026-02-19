@@ -7,8 +7,10 @@
         }
         else {
             // Inicializando a Sessão //
-            session_cache_expire(180000); // Deixar a sessão um bom tempo - ANTES de session_start()
-            @session_start(); // Inicia a sessão
+            if (session_status() === PHP_SESSION_NONE) {
+                @session_start(); // Inicia a sessão
+                session_cache_expire(180000); // Deixar a sessão um bom tempo - DEPOIS de session_start()
+            }
 
             // Validação de Sessão //
             if( !isset($_SESSION["usuariosaw"]) ){ @header("Location:index.php"); }
