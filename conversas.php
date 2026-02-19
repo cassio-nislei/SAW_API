@@ -969,43 +969,95 @@ if (!isset($_SESSION["usuariosaw"])){
 
             $(document).ready(function() {
               setTimeout(function() {
-                document.getElementById('btnMinimuiConversas').addEventListener('click', function() {
-                    console.log("✓ btnMinimuiConversas CLICADO!");
-                    var MenuLateral = document.querySelector('#MenuLateral');
-                    MenuLateral.style.display = 'none';
-                    document.getElementById('Verchat').style.display = 'none';
-                    document.getElementById('btManipulaChat').style.display = 'none';
-                    document.getElementById('btnMinimuiConversas2').style.display = 'block';
-                    
-                    // Rotaciona o ícone chevron
-                    var btnMini = document.getElementById('btnMinimuiConversas');
-                    var chevron = btnMini.querySelector('.fa-chevron-right');
-                    if (chevron) {
-                        chevron.classList.add('rotateIconClose');
-                    }
+                var btnMini = document.getElementById('btnMinimuiConversas');
+                var btnMostra = document.getElementById('btnMinimuiConversas2');
+                var btChat = document.getElementById('btManipulaChat');
+                var menuLateral = document.getElementById('MenuLateral');
+                
+                console.log("DOM Elements:", {
+                    btnMini: !!btnMini,
+                    btnMostra: !!btnMostra,
+                    btChat: !!btChat,
+                    menuLateral: !!menuLateral
                 });
                 
-                document.getElementById('btnMinimuiConversas2').addEventListener('click', function() {
-                    console.log("✓ btnMinimuiConversas2 CLICADO!");
-                    var MenuLateral = document.querySelector('#MenuLateral');
-                    MenuLateral.style.display = 'block';
-                    document.getElementById('Verchat').style.display = 'block';
-                    document.getElementById('btManipulaChat').style.display = 'block';
-                    document.getElementById('btnMinimuiConversas2').style.display = 'none';
-                    
-                    // Desrotaciona o ícone chevron
-                    var btnMini = document.getElementById('btnMinimuiConversas');
-                    var chevron = btnMini.querySelector('.fa-chevron-right');
-                    if (chevron) {
-                        chevron.classList.remove('rotateIconClose');
-                    }
-                });
+                if (btnMini) {
+                    btnMini.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log("✓ btnMinimuiConversas CLICADO!");
+                        
+                        if (menuLateral) {
+                            menuLateral.style.display = 'none';
+                        }
+                        
+                        var verchat = document.getElementById('Verchat');
+                        if (verchat) {
+                            verchat.style.display = 'none';
+                        }
+                        
+                        if (btChat) {
+                            btChat.style.display = 'none';
+                        }
+                        
+                        if (btnMostra) {
+                            btnMostra.style.display = 'block';
+                        }
+                        
+                        // Rotaciona o ícone chevron
+                        var chevron = btnMini.querySelector('.fa-chevron-right');
+                        if (chevron) {
+                            chevron.classList.add('rotateIconClose');
+                            console.log("✓ Chevron rotacionado!");
+                        }
+                    });
+                }
                 
-                document.getElementById('btManipulaChat').addEventListener('click', function() {
-                    console.log("✓ btManipulaChat CLICADO!");
-                    // Manda clicar em btnMinimuiConversas
-                    document.getElementById('btnMinimuiConversas').click();
-                });
+                if (btnMostra) {
+                    btnMostra.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log("✓ btnMinimuiConversas2 CLICADO!");
+                        
+                        if (menuLateral) {
+                            menuLateral.style.display = 'block';
+                        }
+                        
+                        var verchat = document.getElementById('Verchat');
+                        if (verchat) {
+                            verchat.style.display = 'block';
+                        }
+                        
+                        if (btChat) {
+                            btChat.style.display = 'block';
+                        }
+                        
+                        if (btnMostra) {
+                            btnMostra.style.display = 'none';
+                        }
+                        
+                        // Desrotaciona o ícone chevron
+                        if (btnMini) {
+                            var chevron = btnMini.querySelector('.fa-chevron-right');
+                            if (chevron) {
+                                chevron.classList.remove('rotateIconClose');
+                                console.log("✓ Chevron rotação removida!");
+                            }
+                        }
+                    });
+                }
+                
+                if (btChat) {
+                    btChat.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log("✓ btManipulaChat CLICADO!");
+                        // Simula clique em btnMinimuiConversas
+                        if (btnMini) {
+                            btnMini.click();
+                        }
+                    });
+                }
               }, 100);
             });
     </script>
