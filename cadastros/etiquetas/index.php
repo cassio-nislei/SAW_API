@@ -97,8 +97,8 @@
         	beforeSend:function() {
 				$("#btnGravarEtiqueta").attr('value', 'Salvando ...');
 				$('#btnGravarEtiqueta').attr('disabled', true);
-				$('#btnFecharCadastro').attr('disabled', true);
-				$('FormEtiquetas').find('input').prop('disabled', true);
+				$('#btnFecharCadastroEtiqueta').attr('disabled', true);
+				$('#FormEtiquetas').find('input').prop('disabled', true);
         	},
 			success: function( retorno ){
 				if (retorno == 1) { mostraDialogo("Etiqueta inserida com sucesso", "success", 2500); }
@@ -113,9 +113,9 @@
 			complete:function() {
 				$("#btnGravarEtiqueta").attr('value', 'Salvar');
 				$('#btnGravarEtiqueta').attr('disabled', false);
-				$('FormEtiquetas').find('input, button').prop('disabled', false);
+				$('#FormEtiquetas').find('input, button').prop('disabled', false);
 				$("#ListarEtiqueta").css("display","block");
-				$("FormEtiquetas").css("display","none");
+				$("#FormEtiquetas").css("display","none");
 		 	},
 		 	error: function (retorno) {
 				mostraDialogo(mensagem5, "danger", 2500);

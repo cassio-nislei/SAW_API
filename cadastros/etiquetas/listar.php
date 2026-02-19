@@ -1,45 +1,44 @@
 <?php require_once("../../includes/padrao.inc.php"); ?>
 
-<!-- Htmls Novos -->
-<div class="topLine">
-    <div class="titlesTable w10p">Id</div>
-    <div class="titlesTable w20p">COR</div>
-    <div class="titlesTable w60p">DESCRICAO</div>
-    <div class="titlesTable w10p">Ações</div>
-    <div style="clear: both;"></div>
-</div>
-
-<div style="max-height: 400px; overflow-y: auto;">
+<table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Cor</th>
+        <th>Descrição</th>
+		<th>Ações</th>
+      </tr>
+    </thead>
+	<tbody>
 
 <?php
-    // Busncando os Usuários cadastrados //
+    // Buscando as Etiquetas cadastradas //
     $l = 1;
-    $query = mysqli_query($conexao, "SELECT * FROM tbetiquetas");
+    $query = mysqli_query($conexao, "SELECT * FROM tbetiquetas ORDER BY descricao");
     
     while ($registros = mysqli_fetch_object($query)){
-
-        echo '<div class="topLine" id="linha'.$l.'">
-                <input type="hidden" name="IdEtiqueta" id="IdEtiqueta" value="'.$registros->id.'" />
-                <div class="titlesTable w10p">'.$registros->id.'</div>
-                <div class="titlesTable w20p"><i style="color:'.$registros->cor.'; font-size: 1.5rem;" class="fas fa-square"></i></div>
-                <div class="titlesTable w60p">'. $registros->descricao.'</div>
-                <div class="titlesTable w10p">
-                    <button class="add" style="padding: 0 5px; background: none; border: none; cursor: pointer;" title="Excluir"><i class="fas fa-trash ConfirmaExclusaoEtiqueta" style="cursor: pointer; color: red; font-size: 1.1rem;"></i></button>
-                    <button class="add" style="padding: 0 5px; background: none; border: none; cursor: pointer;" title="Editar"><i class="fas fa-pencil-alt botaoAlterarEtiqueta" style="cursor: pointer; color: blue; font-size: 1.1rem;"></i></button>
-                </div>
-            </div>';
+        echo '<tr id="linha'.$l.'" class="etiqueta-row">
+				<td><input type="hidden" name="IdEtiqueta" class="IdEtiqueta" value="'.$registros->id.'" />
+                <i style="color:'.$registros->cor.'; font-size: 1.5rem;" class="fas fa-square"></i></td>
+				<td>'. $registros->descricao.'</td>
+				<td> 
+				    <button class="btn btn-sm btn-danger ConfirmaExclusaoEtiqueta" title="Excluir"><i class="fas fa-trash"></i></button>
+			        <button class="btn btn-sm btn-primary botaoAlterarEtiqueta" title="Editar"><i class="fas fa-pencil"></i></button>
+				</td>
+			</tr>';
           $l = $l+1;
       }
     // FIM Buscando as Etiquetas cadastradas //		
 ?>
-</div>
+
+	</tbody>
+</table>
 <script>
 
 // JavaScript Document
 $( document ).ready(function() {		
 	// Exclusão de Etiquetas //
 	$('.ConfirmaExclusaoEtiqueta').on('click', function (){
-	    var id = $(this).parent().parent().parent("li").find('#IdEtiqueta').val();
+	    var id = $(this).closest('tr').find('.IdEtiqueta').val();
 		abrirModal("#modalEtiquetaExclusao");
 		$("#IdEtiqueta2").val(id);
 	});
@@ -76,10 +75,10 @@ $( document ).ready(function() {
 	});
     
 	
-	// Alteração de Usuário //
+	// Alteração de Etiqueta //
 	$('.botaoAlterarEtiqueta').on('click', function (){
-		// Busco os dados do Produto Selecionado  
-		var codigo = $(this).parent().parent().parent("li").find('input:hidden').val();
+		// Busco os dados da Etiqueta Selecionada  
+		var codigo = $(this).closest('tr').find('.IdEtiqueta').val();
 
 		// Alterando Displays //
 		$("#FormEtiquetas").css("display","block");
@@ -99,9 +98,9 @@ $( document ).ready(function() {
 		$("#acaoEtiqueta").val("2");
 		$("#cor").focus();
 	});
-	// FIM Alteração de Usuário //
+	// FIM Alteração de Etiqueta //
 
-	// Fechar Cadastro do Usuário //
+	// Fechar Cadastro da Etiqueta //
 	$('#btnFecharCadastroEtiqueta').on('click', function (){
 		$("#ListaEtiquetas").css("display","block");
 		$("#FormEtiquetas").css("display","none");
@@ -113,7 +112,7 @@ $( document ).ready(function() {
 		$("#ListaEtiquetas").css("display","block");
 		$("#FormEtiquetas").css("display","none");
 	});
-	// FIM Fechar Cadastro do Usuário //	
+	// FIM Fechar Cadastro da Etiqueta //	
 	
 
 });
