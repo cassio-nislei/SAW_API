@@ -2,10 +2,6 @@
 	// Requires //
 	require_once("../includes/padrao.inc.php");
 
-	// Bootstrap 5 Bundle (necessário para modais)
-	echo '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">';
-	echo '<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>';
-
 	// Definições de Variáveis //
 		$idAtendimento = isset($_GET["id"]) ? $_GET["id"] : "";
 		$numero = isset($_GET["numero"]) ? $_GET["numero"] : "";
@@ -559,7 +555,7 @@ reacao</div>
 			idResposta    = $(this).parent().find("#chatID").val();
 			elementoreacao = $(this).parents(".message").find(".ReacaoManifestada") ;
             
-			 new bootstrap.Modal(document.getElementById('ModalReacoes')).show();	
+			 $('#ModalReacoes').modal('show');	
 
 			
 			
@@ -575,13 +571,11 @@ reacao</div>
 				//alert(idResposta);
 			}); 
 		    
-			const mdlReacoes = bootstrap.Modal.getInstance(document.getElementById('ModalReacoes'));
-			if (mdlReacoes) mdlReacoes.hide();
+			$('#ModalReacoes').modal('hide');				
 		});	
 
 		$(document).on("click", "#ModalReacoes", function(){
-			const mdlReacoes = bootstrap.Modal.getInstance(document.getElementById('ModalReacoes'));
-			if (mdlReacoes) mdlReacoes.hide();
+			$('#ModalReacoes').modal('hide');	
         });
 		
 

@@ -26,7 +26,7 @@
 		$conexao
 		, "SELECT id, numero
 			FROM tbatendimento 
-				WHERE situacao = 'A' {$permissaoAdmin}					
+				WHERE situacao = 'A' ${permissaoAdmin}					
 					ORDER BY dt_atend, hr_atend"
 	) or die("Erro ao verificar a quantidade de Conversas em Atendimento: " . mysqli_error($conexao));
 

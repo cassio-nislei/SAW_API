@@ -20,9 +20,6 @@
     else{ $fotoPerfil = fotoPerfil; }
 ?>
 
-<!-- Bootstrap 5 Bundle (necessário para modais) -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
 <!-- Corpo das Mensagens -->
 <?php require_once("htmlConversa.php"); ?>
 <select id="encodingTypeSelect" style="display:none">
@@ -32,7 +29,6 @@
 
 <script src="js/WebAudioRecorder.min.js"></script>
 <script src="js/WebAudioRecorderMp3.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     $(document).ready(function() {
         // Cancela o envio de Imagem via Área  de Transferência //
@@ -833,8 +829,7 @@
                   
                   // FIM Habilitando o Envio da Imagem e Bloqueando as demais Opções //          
            
-                 const mdlTiraFoto = bootstrap.Modal.getInstance(document.getElementById('mdlTiraFoto'));
-                 if (mdlTiraFoto) mdlTiraFoto.hide();
+                 $('#mdlTiraFoto').modal('hide');         
                  $("#msg").focus();                 
                  return false;
                  
@@ -870,7 +865,7 @@
                     videoStream = await navigator.mediaDevices.getUserMedia(constraints);
                     video.srcObject = videoStream;
 
-                    new bootstrap.Modal(document.getElementById('mdlTiraFoto')).show();
+                    $('#mdlTiraFoto').modal('show');
              
                     } catch (err) {
                       alert("Não é possivel acessar a camera!");
