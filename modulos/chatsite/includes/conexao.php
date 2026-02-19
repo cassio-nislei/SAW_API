@@ -22,7 +22,7 @@ function newId($conexao, $numero){
 
   // Retorna a Foto Perfil do Cliente //
  function newSequence($conexao, $idAtendimento, $numero, $idCanal){
-      $strNewSequence = "SELECT coalesce(max(seq),0)+1 newSequence FROM tbmsgatendimento WHERE id = '".$idAtendimento."' AND canal = '".$idCanal."' AND numero = '".$numero."'";
+      $strNewSequence = "SELECT coalesce(max(seq),0)+1 newSequence FROM tbmsgatendimento WHERE id_atendimento = '".$idAtendimento."' AND canal = '".$idCanal."' AND numero = '".$numero."'";
    
   $qryNewSequence = mysqli_query($conexao, $strNewSequence);
   $objNewSequence = mysqli_fetch_object($qryNewSequence);

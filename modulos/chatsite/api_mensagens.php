@@ -35,7 +35,7 @@ $queryMensagens = "
         dt_msg,
         hr_msg
     FROM tbmsgatendimento 
-    WHERE id = '$idatendimento' AND canal = 0
+    WHERE id_atendimento = '$idatendimento' AND canal = 0
     ORDER BY seq ASC
 ";
 
@@ -47,7 +47,7 @@ while ($row = mysqli_fetch_assoc($resultMensagens)) {
 }
 
 // Marca as mensagens como notificadas
-mysqli_query($conexao, "UPDATE tbmsgatendimento SET notificada = true WHERE id = '$idatendimento' AND canal = 0 AND id_atend > 0");
+mysqli_query($conexao, "UPDATE tbmsgatendimento SET notificada = true WHERE id_atendimento = '$idatendimento' AND canal = 0 AND id_atend > 0");
 
 echo json_encode([
     'conversa' => $conversa,

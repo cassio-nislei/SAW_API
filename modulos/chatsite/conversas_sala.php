@@ -432,12 +432,32 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
             height: 100%;
             color: var(--text-muted);
             text-align: center;
+            padding: 2rem;
         }
 
         .empty-icon {
             font-size: 4rem;
             opacity: 0.3;
             margin-bottom: 1rem;
+        }
+
+        .empty-state .btn {
+            margin-top: 1rem;
+        }
+
+        .filtros-opções {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .filtros-opções .btn {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
         }
 
         /* ===== RESPONSIVE ===== */
@@ -540,7 +560,9 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
             </div>
 
             <ul class="sidebar-list" id="salasList">
-                <!-- Salas carregadas aqui -->
+                <li style="padding: 1rem; text-align: center; color: rgba(255, 255, 255, 0.5);">
+                    <i class="bi bi-hourglass-split"></i> Carregando conversas...
+                </li>
             </ul>
         </div>
 
@@ -562,7 +584,25 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
             <div class="chat-messages" id="chatMensagens">
                 <div class="empty-state">
                     <div class="empty-icon"><i class="bi bi-chat-left"></i></div>
-                    <div>Selecione uma conversa para começar</div>
+                    <div style="font-size: 1.1rem; margin-bottom: 0.5rem; font-weight: 500;">Bem-vindo ao Chat SAW</div>
+                    <div style="opacity: 0.7; margin-bottom: 1.5rem;">Selecione uma conversa na lista para visualizar e responder</div>
+                    <button class="btn btn-primary" id="btnNovaConversa">
+                        <i class="bi bi-plus-circle"></i> Iniciar Nova Conversa
+                    </button>
+                    <div class="filtros-opções">
+                        <button class="btn btn-outline-secondary btn-sm" id="btnFiltroTodos">
+                            <i class="bi bi-funnel"></i> Todas
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" id="btnFiltroAtivas">
+                            <i class="bi bi-circle-fill"></i> Ativas
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" id="btnFiltroPendentes">
+                            <i class="bi bi-hourglass-split"></i> Pendentes
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" id="btnFiltroFinalizadas">
+                            <i class="bi bi-check-circle-fill"></i> Finalizadas
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -585,6 +625,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
         let salas = [];
         let salaAtual = null;
         let searchFilter = '';
+        let filterStatus = [];
 
         // Auto-resize textarea
         const textarea = document.getElementById('msgInput');
@@ -607,11 +648,16 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
                 type: 'GET',
                 dataType: 'json',
                 success: function(data) {
+                    if (!Array.isArray(data)) {
+                        console.error('Resposta inválida:', data);
+                        data = [];
+                    }
                     salas = data;
                     renderizarSalas();
                 },
-                error: function() {
-                    console.error('Erro ao carregar salas');
+                error: function(xhr, status, error) {
+                    console.error('Erro ao carregar salas:', error);
+                    renderizarErro('Erro ao carregar conversas. Por favor, recarregue a página.');
                 }
             });
         }
@@ -619,28 +665,54 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
         // Renderizar salas no sidebar
         function renderizarSalas() {
             let filtered = salas.filter(s => {
-                return !searchFilter || 
+                let passaBusca = !searchFilter || 
                     s.nome.toLowerCase().includes(searchFilter.toLowerCase()) ||
                     s.numero.includes(searchFilter);
+                
+                let passaFiltro = filterStatus.length === 0 || filterStatus.includes(s.situacao);
+                
+                return passaBusca && passaFiltro;
             });
 
             let html = '';
-            filtered.forEach(sala => {
-                let inicial = sala.nome.charAt(0).toUpperCase();
-                let ativo = salaAtual === sala.idatendimento ? 'ativo' : '';
-                
-                html += `
-                    <li class="sala-item ${ativo}" onclick="selecionarSala(${sala.idatendimento})">
-                        <div class="sala-avatar">${inicial}</div>
-                        <div class="sala-info">
-                            <div class="sala-nome">${sala.nome}</div>
-                            <div class="sala-status">#${sala.numero}</div>
-                        </div>
-                        ${sala.qtd_msg_novas > 0 ? `<div class="sala-badge">${sala.qtd_msg_novas}</div>` : ''}
+            
+            if (filtered.length === 0) {
+                html = `
+                    <li style="padding: 1.5rem; text-align: center; color: rgba(255, 255, 255, 0.5); margin-top: 2rem;">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;"><i class="bi bi-inbox"></i></div>
+                        <div>${searchFilter ? 'Nenhuma conversa encontrada' : 'Nenhuma conversa ativa'}</div>
+                        <div style="font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.7;">Clique em "Nova Conversa" para iniciar</div>
                     </li>
                 `;
-            });
+            } else {
+                filtered.forEach(sala => {
+                    let inicial = sala.nome.charAt(0).toUpperCase();
+                    let ativo = salaAtual === sala.idatendimento ? 'ativo' : '';
+                    
+                    html += `
+                        <li class="sala-item ${ativo}" onclick="selecionarSala(${sala.idatendimento})">
+                            <div class="sala-avatar">${inicial}</div>
+                            <div class="sala-info">
+                                <div class="sala-nome">${sala.nome}</div>
+                                <div class="sala-status">#${sala.numero}</div>
+                            </div>
+                            ${sala.qtd_msg_novas > 0 ? `<div class="sala-badge">${sala.qtd_msg_novas}</div>` : ''}
+                        </li>
+                    `;
+                });
+            }
 
+            document.getElementById('salasList').innerHTML = html;
+        }
+
+        // Renderizar erro
+        function renderizarErro(msg) {
+            const html = `
+                <li style="padding: 1.5rem; text-align: center; color: #ff6b6b;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;"><i class="bi bi-exclamation-triangle"></i></div>
+                    ${msg}
+                </li>
+            `;
             document.getElementById('salasList').innerHTML = html;
         }
 
@@ -734,6 +806,67 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
                 document.getElementById('btnEnviarMsg').click();
             }
         });
+
+        // Nova Conversa
+        document.getElementById('btnNovaConversa').addEventListener('click', function() {
+            let nome = prompt('Informe o nome do cliente:');
+            if (!nome || !nome.trim()) return;
+
+            $.post('criar_conversa.php', {
+                nome: nome.trim()
+            }, function(response) {
+                if (response == 1) {
+                    carregarSalas();
+                } else {
+                    alert('Erro ao criar conversa');
+                }
+            });
+        });
+
+        // Filtros - Valores para status
+        const statusMap = {
+            'todos': ['ativo', 'pendente', 'finalizado'],
+            'ativo': ['ativo'],
+            'pendentes': ['pendente'],
+            'finalizadas': ['finalizado']
+        };
+
+        // Botões de filtro
+        if (document.getElementById('btnFiltroTodos')) {
+            document.getElementById('btnFiltroTodos').addEventListener('click', function() {
+                searchFilter = '';
+                filterStatus = [];
+                document.getElementById('searchSalas').value = '';
+                renderizarSalas();
+            });
+        }
+
+        if (document.getElementById('btnFiltroAtivas')) {
+            document.getElementById('btnFiltroAtivas').addEventListener('click', function() {
+                searchFilter = '';
+                filterStatus = ['ativo'];
+                document.getElementById('searchSalas').value = '';
+                renderizarSalas();
+            });
+        }
+
+        if (document.getElementById('btnFiltroPendentes')) {
+            document.getElementById('btnFiltroPendentes').addEventListener('click', function() {
+                searchFilter = '';
+                filterStatus = ['pendente'];
+                document.getElementById('searchSalas').value = '';
+                renderizarSalas();
+            });
+        }
+
+        if (document.getElementById('btnFiltroFinalizadas')) {
+            document.getElementById('btnFiltroFinalizadas').addEventListener('click', function() {
+                searchFilter = '';
+                filterStatus = ['finalizado'];
+                document.getElementById('searchSalas').value = '';
+                renderizarSalas();
+            });
+        }
 
         // Buscar salas
         document.getElementById('searchSalas').addEventListener('input', function() {
