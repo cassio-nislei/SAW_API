@@ -416,7 +416,7 @@ body {
              }
              $("#btnIniciarAtendimeto").html("Iniciando...");
              $("#btnIniciarAtendimeto").attr("disabled",true); 
-             $.post("iniciaAtendimento.php", {nome:nome},function(retorno){
+             $.post("../modulos/chatsite/iniciaAtendimento.php", {nome:nome},function(retorno){
           //    alert(retorno);
                if (retorno==1){
                 location.reload(true);
@@ -476,12 +476,12 @@ body {
              }
              $("#btnGravarMensagem").html("Enviando...");
              $("#btnGravarMensagem").attr("disabled",true); 
-             $.post("gravaMensagem.php", {mensagem:mensagem},function(retorno){
+             $.post("../modulos/chatsite/gravaMensagem.php", {mensagem:mensagem},function(retorno){
              // alert(retorno);
                if (retorno==1){
                 $("#mensagem").val("");
                 if ( $( "#ListarMensagens" ).length ) { 
-                     $( "#ListarMensagens" ).load( "listaMensagens.php" );
+                     $( "#ListarMensagens" ).load( "../modulos/chatsite/listaMensagens.php" );
                  }
                } 
                $("#btnGravarMensagem").html("INICIAR");
@@ -492,7 +492,7 @@ body {
 
 
           if ( $( "#ListarMensagens" ).length ) { 
-            $( "#ListarMensagens" ).load( "listaMensagens.php" );
+            $( "#ListarMensagens" ).load( "../modulos/chatsite/listaMensagens.php" );
           }
 
           function ajustaScroll(){	
@@ -509,14 +509,14 @@ body {
             var qtdMensagens = $("#TotalMensagens").text();
             var nome         = encodeURIComponent($("#s_nome").val());
 
-            $.post("qtdnovasmensagens.php", {
+            $.post("../modulos/chatsite/qtdnovasmensagens.php", {
                 numero: numero,
                 id: id
             }, function(retorno) {
                 //Válida se é para Atualizar a conversa, só faz a atualização da tela se existirem novas mensagens
                 if (parseInt(retorno) > parseInt(qtdMensagens)) {
                     if ( $( "#ListarMensagens" ).length ) { 
-                         $( "#ListarMensagens" ).load( "listaMensagens.php" );
+                         $( "#ListarMensagens" ).load( "../modulos/chatsite/listaMensagens.php" );
                      
                    }
 
