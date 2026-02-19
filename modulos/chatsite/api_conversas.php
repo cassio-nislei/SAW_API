@@ -12,9 +12,9 @@ try {
         SELECT 
             ta.id as idatendimento,
             ta.numero,
-            ta.nome_cliente as nome,
+            ta.nome as nome,
             ta.situacao,
-            ta.dt_inicio,
+            ta.dt_atend as dt_inicio,
             ta.dt_fim,
             ta.canal,
             COALESCE(COUNT(tm.id), 0) as qtd_mensagens,
@@ -24,13 +24,13 @@ try {
         FROM tbatendimento ta
         LEFT JOIN tbmsgatendimento tm ON tm.id_atendimento = ta.id AND tm.canal = 0
         WHERE ta.situacao IN ('A', 'T', 'P', 'F')
-        GROUP BY ta.id, ta.numero, ta.nome_cliente, ta.situacao, ta.dt_inicio, ta.dt_fim, ta.canal
+        GROUP BY ta.id, ta.numero, ta.nome, ta.situacao, ta.dt_atend, ta.dt_fim, ta.canal
         ORDER BY CASE 
             WHEN ta.situacao = 'A' THEN 1
             WHEN ta.situacao = 'T' THEN 2
             WHEN ta.situacao = 'P' THEN 3
             ELSE 4
-        END, ta.dt_inicio DESC
+        END, ta.dt_atend DESC
     ";
 
     $result = mysqli_query($conexao, $query);

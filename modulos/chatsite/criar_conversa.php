@@ -25,7 +25,7 @@ try {
     // Inserir atendimento
     $query = "
         INSERT INTO tbatendimento 
-        (numero, nome_cliente, situacao, dt_inicio, canal)
+        (numero, nome, situacao, dt_atend, canal)
         VALUES 
         ('$numero', '$nome', 'A', NOW(), '0')
     ";
