@@ -2,7 +2,7 @@
 	require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
 	$acao	= $_POST['acaoRespostaRapida'];
 	$id		= $_POST['IdRespostaRapida'];
-	$idUser	= (intval($_POST['id_usuario']) == 2) ? $_SESSION["usuariosaw"]["id"] : 0;
+	$idUser	= (isset($_POST['id_usuario']) && intval($_POST['id_usuario']) == 2) ? $_SESSION["usuariosaw"]["id"] : $_SESSION["usuariosaw"]["id"];
 	$titulo	= $_POST['titulo'];
 	$resposta = $_POST['resposta'];
 	$acaoMenu = (isset($_POST['acao'])) ? intval($_POST['acao']) : 0;
@@ -12,10 +12,12 @@
 	if(isset($_FILES['foto'])){
 		$Nome_Arquivo   = $_FILES['foto']['name'];
 		$file_tmp            = $_FILES['foto']['tmp_name'];
-		$extensao = pathinfo($Nome_Arquivo, PATHINFO_EXTENSION);
-		$caminhoArquivo = 'anexos/'.md5(uniqid()) . '-' . time() . '.'.$extensao;
+		$extensao = (isset($Nome_Arquivo)) ? pathinfo($Nome_Arquivo, PATHINFO_EXTENSION) : '';
+		$caminhoArquivo = (isset($Nome_Arquivo) && $Nome_Arquivo != '') ? 'anexos/'.md5(uniqid()) . '-' . time() . '.'.$extensao : '';
 		
-	      move_uploaded_file($file_tmp,$caminhoArquivo);	
+	      if($caminhoArquivo != ''){
+	        move_uploaded_file($file_tmp,$caminhoArquivo);	
+	      }
 	}
 
 
@@ -29,10 +31,7 @@
 		);
 		
 		if( mysqli_num_rows($existe) == 0 ){
-			$sql = "INSERT INTO tbrespostasrapidas (id_usuario, titulo, resposta, acao, arquivo, nome_arquivo) VALUES (NULL, '".$titulo."', '".$resposta."', '".$acaoMenu."', '$caminhoArquivo', '$Nome_Arquivo')";
-
-			// Substituindo o Id do Usuário ///
-			if( intval($idUser) > 0 ){ $sql = str_replace("NULL", "'".$idUser."'", $sql); }
+			$sql = "INSERT INTO tbrespostasrapidas (id_usuario, titulo, resposta, acao, arquivo, nome_arquivo) VALUES ('".$idUser."', '".$titulo."', '".$resposta."', '".$acaoMenu."', '$caminhoArquivo', '$Nome_Arquivo')";
 
 			$inserir = mysqli_query($conexao, $sql)
 				or die(mysqli_error($conexao));
@@ -43,7 +42,7 @@
 		else{ echo "3"; }
 	}
 	else{
-		if ($arqData!="") {
+		if ($caminhoArquivo!="") {
 			$sql = "UPDATE tbrespostasrapidas 
 					SET resposta = '$resposta'
 						, titulo = '$titulo'
