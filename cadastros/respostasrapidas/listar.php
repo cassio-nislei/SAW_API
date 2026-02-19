@@ -1,75 +1,120 @@
 <?php require_once("../../includes/padrao.inc.php"); ?>
-<script type='text/javascript' src="cadastros/respostasrapidas/acoesListar.js"></script>
+
+<table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Título</th>
+        <th>Resposta</th>
+        <th>Anexo</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+	<tbody>
+
 <?php
   $l = 1;
-  $minhasRr = "";
-  $todasRr = "";
-  $iCountMinhas = 0;
-  $iCountTodas = 0;
-
-  $qryRespostasRapidas = mysqli_query(
-    $conexao
-    , "SELECT *
-        FROM tbrespostasrapidas"
-  );
-
+  $qryRespostasRapidas = mysqli_query($conexao, "SELECT * FROM tbrespostasrapidas ORDER BY titulo");
+  
   while( $qrrRespostasRapidas = mysqli_fetch_array($qryRespostasRapidas) ){
     $strResposta = (strlen($qrrRespostasRapidas["resposta"]) > 50) ? substr($qrrRespostasRapidas["resposta"], 0, 50) . " ..." : $qrrRespostasRapidas["resposta"];
     
     $anexo = '';
     if ($qrrRespostasRapidas["arquivo"]!=''){
-      $anexo = '<span><img src="images/anexo.png" width="32" height="32"></span>';
+      $anexo = '<i class="fas fa-paperclip"></i>';
     }
 
-    if( $qrrRespostasRapidas["id_usuario"] == $_SESSION["usuariosaw"]["id"] ){
-      $minhasRr .= '<div class="uk-link-reset" id="linha'.$l.'">
-                    <div class="uk-padding-small uk-card-default" style="height: 60px;">
-                        <div style="position:absolute; right:0px"><i class="fas fa-remove"></i></div>
-                        <div style="width: 80%; float: left;">
-                          <p class="uk-text-bold uk-margin-remove" style="font-size: 14px; padding-bottom: 11px;">'.$qrrRespostasRapidas["titulo"].'</p>
-                          <p class="uk-text-small uk-margin-remove addRespostaRapida" onclick="" style="cursor:pointer;">
-                            '.$strResposta.'
-                            <span style="display: none;">'.$qrrRespostasRapidas["resposta"].'</span>
-                            '.$anexo.'
-                            <input type="hidden" name="AnexoRespostaRapida" id="AnexoRespostaRapida" value="'.$qrrRespostasRapidas["arquivo"].'" />
-                          <input type="hidden" name="NomeAnexoRespostaRapida" id="NomeAnexoRespostaRapida" value="'.$qrrRespostasRapidas["nome_arquivo"].'" />
-                          </p>
-                        </div>
-                        <div style="width: 20%; float: left;">
-                          <input type="hidden" name="IdRespostaRapida" id="IdRespostaRapida" value="'.$qrrRespostasRapidas["id"].'" />                          
-                          <button class="add" style="padding: 30px 10px;" title="Editar"><span uk-icon="pencil" class="btnAlterarRespostaRapida"></span></button>
-                          <button class="add" style="padding: 30px 10px;" title="Excluir"><span uk-icon="trash" class="btnExcluirRespostaRapida"></span></button>
-                        </div>
-                    </div>
-                </div>';
-      $iCountMinhas++;
-    }
-    else{
-      $todasRr .= '<div class="uk-link-reset" id="linha'.$l.'">
-                    <div class="uk-padding-small uk-card-default" style="height: 60px;">
-                        <div style="position:absolute; right:0px"><i class="fas fa-remove"></i></div>
-                        <div style="width: 80%; float: left;">
-                          <p class="uk-text-bold uk-margin-remove" style="font-size: 14px; padding-bottom: 11px;">'.$qrrRespostasRapidas["titulo"].'</p>
-                          <p class="uk-text-small uk-margin-remove addRespostaRapida" onclick="" style="cursor:pointer;">
-                            '.$strResposta.'
-                            <span style="display: none;">'.$qrrRespostasRapidas["resposta"].'</span>
-                            '.$anexo.'
-                            <input type="hidden" name="AnexoRespostaRapida" id="AnexoRespostaRapida" value="'.$qrrRespostasRapidas["arquivo"].'" />
-                          <input type="hidden" name="NomeAnexoRespostaRapida" id="NomeAnexoRespostaRapida" value="'.$qrrRespostasRapidas["nome_arquivo"].'" />
-                          </p>
-                        </div>
-                        <div style="width: 20%; float: left;">
-                          <input type="hidden" name="IdRespostaRapida" id="IdRespostaRapida" value="'.$qrrRespostasRapidas["id"].'" />
-                          <button class="add" style="padding: 30px 10px;" title="Editar"><span uk-icon="pencil" class="btnAlterarRespostaRapida"></span></button>
-                          <button class="add" style="padding: 30px 10px;" title="Excluir"><span uk-icon="trash" class="btnExcluirRespostaRapida"></span></button>
-                        </div>
-                    </div>
-                </div>';
-      $iCountTodas++;
-    }
-
+    echo '<tr id="linha'.$l.'" class="resposta-row">
+            <td><input type="hidden" name="IdRespostaRapida" class="IdRespostaRapida" value="'.$qrrRespostasRapidas["id"].'" />
+            <input type="hidden" name="AnexoRespostaRapida" class="AnexoRespostaRapida" value="'.$qrrRespostasRapidas["arquivo"].'" />
+            <input type="hidden" name="NomeAnexoRespostaRapida" class="NomeAnexoRespostaRapida" value="'.$qrrRespostasRapidas["nome_arquivo"].'" />
+            '. $qrrRespostasRapidas["titulo"].'</td>
+            <td>'. $strResposta.'
+            <span class="resposta-completa" style="display: none;">'.$qrrRespostasRapidas["resposta"].'</span></td>
+            <td>'. $anexo .'</td>
+            <td> 
+                <button class="btn btn-sm btn-primary btnAlterarRespostaRapida" title="Editar"><i class="fas fa-pencil"></i></button>
+                <button class="btn btn-sm btn-danger btnExcluirRespostaRapida" title="Excluir"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>';
     $l++;
   }
 ?>
 
-<?php echo $todasRr ."#@#". $minhasRr ."#@#" . $iCountTodas ."#@#". $iCountMinhas; ?>
+	</tbody>
+</table>
+
+<script>
+$( document ).ready(function() {
+    // Exclusão de Resposta Rápida //
+    $('.btnExcluirRespostaRapida').on('click', function (){
+        var id = $(this).closest('tr').find('.IdRespostaRapida').val();
+		abrirModal("#modalRespostaRapidaExclusao");
+		$("#IdRespostaRapida2").val(id);
+    });	  
+
+	// Confirmação de Exclusão //
+	$('#btnConfirmaExclusaoRespostaRapida').on('click', function (){
+        $("#btnConfirmaExclusaoRespostaRapida").attr('value', 'Removendo ...');
+        $('#btnConfirmaExclusaoRespostaRapida').attr('disabled', true);
+        $('#btnCancelaExclusaoRespostaRapida').attr('disabled', true);
+
+	    var id = $("#IdRespostaRapida2").val();
+            
+        $.post("/cadastros/respostasrapidas/excluir.php",{id:id},function(resultado){
+            var mensagem1  = "<strong>Resposta Rápida removida com sucesso!</strong>";
+            var mensagem9 = 'Falha ao remover Resposta Rápida!';
+                
+            if (resultado = 1) { 
+                mostraDialogo(mensagem1, "success", 2500); 
+                $.ajax("/cadastros/respostasrapidas/listar.php").done(function(data) {
+                    $('#ListaRespostasRapidas').html(data);
+                });
+            }
+            else{ mostraDialogo(mensagem9, "danger", 2500); }
+
+            // Fechando a Modal de Confirmação //
+            $('#modalRespostaRapidaExclusao').attr('style', 'display: none');
+            $('#btnConfirmaExclusaoRespostaRapida').attr('disabled', false);
+            $('#btnCancelaExclusaoRespostaRapida').attr('disabled', false);
+        });
+    });
+    // FIM Remoção //
+	
+    // Alteração de Cadastro //
+	$('.btnAlterarRespostaRapida').on('click', function (){
+        // Busco os dados da Resposta Selecionada  
+        var codigo = $(this).closest('tr').find('.IdRespostaRapida').val();
+
+        // Alterando Displays //
+        $("#FormRespostaRapida").css("display","block");
+        $("#ListaRespostasRapidas").css("display","none");
+
+        // Alterando o Título do Cadastro //
+        $("#titleCadastroRespostaRapida").html("Alteração de Resposta Rápida");
+
+        $.getJSON('/cadastros/respostasrapidas/carregardados.php?codigo='+codigo, function(registro){			
+            // Carregando os Dados //
+            $("#IdRespostaRapida").val(registro.id);
+            $("#titulo").val(registro.titulo);
+            $("#resposta").val(registro.resposta);
+        });
+              
+        // Mudo a Ação para Alterar    
+        $("#acaoRespostaRapida").val("2");
+        $("#titulo").focus();
+	});
+    // FIM Alteração //
+
+	// Fechar Cadastro //
+	$('#btnFecharCadastroRespostaRapida').on('click', function (){
+		$("#ListaRespostasRapidas").css("display","block");
+		$("#FormRespostaRapida").css("display","none");
+	});
+	
+	$('#btnCancelaExclusaoRespostaRapida').on('click', function (){
+		// Fechando a Modal de Confirmação //
+		$('#modalRespostaRapidaExclusao').attr('style', 'display: none');
+	});
+	// FIM Fechar //
+});
+</script>
