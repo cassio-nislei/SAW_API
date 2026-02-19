@@ -200,6 +200,14 @@
         else{ return fotoPerfil; }
     }
 
+    // Retorna o ID do Atendimento pelo Número //
+    function newId($conexao, $numero){
+        $strNewID = "SELECT id FROM tbatendimento WHERE situacao IN ('A','T','P') AND numero = '".$numero."'";
+        $qryNewID = mysqli_query($conexao, $strNewID);
+        $objNewID = mysqli_fetch_object($qryNewID);
+        return $objNewID->id;
+    }
+
     // Retorna a Foto Perfil do Cliente //
     function newSequence($conexao, $idAtendimento, $numero, $idCanal){
         $strNewSequence = "SELECT coalesce(max(seq),0)+1 newSequence FROM tbmsgatendimento WHERE id = '".$idAtendimento."' AND canal = '".$idCanal."' AND numero = '".$numero."'";

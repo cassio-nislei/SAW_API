@@ -368,7 +368,11 @@ body {
                   
                   <div class="direct-chat-messages" id="ListarMensagens">             
                  
-                  </div>                 
+                  </div>
+                  <!-- Hidden inputs for JavaScript polling -->
+                  <input type="hidden" id="s_numero" value="<?php echo isset($_SESSION["chat"]["numero"]) ? $_SESSION["chat"]["numero"] : ''; ?>">
+                  <input type="hidden" id="s_id_atendimento" value="<?php echo isset($_SESSION["chat"]["id_atendimento"]) ? $_SESSION["chat"]["id_atendimento"] : ''; ?>">
+                  <input type="hidden" id="s_nome" value="<?php echo isset($_SESSION["chat"]["nome"]) ? $_SESSION["chat"]["nome"] : ''; ?>">
                 </div>
                
                 <div class="box-footer">
@@ -484,7 +488,7 @@ body {
                      $( "#ListarMensagens" ).load( "../modulos/chatsite/listaMensagens.php" );
                  }
                } 
-               $("#btnGravarMensagem").html("INICIAR");
+               $("#btnGravarMensagem").html("ENVIAR");
                $("#btnGravarMensagem").attr("disabled",false)
              })
           })
