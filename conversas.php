@@ -967,99 +967,43 @@ if (!isset($_SESSION["usuariosaw"])){
                 $("#tabs4").tabs();
             // FIM Habilita o sistema de Abas //
 
-            $(document).ready(function() {
-              setTimeout(function() {
-                var btnMini = document.getElementById('btnMinimuiConversas');
-                var btnMostra = document.getElementById('btnMinimuiConversas2');
-                var btChat = document.getElementById('btManipulaChat');
-                var menuLateral = document.getElementById('MenuLateral');
+            //Ocultar Conversas
+            
+            $("#btnMinimuiConversas").on("click", function() {    
+                var MenuLateral = document.querySelector('#MenuLateral');
+                MenuLateral.style.display = 'none';
+                     
+                $("#Verchat").css("display","none");  //Oculto o chat de Atendentes
+                $("#btManipulaChat").css("display","none");  //Oculto o botão do chat de Atendentes
+                $("._1FKgS").css("overflow","hidden");  //Oculto a barra de rolagem inferior
+                $("#btnVoltarResponsivo").css("display","block");   //Mostro o Botão voltar do lado da foto de perfil < azul
+   
                 
-                console.log("DOM Elements:", {
-                    btnMini: !!btnMini,
-                    btnMostra: !!btnMostra,
-                    btChat: !!btChat,
-                    menuLateral: !!menuLateral
-                });
+                $("#btnMinimuiConversas2").css("display","block");       
+                $('._1Iexl').css("-webkit-flex","100%");                 
+
                 
-                if (btnMini) {
-                    btnMini.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        console.log("✓ btnMinimuiConversas CLICADO!");
-                        
-                        if (menuLateral) {
-                            menuLateral.style.display = 'none';
-                        }
-                        
-                        var verchat = document.getElementById('Verchat');
-                        if (verchat) {
-                            verchat.style.display = 'none';
-                        }
-                        
-                        if (btChat) {
-                            btChat.style.display = 'none';
-                        }
-                        
-                        if (btnMostra) {
-                            btnMostra.style.display = 'block';
-                        }
-                        
-                        // Rotaciona o ícone chevron
-                        var chevron = btnMini.querySelector('.fa-chevron-right');
-                        if (chevron) {
-                            chevron.classList.add('rotateIconClose');
-                            console.log("✓ Chevron rotacionado!");
-                        }
-                    });
-                }
-                
-                if (btnMostra) {
-                    btnMostra.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        console.log("✓ btnMinimuiConversas2 CLICADO!");
-                        
-                        if (menuLateral) {
-                            menuLateral.style.display = 'block';
-                        }
-                        
-                        var verchat = document.getElementById('Verchat');
-                        if (verchat) {
-                            verchat.style.display = 'block';
-                        }
-                        
-                        if (btChat) {
-                            btChat.style.display = 'block';
-                        }
-                        
-                        if (btnMostra) {
-                            btnMostra.style.display = 'none';
-                        }
-                        
-                        // Desrotaciona o ícone chevron
-                        if (btnMini) {
-                            var chevron = btnMini.querySelector('.fa-chevron-right');
-                            if (chevron) {
-                                chevron.classList.remove('rotateIconClose');
-                                console.log("✓ Chevron rotação removida!");
-                            }
-                        }
-                    });
-                }
-                
-                if (btChat) {
-                    btChat.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        console.log("✓ btManipulaChat CLICADO!");
-                        // Simula clique em btnMinimuiConversas
-                        if (btnMini) {
-                            btnMini.click();
-                        }
-                    });
-                }
-              }, 100);
             });
+
+            //Mostrar Conversas
+            $("#btnMinimuiConversas2").on("click", function() {   
+                  var MenuLateral = document.querySelector('#MenuLateral');
+                  MenuLateral.style.display = 'block';                      
+                 
+                  $("#Verchat").css("display","block");  //Mostro o chat de Atendentes
+                  $("#btManipulaChat").css("display","block");  //Mostro o botão do chat de Atendentes
+                  $("._1FKgS").css("overflow","visible"); //Mostro a barra de rolagem inferior
+
+                 
+
+                 $("#btnMinimuiConversas2").css("display","none");  
+                 $('._1Iexl').css("-webkit-flex","100%");   
+                    
+                 $("#btnVoltarResponsivo").css("display","none");   //Mostro o Botão voltar do lado da foto de perfil < azul
+             
+               
+
+        });
     </script>
   <script>
   function toggleList(listId, counterId) {
