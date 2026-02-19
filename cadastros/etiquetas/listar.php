@@ -1,4 +1,4 @@
-<?php require_once("../../includes/padrao.inc.php"); ?>
+<?php require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php"); ?>
 
 <table class="table table-striped">
     <thead>

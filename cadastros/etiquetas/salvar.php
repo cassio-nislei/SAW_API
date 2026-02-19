@@ -1,6 +1,5 @@
 <?php
-require_once("../../includes/padrao.inc.php");
-
+	require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
 @$id            = $_POST['id_Etiqueta'];
 $acao           = $_POST['acaoEtiqueta'];
 $cor            = $_POST['cor'];
