@@ -43,7 +43,7 @@ try {
     
     $queryMsgSistema = "
         INSERT INTO tbmsgatendimento 
-        (id_atendimento, seq, numero, msg, nome_chat, id_atend, dt_msg, hr_msg, canal, situacao, notificada)
+        (id, seq, numero, msg, nome_chat, id_atend, dt_msg, hr_msg, canal, situacao, notificada)
         VALUES 
         ('$idAtendimento', 1, '$numero', 'Conversa iniciada pelo painel de atendimento.', 'Sistema', 0, CURDATE(), CURTIME(), '0', 'E', true)
     ";

@@ -19,10 +19,10 @@ try {
             ta.canal,
             COALESCE(COUNT(tm.id), 0) as qtd_mensagens,
             COALESCE(SUM(CASE WHEN tm.id_atend = 0 AND tm.notificada = false THEN 1 ELSE 0 END), 0) as qtd_msg_novas,
-            (SELECT msg FROM tbmsgatendimento WHERE id_atendimento = ta.id ORDER BY seq DESC LIMIT 1) as ultima_msg,
-            (SELECT DATE_FORMAT(dt_msg, '%H:%i') FROM tbmsgatendimento WHERE id_atendimento = ta.id ORDER BY seq DESC LIMIT 1) as hora_ultima_msg
+            (SELECT msg FROM tbmsgatendimento WHERE id = ta.id ORDER BY seq DESC LIMIT 1) as ultima_msg,
+            (SELECT DATE_FORMAT(dt_msg, '%H:%i') FROM tbmsgatendimento WHERE id = ta.id ORDER BY seq DESC LIMIT 1) as hora_ultima_msg
         FROM tbatendimento ta
-        LEFT JOIN tbmsgatendimento tm ON tm.id_atendimento = ta.id AND tm.canal = 0
+        LEFT JOIN tbmsgatendimento tm ON tm.id = ta.id AND tm.canal = 0
         WHERE ta.situacao IN ('A', 'T', 'P', 'F')
         GROUP BY ta.id, ta.numero, ta.nome, ta.situacao, ta.dt_atend, ta.dt_fim, ta.canal
         ORDER BY CASE 

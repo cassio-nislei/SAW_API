@@ -42,7 +42,7 @@ try {
     $numero = $rowNum['numero'] ?? '';
 
     // Buscar próxima sequência
-    $querySeq = "SELECT COALESCE(MAX(seq), 0) + 1 as newSeq FROM tbmsgatendimento WHERE id_atendimento = '$idatendimento' AND canal = 0";
+    $querySeq = "SELECT COALESCE(MAX(seq), 0) + 1 as newSeq FROM tbmsgatendimento WHERE id = '$idatendimento' AND canal = 0";
     $resultSeq = mysqli_query($conexao, $querySeq);
     
     if (!$resultSeq) {
@@ -55,7 +55,7 @@ try {
     // Inserir mensagem
     $insertMsg = "
         INSERT INTO tbmsgatendimento 
-        (id_atendimento, seq, numero, msg, nome_chat, id_atend, dt_msg, hr_msg, canal, situacao, notificada)
+        (id, seq, numero, msg, nome_chat, id_atend, dt_msg, hr_msg, canal, situacao, notificada)
         VALUES 
         ('$idatendimento', '$seq', '$numero', '$mensagem', '$nome_atendente', '$idatendente', CURDATE(), CURTIME(), '0', 'E', true)
     ";
