@@ -1,4 +1,9 @@
 <?php
+// Inicializar session cache ANTES de qualquer header
+if (session_status() === PHP_SESSION_NONE) {
+    session_cache_expire(180000); // Deixar a sessão um bom tempo - ANTES de session_start()
+}
+
 // Headers //
         if( intval(strpos($_SERVER["REQUEST_URI"], "controller.php")) > 0 ){
             header('Content-type: application/json');
@@ -8,12 +13,11 @@
         else {
             // Inicializando a Sessão //
             if (session_status() === PHP_SESSION_NONE) {
-                session_cache_expire(180000); // Deixar a sessão um bom tempo - ANTES de session_start()
-                @session_start(); // Inicia a sessão
+                session_start(); // Inicia a sessão
             }
 
             // Validação de Sessão //
-            if( !isset($_SESSION["usuariosaw"]) ){ @header("Location:index.php"); }
+            if( !isset($_SESSION["usuariosaw"]) ){ header("Location:index.php"); exit; }
         }
     // FIM Headers //
 
