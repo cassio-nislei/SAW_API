@@ -304,6 +304,14 @@ if (!isset($_SESSION["usuariosaw"])){
         var globalEhupload = false;
         
         $(document).ready(function() {
+            // Inicializa o estado do botão btManipulaChat
+            var MenuLateral = document.querySelector('#MenuLateral');
+            if (MenuLateral && (MenuLateral.style.display === 'none' || MenuLateral.style.display === '')) {
+                document.getElementById('btManipulaChat').style.display = 'flex';
+            } else {
+                document.getElementById('btManipulaChat').style.display = 'none';
+            }
+            
             // Pesquisa de Contatos //
                 // Carregando a Lista de Contatos, ao pesquisar um nome //
                 $("#pesquisaContato").keyup(function() { 
@@ -704,7 +712,7 @@ if (!isset($_SESSION["usuariosaw"])){
 
                 <!-- ÁREA PRINCIPAL DOS COMENTÁRIOS -->
                 <div class="_3q4NP _1Iexl mostrar">
-                    <div id="btManipulaChat" class="action_arrow" title="Ocultar conversas" aria-expanded="false" style="display: flex !important; cursor: pointer; pointer-events: auto; z-index: 999 !important;">
+                    <div id="btManipulaChat" class="action_arrow" title="Ocultar conversas" aria-expanded="false" style="display: none;">
                         <div class="changebtchat">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
                                 <path fill="#FFF" d="M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.17-11.996z"></path>
@@ -980,29 +988,19 @@ if (!isset($_SESSION["usuariosaw"])){
             });
 
             //Botão para Ocultar/Mostrar Menu Lateral
-            $(document).on("click", "#btManipulaChat", function(e) {
-                console.log("Botão btManipulaChat foi clicado!");
-                e.preventDefault();
-                e.stopPropagation();
-                
+            $("#btManipulaChat").click(function() {
                 var MenuLateral = document.querySelector('#MenuLateral');
-                var btManipula = document.getElementById('btManipulaChat');
-                console.log("MenuLateral display antes:", MenuLateral.style.display);
                 
                 if (MenuLateral.style.display === 'none' || MenuLateral.style.display === '') {
                     // Mostrar menu lateral
-                    console.log("Mostrando menu lateral");
                     MenuLateral.style.display = 'block';
                     $("#Verchat").css("display","block");
-                    btManipula.style.display = 'none';
-                    $(this).attr("aria-expanded", "false");
+                    document.getElementById('btManipulaChat').style.display = 'none';
                 } else {
                     // Ocultar menu lateral
-                    console.log("Ocultando menu lateral");
                     MenuLateral.style.display = 'none';
                     $("#Verchat").css("display","none");
-                    btManipula.style.display = 'flex';
-                    $(this).attr("aria-expanded", "true");
+                    document.getElementById('btManipulaChat').style.display = 'flex';
                 }
             });
 

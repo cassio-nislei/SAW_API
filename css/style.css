@@ -17987,7 +17987,7 @@ html[dir="rtl"] ._2ICcy:after {
   padding: 16px;
   cursor: pointer;
   height: 55px;
-  z-index: 5;
+  z-index: 1000;
 }
 .action_arrow .changebtchat {
   top: 20px;
