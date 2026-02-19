@@ -36,7 +36,12 @@
 </div>
 
 <div class="box-modal" id="ListaEtiquetas">
-    <h2 class="title">Etiquetas Cadastrados <a id="btnNovaEtiqueta" href="#" class="uk-align-right" style="cursor: pointer;"><i class="fas fa-plus-circle" title="Adicionar Nova Etiqueta"></i></a></h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 class="title" style="margin: 0;">Etiquetas Cadastrados</h2>
+        <button id="btnNovaEtiqueta" class="btn btn-success" type="button" style="cursor: pointer;">
+            <i class="fas fa-plus"></i> Inserir
+        </button>
+    </div>
 
     <div class="panel-body" id="ListarEtiqueta">				
         <!-- Etiquetas Cadastrados -->
