@@ -147,6 +147,13 @@
             flex-shrink: 0;
         }
 
+        .avatar-actions-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
         .message-item.own .message-avatar {
             order: 2;
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
@@ -339,22 +346,21 @@
             background: #4caf50;
         }
 
-        /* Responsive */        /* Message Actions */
+        /* Message Actions */
         .message-actions {
-            display: none;
-            gap: 4px;
+            display: flex;
+            gap: 2px;
+            flex-direction: column;
             align-items: center;
-            margin-left: 8px;
         }
 
-        .message-item.own:hover .message-actions {
-            display: flex;
-            animation: fadeIn 0.2s ease-in;
+        .message-item:not(.own) .message-actions {
+            display: none;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 1; transform: translateX(0); }
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .action-btn {
@@ -439,6 +445,8 @@
         .btn-primary:hover {
             background: linear-gradient(135deg, #5568d3 0%, #6a3d8f 100%);
         }
+
+        /* Responsive */
         @media (max-width: 768px) {
             .webchat-header {
                 flex-direction: column;
@@ -577,7 +585,7 @@
                 btnSend.prop('disabled', !$(this).val().trim());
             });
 
-            // Load messages
+            // Load messages with smart update (no flashing)
             function carregaChat(idDepartamento) {
                 if (isLoading || $('#carregaWebChat').val() !== "1") return;
                 
@@ -589,10 +597,84 @@
                     dataType: 'html',
                     timeout: 10000,
                     success: function(data) {
-                        if (data.trim()) {
+                        if (!data.trim()) {
+                            isLoading = false;
+                            return;
+                        }
+
+                        // Create temp container to parse new HTML
+                        const $newContent = $('<div>').html(data);
+                        const newMessageIds = [];
+                        
+                        // Collect new message IDs
+                        $newContent.find('[data-msg-id]').each(function() {
+                            newMessageIds.push($(this).data('msg-id'));
+                        });
+
+                        // Get current message IDs
+                        const currentMessageIds = [];
+                        chatContainer.find('[data-msg-id]').each(function() {
+                            currentMessageIds.push($(this).data('msg-id'));
+                        });
+
+                        // If content is empty state, clear and show
+                        if ($newContent.find('.empty-state').length > 0) {
+                            chatContainer.html(data);
+                            isLoading = false;
+                            return;
+                        }
+
+                        // If no messages currently, just fill
+                        if (currentMessageIds.length === 0) {
                             chatContainer.html(data);
                             scrollToBottom();
+                            isLoading = false;
+                            return;
                         }
+
+                        let hasChanges = false;
+
+                        // Remove messages that don't exist anymore (fade out)
+                        chatContainer.find('[data-msg-id]').each(function() {
+                            const msgId = $(this).data('msg-id');
+                            if (newMessageIds.indexOf(msgId) === -1) {
+                                $(this).fadeOut(200, function() {
+                                    $(this).remove();
+                                });
+                                hasChanges = true;
+                            }
+                        });
+
+                        // Update existing messages and add new ones
+                        $newContent.find('[data-msg-id]').each(function() {
+                            const msgId = $(this).data('msg-id');
+                            const $existing = chatContainer.find('[data-msg-id="' + msgId + '"]');
+                            const $newMsg = $(this);
+
+                            if ($existing.length > 0) {
+                                // Message exists, check if it changed
+                                const oldText = $existing.find('.message-text').data('original');
+                                const newText = $newMsg.find('.message-text').data('original');
+
+                                if (oldText !== newText) {
+                                    // Message was edited, update smoothly
+                                    $existing.find('.message-text').fadeOut(100, function() {
+                                        $(this).data('original', newText).html($newMsg.find('.message-text').html()).fadeIn(100);
+                                    });
+                                    hasChanges = true;
+                                }
+                            } else {
+                                // New message, append with fade-in
+                                $newMsg.hide().appendTo(chatContainer).fadeIn(300);
+                                hasChanges = true;
+                            }
+                        });
+
+                        // Scroll to bottom if new messages were added
+                        if (hasChanges) {
+                            scrollToBottom();
+                        }
+
                         isLoading = false;
                     },
                     error: function(xhr, status, error) {

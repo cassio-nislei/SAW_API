@@ -60,9 +60,19 @@
 
 		echo '<div class="message-item ' . ($isOwnMessage ? 'own' : '') . '" data-msg-id="' . $arrMensagens["id"] . '" data-msg-user="' . $arrMensagens["idUsuario"] . '">';
 		
-		// Avatar
-		echo '<div class="message-avatar" title="' . htmlspecialchars($arrMensagens["nome"]) . '">';
-		echo strtoupper($inicial);
+		// Avatar e ações (coluna vertical)
+		echo '<div class="avatar-actions-wrapper">';
+			echo '<div class="message-avatar" title="' . htmlspecialchars($arrMensagens["nome"]) . '">';
+			echo strtoupper($inicial);
+			echo '</div>';
+			
+			// Botões de ação (editar/deletar) - apenas para mensagens do usuário
+			if ($isOwnMessage) {
+				echo '<div class="message-actions">';
+				echo '<button class="action-btn btn-edit" data-msg-id="' . $arrMensagens["id"] . '" title="Editar"><i class="bi bi-pencil"></i></button>';
+				echo '<button class="action-btn btn-delete" data-msg-id="' . $arrMensagens["id"] . '" title="Deletar"><i class="bi bi-trash"></i></button>';
+				echo '</div>';
+			}
 		echo '</div>';
 
 		// Conteúdo
@@ -86,15 +96,6 @@
 		echo '<div class="message-time">' . $arrMensagens["hora"] . '</div>';
 		
 		echo '</div>';
-		
-		// Botões de ação (editar/deletar) - apenas para mensagens do usuário
-		if ($isOwnMessage) {
-			echo '<div class="message-actions">';
-			echo '<button class="action-btn btn-edit" data-msg-id="' . $arrMensagens["id"] . '" title="Editar"><i class="bi bi-pencil"></i></button>';
-			echo '<button class="action-btn btn-delete" data-msg-id="' . $arrMensagens["id"] . '" title="Deletar"><i class="bi bi-trash"></i></button>';
-			echo '</div>';
-		}
-		
 		echo '</div>';
 		echo '</div>';
 	}
