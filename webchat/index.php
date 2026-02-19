@@ -358,38 +358,36 @@
             display: none;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         .action-btn {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
+            background: none;
             border: none;
-            background: rgba(102, 126, 234, 0.1);
             color: #667eea;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
-            font-size: 14px;
+            font-size: 16px;
+            padding: 0;
+            width: auto;
+            height: auto;
+        }
+
+        .action-btn.btn-edit {
+            color: #667eea;
+        }
+
+        .action-btn.btn-delete {
+            color: #dc3545;
         }
 
         .action-btn:hover {
-            background: rgba(102, 126, 234, 0.2);
-            transform: scale(1.1);
+            transform: scale(1.2);
+            opacity: 0.8;
         }
 
         .action-btn:active {
             transform: scale(0.95);
-        }
-
-        .action-btn.btn-delete:hover {
-            color: #dc3545;
-            background: rgba(220, 53, 69, 0.1);
         }
 
         /* Modal Styles */
