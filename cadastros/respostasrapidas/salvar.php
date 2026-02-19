@@ -5,6 +5,7 @@
 	$idUser	= (intval($_POST['id_usuario']) == 2) ? $_SESSION["usuariosaw"]["id"] : 0;
 	$titulo	= $_POST['titulo'];
 	$resposta = $_POST['resposta'];
+	$acaoMenu = (isset($_POST['acao'])) ? intval($_POST['acao']) : 0;
 
 	$arqData="";
 
@@ -28,7 +29,7 @@
 		);
 		
 		if( mysqli_num_rows($existe) == 0 ){
-			$sql = "INSERT INTO tbrespostasrapidas (id_usuario, titulo, resposta, arquivo, nome_arquivo) VALUES (NULL, '".$titulo."', '".$resposta."', '$caminhoArquivo', '$Nome_Arquivo')";
+			$sql = "INSERT INTO tbrespostasrapidas (id_usuario, titulo, resposta, acao, arquivo, nome_arquivo) VALUES (NULL, '".$titulo."', '".$resposta."', '".$acaoMenu."', '$caminhoArquivo', '$Nome_Arquivo')";
 
 			// Substituindo o Id do Usuário ///
 			if( intval($idUser) > 0 ){ $sql = str_replace("NULL", "'".$idUser."'", $sql); }
@@ -46,13 +47,16 @@
 			$sql = "UPDATE tbrespostasrapidas 
 					SET resposta = '$resposta'
 						, titulo = '$titulo'
+						, acao = '$acaoMenu'
 						, arquivo = '$caminhoArquivo'
 						, nome_arquivo = '$Nome_Arquivo'
 						 WHERE id = '".$id."'";			
 		} else {
 			$sql = "UPDATE tbrespostasrapidas 
 					SET resposta = '".$resposta."'
-						, titulo = '".$titulo."' WHERE id = '".$id."'";
+						, titulo = '".$titulo."'
+						, acao = '$acaoMenu'
+						 WHERE id = '".$id."'";
 		}
 		
 		$atualizar = mysqli_query($conexao, $sql)

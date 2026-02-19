@@ -6,7 +6,7 @@
 <div class="box-modal" id="FormRespostaRapida" style="display: none;">    
     <h2 class="title" id="titleCadastroRespostaRapida">Adicionar Resposta Rápida</h2>
     <div class="">
-        <form method="post" id="gravaRespostaRapida" name="gravaRespostaRapida" action="/cadastros/respostasrapidas/salvar.php">
+        <form method="post" id="gravaRespostaRapida" name="gravaRespostaRapida" action="/cadastros/respostasrapidas/salvar.php" enctype="multipart/form-data">
             <input type="hidden" value="0" name="acaoRespostaRapida" id="acaoRespostaRapida" />
 			<input type="hidden" value="0" name="IdRespostaRapida" id="IdRespostaRapida" />
 			
@@ -25,6 +25,21 @@
                 <div id="valida_resposta" style="display: none" class="msgValida">
                     Por favor, informe a resposta.
                 </div>
+            </div>
+
+            <div class="uk-width-1-1@m">
+                <div class="uk-form-label"> Ação </div>
+                <select id="acao" name="acao" class="uk-select">
+                    <option value="0">Nenhuma</option>
+                    <option value="1">Devolve Menu</option>
+                    <option value="2">Devolve Menu Sem titulo</option>
+                    <option value="9">Encerra Atendimento</option>
+                </select>
+            </div>
+
+            <div class="uk-width-1-1@m">
+                <div class="uk-form-label"> Anexar Arquivo </div>
+                <input type="file" id="foto" name="foto" class="form-control" placeholder="Selecione um arquivo">
             </div>         
 
          
@@ -67,6 +82,7 @@
 			$("#FormRespostaRapida").css("display","block");
 			$("#ListaRespostasRapidas").css("display","none");
 			$("#acaoRespostaRapida").val("0");
+			$("#IdRespostaRapida").val("0");
 		});
 	// Adicionar Novo Registro //
 

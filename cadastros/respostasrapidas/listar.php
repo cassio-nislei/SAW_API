@@ -5,6 +5,7 @@
       <tr>
         <th>Título</th>
         <th>Resposta</th>
+        <th>Ação do Menu</th>
         <th>Anexo</th>
         <th>Ações</th>
       </tr>
@@ -23,6 +24,15 @@
       $anexo = '<i class="fas fa-paperclip"></i>';
     }
 
+    // Traduzindo o valor de ação
+    $acaoTexto = 'Nenhuma';
+    switch($qrrRespostasRapidas["acao"]){
+      case 1: $acaoTexto = 'Devolve Menu'; break;
+      case 2: $acaoTexto = 'Devolve Menu Sem titulo'; break;
+      case 9: $acaoTexto = 'Encerra Atendimento'; break;
+      default: $acaoTexto = 'Nenhuma';
+    }
+
     echo '<tr id="linha'.$l.'" class="resposta-row">
             <td><input type="hidden" name="IdRespostaRapida" class="IdRespostaRapida" value="'.$qrrRespostasRapidas["id"].'" />
             <input type="hidden" name="AnexoRespostaRapida" class="AnexoRespostaRapida" value="'.$qrrRespostasRapidas["arquivo"].'" />
@@ -30,6 +40,7 @@
             '. $qrrRespostasRapidas["titulo"].'</td>
             <td>'. $strResposta.'
             <span class="resposta-completa" style="display: none;">'.$qrrRespostasRapidas["resposta"].'</span></td>
+            <td>'. $acaoTexto .'</td>
             <td>'. $anexo .'</td>
             <td> 
                 <button class="btn btn-sm btn-primary btnAlterarRespostaRapida" title="Editar"><i class="fas fa-pencil"></i></button>
