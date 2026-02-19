@@ -1,7 +1,17 @@
 <?php
-    // Requires //
-	require_once("../../../includes/padrao.inc.php");
-	require_once("../../../includes/dompdf/autoload.inc.php");
+	// IMPORTANTE: Ativar output buffering ANTES de qualquer coisa
+	ob_start();
+	error_reporting(E_ERROR | E_PARSE); // Suprime warnings e notices (incluindo deprecated)
+	
+	require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
+	
+	// Limpar todo o output anterior
+	ob_end_clean();
+	
+	// Reiniciar buffer
+	ob_start();
+	
+	require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/dompdf/autoload.inc.php");
 	use Dompdf\Dompdf;
 	define("DOMPDF_ENABLE_CSS_FLOAT", true);
 $html = '
@@ -342,9 +352,7 @@ $html = '
    </body>
  </html>';
 
-
-	 print_r($html); 
-
-
+	// Exibe apenas o HTML (visualização)
+	echo $html;
 
 ?>

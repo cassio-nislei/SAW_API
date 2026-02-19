@@ -1,14 +1,18 @@
 <?php
-	// IMPORTANTE: Ativar output buffering ANTES de qualquer include que envia headers
+	// IMPORTANTE: Ativar output buffering ANTES de qualquer coisa
 	ob_start();
+	error_reporting(E_ERROR | E_PARSE); // Suprime warnings e notices (incluindo deprecated)
 	
-    // Requires //
-	require_once("../../../includes/padrao.inc.php");
+	// Requires
+	require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
 	
-	// Descartar todo output anterior (session headers, etc)
+	// Limpar todo o output anterior (headers, whitespace, etc)
 	ob_end_clean();
 	
-	require_once("../../../includes/dompdf/autoload.inc.php");
+	// Reiniciar buffer para capturar output do HTML
+	ob_start();
+	
+	require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/dompdf/autoload.inc.php");
 	use Dompdf\Dompdf;
 	use Dompdf\Options;
 	
