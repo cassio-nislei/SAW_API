@@ -456,12 +456,24 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
                 url: 'api_conversas.php',
                 type: 'GET',
                 dataType: 'json',
+                timeout: 10000,
                 success: function(data) {
-                    conversas = data;
+                    if (data && data.error) {
+                        console.error('Erro:', data.message);
+                        alert('Erro ao carregar conversas: ' + data.message);
+                        return;
+                    }
+                    if (!Array.isArray(data)) {
+                        console.error('Resposta inválida:', data);
+                        conversas = [];
+                    } else {
+                        conversas = data;
+                    }
                     renderizarConversas();
                 },
-                error: function() {
-                    console.error('Erro ao carregar conversas');
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', status, error);
+                    alert('Erro ao carregar conversas: ' + (status === 'timeout' ? 'Tempo limite excedido' : status));
                 }
             });
         }
@@ -552,9 +564,11 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
                 url: 'api_mensagens.php?id=' + id,
                 type: 'GET',
                 dataType: 'json',
+                timeout: 10000,
                 success: function(data) {
                     if (data.error) {
-                        alert('Erro: ' + data.error);
+                        console.error('Erro:', data.message);
+                        alert('Erro: ' + data.message);
                         return;
                     }
                     

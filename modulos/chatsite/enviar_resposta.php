@@ -4,39 +4,77 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
 
-if (!isset($_POST['id_atendimento']) || !isset($_POST['mensagem'])) {
-    echo 0;
-    exit;
-}
+header('Content-Type: application/json');
 
-$idatendimento = intval($_POST['id_atendimento']);
-$mensagem = mysqli_real_escape_string($conexao, $_POST['mensagem']);
-$nome_atendente = isset($_SESSION["usuariosaw"]["nome"]) ? $_SESSION["usuariosaw"]["nome"] : 'Atendente';
-$idatendente = isset($_SESSION["usuariosaw"]["id"]) ? intval($_SESSION["usuariosaw"]["id"]) : 0;
+try {
+    if (!isset($_POST['id_atendimento']) || !isset($_POST['mensagem'])) {
+        throw new Exception('Parâmetros incompletos (id_atendimento e mensagem são obrigatórios)');
+    }
 
-// Buscar o número da conversa
-$queryNum = "SELECT numero FROM tbatendimento WHERE id = '$idatendimento'";
-$resultNum = mysqli_query($conexao, $queryNum);
-$rowNum = mysqli_fetch_assoc($resultNum);
-$numero = $rowNum['numero'] ?? '';
+    $idatendimento = intval($_POST['id_atendimento']);
+    $mensagem = mysqli_real_escape_string($conexao, trim($_POST['mensagem']));
+    
+    if ($idatendimento <= 0) {
+        throw new Exception('ID de atendimento inválido');
+    }
+    
+    if (empty($mensagem)) {
+        throw new Exception('Mensagem não pode estar vazia');
+    }
 
-// Buscar próxima sequência
-$querySeq = "SELECT COALESCE(MAX(seq), 0) + 1 as newSeq FROM tbmsgatendimento WHERE id_atendimento = '$idatendimento' AND canal = 0";
-$resultSeq = mysqli_query($conexao, $querySeq);
-$rowSeq = mysqli_fetch_assoc($resultSeq);
-$seq = $rowSeq['newSeq'] ?? 1;
+    $nome_atendente = isset($_SESSION["usuariosaw"]["nome"]) ? $_SESSION["usuariosaw"]["nome"] : 'Atendente';
+    $idatendente = isset($_SESSION["usuariosaw"]["id"]) ? intval($_SESSION["usuariosaw"]["id"]) : 0;
 
-// Inserir mensagem
-$insertMsg = "
-    INSERT INTO tbmsgatendimento 
-    (id_atendimento, seq, numero, msg, nome_chat, id_atend, dt_msg, hr_msg, canal, situacao, notificada)
-    VALUES 
-    ('$idatendimento', '$seq', '$numero', '$mensagem', '$nome_atendente', '$idatendente', CURDATE(), CURTIME(), '0', 'E', true)
-";
+    // Buscar o número da conversa
+    $queryNum = "SELECT numero FROM tbatendimento WHERE id = '$idatendimento'";
+    $resultNum = mysqli_query($conexao, $queryNum);
+    
+    if (!$resultNum) {
+        throw new Exception('Erro ao buscar número da conversa: ' . mysqli_error($conexao));
+    }
+    
+    $rowNum = mysqli_fetch_assoc($resultNum);
+    
+    if (!$rowNum) {
+        throw new Exception('Conversa não encontrada (ID: ' . $idatendimento . ')');
+    }
+    
+    $numero = $rowNum['numero'] ?? '';
 
-if (mysqli_query($conexao, $insertMsg)) {
-    echo 1;
-} else {
-    echo 0;
+    // Buscar próxima sequência
+    $querySeq = "SELECT COALESCE(MAX(seq), 0) + 1 as newSeq FROM tbmsgatendimento WHERE id_atendimento = '$idatendimento' AND canal = 0";
+    $resultSeq = mysqli_query($conexao, $querySeq);
+    
+    if (!$resultSeq) {
+        throw new Exception('Erro ao buscar sequência: ' . mysqli_error($conexao));
+    }
+    
+    $rowSeq = mysqli_fetch_assoc($resultSeq);
+    $seq = $rowSeq['newSeq'] ?? 1;
+
+    // Inserir mensagem
+    $insertMsg = "
+        INSERT INTO tbmsgatendimento 
+        (id_atendimento, seq, numero, msg, nome_chat, id_atend, dt_msg, hr_msg, canal, situacao, notificada)
+        VALUES 
+        ('$idatendimento', '$seq', '$numero', '$mensagem', '$nome_atendente', '$idatendente', CURDATE(), CURTIME(), '0', 'E', true)
+    ";
+
+    if (mysqli_query($conexao, $insertMsg)) {
+        echo json_encode([
+            'success' => true,
+            'message' => 'Mensagem enviada com sucesso',
+            'seq' => $seq
+        ]);
+    } else {
+        throw new Exception('Erro ao inserir mensagem: ' . mysqli_error($conexao));
+    }
+
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode([
+        'error' => true,
+        'message' => $e->getMessage()
+    ]);
 }
 ?>

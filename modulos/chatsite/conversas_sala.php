@@ -643,21 +643,53 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
 
         // Carregar salas
         function carregarSalas() {
+            console.log('📡 Carregando conversas...');
             $.ajax({
                 url: 'api_conversas.php',
                 type: 'GET',
                 dataType: 'json',
+                timeout: 10000,  // 10 segundos de timeout
                 success: function(data) {
+                    console.log('✅ Resposta recebida:', data);
+                    
+                    // Verificar se retornou erro
+                    if (data && data.error) {
+                        console.error('❌ Erro da API:', data.message);
+                        renderizarErro('Erro na API: ' + (data.message || 'Erro desconhecido'));
+                        return;
+                    }
+                    
                     if (!Array.isArray(data)) {
-                        console.error('Resposta inválida:', data);
+                        console.error('❌ Resposta inválida (não é array):', typeof data, data);
                         data = [];
                     }
                     salas = data;
+                    console.log('📊 Total de conversas carregadas:', salas.length);
                     renderizarSalas();
                 },
                 error: function(xhr, status, error) {
-                    console.error('Erro ao carregar salas:', error);
-                    renderizarErro('Erro ao carregar conversas. Por favor, recarregue a página.');
+                    console.error('❌ Erro AJAX:', {
+                        status: status,
+                        error: error,
+                        statusCode: xhr.status,
+                        response: xhr.responseText
+                    });
+                    
+                    let mensagem = 'Erro ao carregar conversas. ';
+                    
+                    if (xhr.status === 0) {
+                        mensagem += 'Verifique sua conexão de internet.';
+                    } else if (xhr.status === 404) {
+                        mensagem += 'API não encontrada (api_conversas.php).';
+                    } else if (xhr.status === 500) {
+                        mensagem += 'Erro no servidor: ' + xhr.responseText.substring(0, 100);
+                    } else if (status === 'timeout') {
+                        mensagem += 'Tempo limite de requisição excedido.';
+                    } else if (status === 'parsererror') {
+                        mensagem += 'Erro ao processar resposta. Verifique console.';
+                    }
+                    
+                    renderizarErro(mensagem + ' Por favor, recarregue a página.');
                 }
             });
         }
@@ -708,9 +740,25 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
         // Renderizar erro
         function renderizarErro(msg) {
             const html = `
-                <li style="padding: 1.5rem; text-align: center; color: #ff6b6b;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;"><i class="bi bi-exclamation-triangle"></i></div>
-                    ${msg}
+                <li style="padding: 2rem; text-align: center; color: #ff6b6b;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;"><i class="bi bi-exclamation-triangle"></i></div>
+                    <div style="font-weight: 600; margin-bottom: 0.5rem; font-size: 1.1rem;">Erro ao Carregar Conversas</div>
+                    <div style="margin-bottom: 1.5rem; font-size: 0.95rem; line-height: 1.5;">${msg}</div>
+                    <div style="margin-bottom: 1rem;">
+                        <button onclick="carregarSalas()" class="btn btn-sm btn-danger">
+                            <i class="bi bi-arrow-clockwise"></i> Tentar Novamente
+                        </button>
+                    </div>
+                    <div style="font-size: 0.75rem; color: rgba(255, 107, 107, 0.7); border-top: 1px solid rgba(255, 107, 107, 0.3); padding-top: 1rem; margin-top: 1rem;">
+                        <strong>Dica:</strong> Se o erro persistir:
+                        <ol style="text-align: left; margin-top: 0.5rem;">
+                            <li>Abra <strong>DevTools (F12)</strong> → <strong>Console</strong></li>
+                            <li>Procure por mensagens em vermelho</li>
+                            <li>Verifique a aba <strong>Network</strong></li>
+                            <li>Teste <strong>api_conversas.php</strong> direto</li>
+                            <li>Acesse <strong>status.php</strong> para diagnóstico</li>
+                        </ol>
+                    </div>
                 </li>
             `;
             document.getElementById('salasList').innerHTML = html;
@@ -732,9 +780,11 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
                 url: 'api_mensagens.php?id=' + salaAtual,
                 type: 'GET',
                 dataType: 'json',
+                timeout: 10000,
                 success: function(data) {
                     if (data.error) {
-                        console.error('Erro: ' + data.error);
+                        console.error('API Error (carregarMensagens):', data.message);
+                        $('#chatMensagens').html('<div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> ' + data.message + '</div>');
                         return;
                     }
 
@@ -774,8 +824,15 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
                     $('#inputArea').show();
                     $('#msgInput').focus();
                 },
-                error: function() {
-                    alert('Erro ao carregar mensagens');
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error (carregarMensagens):', status, error);
+                    let msg = 'Erro ao carregar mensagens';
+                    if (status === 'timeout') {
+                        msg = 'Tempo limite de carregamento excedido';
+                    } else if (status === 'error' && xhr.status === 404) {
+                        msg = 'API não encontrada (api_mensagens.php)';
+                    }
+                    $('#chatMensagens').html('<div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> ' + msg + '</div>');
                 }
             });
         }
@@ -787,15 +844,31 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
 
             $(this).prop('disabled', true).html('<i class="bi bi-hourglass-split"></i>');
 
-            $.post('enviar_resposta.php', {
-                id_atendimento: salaAtual,
-                mensagem: msg
-            }, function(response) {
-                if (response == 1) {
-                    $('#msgInput').val('').css('height', 'auto');
-                    carregarMensagens();
+            $.ajax({
+                url: 'enviar_resposta.php',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    id_atendimento: salaAtual,
+                    mensagem: msg
+                },
+                timeout: 10000,
+                success: function(response) {
+                    if (response.error) {
+                        console.error('❌ Erro ao enviar:', response.message);
+                        alert('Erro ao enviar mensagem:\n\n' + response.message);
+                    } else {
+                        console.log('✅ Mensagem enviada:', response);
+                        $('#msgInput').val('').css('height', 'auto');
+                        carregarMensagens();
+                    }
+                    $('#btnEnviarMsg').prop('disabled', false).html('<i class="bi bi-send-fill"></i>');
+                },
+                error: function(xhr, status, error) {
+                    console.error('❌ Erro AJAX:', error);
+                    alert('Erro ao enviar mensagem. Tente novamente.');
+                    $('#btnEnviarMsg').prop('disabled', false).html('<i class="bi bi-send-fill"></i>');
                 }
-                $('#btnEnviarMsg').prop('disabled', false).html('<i class="bi bi-send-fill"></i>');
             });
         });
 
@@ -812,13 +885,35 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
             let nome = prompt('Informe o nome do cliente:');
             if (!nome || !nome.trim()) return;
 
-            $.post('criar_conversa.php', {
-                nome: nome.trim()
-            }, function(response) {
-                if (response == 1) {
-                    carregarSalas();
-                } else {
-                    alert('Erro ao criar conversa');
+            console.log('➕ Criando nova conversa com nome:', nome);
+            
+            $.ajax({
+                url: 'criar_conversa.php',
+                type: 'POST',
+                dataType: 'json',
+                data: { nome: nome.trim() },
+                timeout: 10000,
+                success: function(response) {
+                    if (response.error) {
+                        console.error('❌ Erro ao criar:', response.message);
+                        alert('Erro ao criar conversa:\n\n' + response.message);
+                    } else {
+                        console.log('✅ Conversa criada com sucesso:', response);
+                        alert('✅ Conversa criada com sucesso! #' + response.numero);
+                        carregarSalas();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('❌ Erro AJAX:', error);
+                    let mensagem = 'Erro ao criar conversa. ';
+                    if (status === 'timeout') {
+                        mensagem += 'Tempo limite excedido.';
+                    } else if (xhr.status === 500) {
+                        mensagem += xhr.responseText.substring(0, 100);
+                    } else {
+                        mensagem += error;
+                    }
+                    alert(mensagem);
                 }
             });
         });
