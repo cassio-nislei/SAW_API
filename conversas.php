@@ -967,52 +967,47 @@ if (!isset($_SESSION["usuariosaw"])){
                 $("#tabs4").tabs();
             // FIM Habilita o sistema de Abas //
 
-            //Ocultar Conversas
-            setTimeout(function() {
-                var btnMini = document.getElementById('btnMinimuiConversas');
+            $(document).ready(function() {
+              setTimeout(function() {
+                document.getElementById('btnMinimuiConversas').addEventListener('click', function() {
+                    console.log("✓ btnMinimuiConversas CLICADO!");
+                    var MenuLateral = document.querySelector('#MenuLateral');
+                    MenuLateral.style.display = 'none';
+                    document.getElementById('Verchat').style.display = 'none';
+                    document.getElementById('btManipulaChat').style.display = 'none';
+                    document.getElementById('btnMinimuiConversas2').style.display = 'block';
+                    
+                    // Rotaciona o ícone chevron
+                    var btnMini = document.getElementById('btnMinimuiConversas');
+                    var chevron = btnMini.querySelector('.fa-chevron-right');
+                    if (chevron) {
+                        chevron.classList.add('rotateIconClose');
+                    }
+                });
                 
-                if (btnMini) {
-                    btnMini.addEventListener('click', function(e) {    
-                        console.log("✓ btnMinimuiConversas CLICADO!");
-                        var MenuLateral = document.querySelector('#MenuLateral');
-                        MenuLateral.style.display = 'none';
-                        document.getElementById('Verchat').style.display = 'none';
-                        document.getElementById('btManipulaChat').style.display = 'none';
-                        document.getElementById('btnMinimuiConversas2').style.display = 'block';
-                        
-                        // Rotaciona o ícone chevron
-                        var chevron = btnMini.querySelector('.fa-chevron-right');
-                        if (chevron) {
-                            chevron.classList.add('rotateIconClose');
-                        }
-                    });
-                }
-            }, 100);
-
-            //Mostrar Conversas
-            setTimeout(function() {
-                var btnMostra = document.getElementById('btnMinimuiConversas2');
+                document.getElementById('btnMinimuiConversas2').addEventListener('click', function() {
+                    console.log("✓ btnMinimuiConversas2 CLICADO!");
+                    var MenuLateral = document.querySelector('#MenuLateral');
+                    MenuLateral.style.display = 'block';
+                    document.getElementById('Verchat').style.display = 'block';
+                    document.getElementById('btManipulaChat').style.display = 'block';
+                    document.getElementById('btnMinimuiConversas2').style.display = 'none';
+                    
+                    // Desrotaciona o ícone chevron
+                    var btnMini = document.getElementById('btnMinimuiConversas');
+                    var chevron = btnMini.querySelector('.fa-chevron-right');
+                    if (chevron) {
+                        chevron.classList.remove('rotateIconClose');
+                    }
+                });
                 
-                if (btnMostra) {
-                    btnMostra.addEventListener('click', function(e) {
-                        console.log("✓ btnMinimuiConversas2 CLICADO!");
-                        var MenuLateral = document.querySelector('#MenuLateral');
-                        MenuLateral.style.display = 'block';
-                        document.getElementById('Verchat').style.display = 'block';
-                        document.getElementById('btManipulaChat').style.display = 'block';
-                        document.getElementById('btnMinimuiConversas2').style.display = 'none';
-                        
-                        // Desrotaciona o ícone chevron
-                        var btnMini = document.getElementById('btnMinimuiConversas');
-                        var chevron = btnMini.querySelector('.fa-chevron-right');
-                        if (chevron) {
-                            chevron.classList.remove('rotateIconClose');
-                        }
-                    });
-                }
-            }, 100);
-
-        });
+                document.getElementById('btManipulaChat').addEventListener('click', function() {
+                    console.log("✓ btManipulaChat CLICADO!");
+                    // Manda clicar em btnMinimuiConversas
+                    document.getElementById('btnMinimuiConversas').click();
+                });
+              }, 100);
+            });
     </script>
   <script>
   function toggleList(listId, counterId) {
