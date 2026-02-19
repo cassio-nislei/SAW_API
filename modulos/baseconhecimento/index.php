@@ -1,10 +1,10 @@
 <?php require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php"); ?>
-<script type='text/javascript' src="js/tagsinput.js"></script>
-<script type='text/javascript' src="js/ajaxupload.js"></script>
-<script type='text/javascript' src="js/quill.js"></script>
-<link rel="stylesheet" href="css/quill.snow.css">
-<link rel="stylesheet" href="css/ostyleupload.css">
-<link rel="stylesheet" href="css/tagsinput.css">
+<script type='text/javascript' src="/modulos/baseconhecimento/js/tagsinput.js"></script>
+<script type='text/javascript' src="/modulos/baseconhecimento/js/ajaxupload.js"></script>
+<script type='text/javascript' src="/modulos/baseconhecimento/js/quill.js"></script>
+<link rel="stylesheet" href="/modulos/baseconhecimento/css/quill.snow.css">
+<link rel="stylesheet" href="/modulos/baseconhecimento/css/ostyleupload.css">
+<link rel="stylesheet" href="/modulos/baseconhecimento/css/tagsinput.css">
 <style>
 	.table address, dl, fieldset, figure, ol, p, pre, ul{
 		margin:0;
@@ -172,7 +172,7 @@
                     );
                     
                     while( $objResultAnexos = mysqli_fetch_object($registrosAnxs) ){
-                        $downloads .= '<a href="modulos/baseconhecimento/anexo.php?id='.$objResultAnexos->id.'" target="_blank" title="'.$objResultAnexos->nome_arquivo.'" style="text-decoration:none">
+                        $downloads .= '<a href="/modulos/baseconhecimento/anexo.php?id='.$objResultAnexos->id.'" target="_blank" title="'.$objResultAnexos->nome_arquivo.'" style="text-decoration:none">
                             <i class="fas fa-cloud-download"></i>
                         </a> ';
                     }
@@ -258,10 +258,10 @@ $( document ).ready(function() {
 			$('#btnFecharCadastroBC').attr('disabled', true);
 
 			// Exibe mensagem de carregamento
-			$("#aguarde").html("<img src='../../images/loader.gif' alt='Gravando...' />").fadeIn("slow");
+			$("#aguarde").html("<img src='/images/loader.gif' alt='Gravando...' />").fadeIn("slow");
 
 			// Submitando o Cadastro //
-			$.post('modulos/baseconhecimento/salvar.php'
+			$.post('/modulos/baseconhecimento/salvar.php'
 				, { idBC: idBC, acaoBC: acaoBC, problema: problema, solucao: solucao, tags: tags}
 				, function(retorno) {
                   //  alert(retorno);
@@ -274,7 +274,7 @@ $( document ).ready(function() {
 				else if (retorno == 2){ mostraDialogo(mensagem2, "success", 2500); }
 				else{ mostraDialogo(mensagem9, "danger", 2500); }
 
-				$.ajax("modulos/baseconhecimento/index.php").done(function(data) {
+				$.ajax("/modulos/baseconhecimento/index.php").done(function(data) {
 					// $('#ListarBC').html(data);
 					$('#modalBaseConhecimento').html(data);
 				});
@@ -304,14 +304,14 @@ $( document ).ready(function() {
 
 		var idBC = $("#IdBC2").val();
 
-		$.post("modulos/baseconhecimento/excluir.php",{IdBC:idBC},function(resultado){             
+		$.post("/modulos/baseconhecimento/excluir.php",{IdBC:idBC},function(resultado){             
 			var mensagem1  = "<strong>Base de Conhecimento Removido com sucesso!</strong>";
 			var mensagem9 = 'Falha ao Remover Base de Conhecimento!';
 
 			if( resultado == 1 ){
 				mostraDialogo(mensagem1, "success", 2500);	
 
-				$.ajax("modulos/baseconhecimento/index.php").done(function(data) {
+				$.ajax("/modulos/baseconhecimento/index.php").done(function(data) {
 					// $('#ListarBC').html(data);
 					$('#modalBaseConhecimento').html(data);
 				});
@@ -341,7 +341,7 @@ $( document ).ready(function() {
 
            // alert("codigo"+ codigo)
 
-			$.getJSON('modulos/baseconhecimento/carregardados.php?codigo='+codigo, function(registro){	
+			$.getJSON('/modulos/baseconhecimento/carregardados.php?codigo='+codigo, function(registro){	
                 console.log(registro);		
 				// Carregando os Dados //
 				$("#idBC").val(registro.id);
@@ -388,7 +388,7 @@ $( document ).ready(function() {
 		var idfile =  $(this).data('valor'); //$(this).attr('href');
 		$("li").remove(":contains('"+file+"')");		
 		
-		$.post('modulos/baseconhecimento/apaga-file.php', {id:idfile,file:file}, function(resposta) {
+		$.post('/modulos/baseconhecimento/apaga-file.php', {id:idfile,file:file}, function(resposta) {
 		//	alert(resposta);
 			// Habilitando o Campo Upload //
 			$('input[name="uploadfile"]').prop('disabled', false);
@@ -404,7 +404,7 @@ $( document ).ready(function() {
 
 	new AjaxUpload(btnUpload, {
 		// Arquivo que fará o upload
-		action: 'modulos/baseconhecimento/upload-file.php',
+		action: '/modulos/baseconhecimento/upload-file.php',
 		//Nome da caixa de entrada do arquivo
 		name: 'uploadfile',
 		onSubmit: function(file, ext){
@@ -471,7 +471,7 @@ $( document ).ready(function() {
 
 		// Função de Pesquisa //
 		function pesquisaBC(termo){
-			$.post('modulos/baseconhecimento/index.php'
+			$.post('/modulos/baseconhecimento/index.php'
 				, { termo: termo}
 				, function(retorno) {
 				$('#modalBaseConhecimento').html(retorno);
