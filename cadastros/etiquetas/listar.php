@@ -1,5 +1,5 @@
 <?php require_once("../includes/padrao.inc.php"); ?>
-<script type='text/javascript' src="cadastros/etiquetas/acoesListar.js"></script>
+<script type='text/javascript' src="/cadastros/etiquetas/acoesListar.js"></script>
 
 <!-- Htmls Novos -->
 <div class="topLine">
@@ -54,7 +54,7 @@ $( document ).ready(function() {
 
 		var idEtiqueta = $("#IdEtiqueta2").val();
 
-		$.post("cadastros/etiquetas/excluir.php",{IdEtiqueta:idEtiqueta},function(resultado){             
+		$.post("/cadastros/etiquetas/excluir.php",{IdEtiqueta:idEtiqueta},function(resultado){             
 			var mensagem  = "<strong>Etiqueta Removido com sucesso!</strong>";
 			var mensagem2 = 'Falha ao Remover Usuário!';
 
@@ -62,7 +62,7 @@ $( document ).ready(function() {
 				mostraDialogo(mensagem, "success", 2500);	
                 $("#btnConfirmaRemoveEtiqueta").attr('value', 'Confirmar Exclusão!');
                 $('#btnConfirmaRemoveEtiqueta').attr('disabled', false);
-				$.ajax("cadastros/etiquetas/listar.php").done(function(data) {
+				$.ajax("/cadastros/etiquetas/listar.php").done(function(data) {
 					$('#ListarEtiqueta').html(data);
 				});
 			}
@@ -91,7 +91,7 @@ $( document ).ready(function() {
 		// Alterando o Título do Cadastro //
 		$("#titleCadastroUser").html("Alteração de Etiquetas");
 
-		$.getJSON('cadastros/etiquetas/carregardados.php?codigo='+codigo, function(registro){			
+		$.getJSON('/cadastros/etiquetas/carregardados.php?codigo='+codigo, function(registro){			
 			// Carregando os Dados //
 			$("#id_Etiqueta").val(registro.id);
 			$("#cor").val(registro.cor);

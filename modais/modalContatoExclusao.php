@@ -13,4 +13,4 @@
     <input type="hidden" name="id" id="idContatoExcluir" />
     <input type="hidden" name="acao" id="acaoContatoExcluir" value="9" />
 </div>
-<script type='text/javascript' src="cadastros/contatos/contatosForms.js"></script>
+<script type='text/javascript' src="/cadastros/contatos/contatosForms.js"></script>

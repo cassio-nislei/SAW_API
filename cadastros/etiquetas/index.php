@@ -4,7 +4,7 @@
 <div class="box-modal" id="FormEtiquetas" style="display: none;">    
     <h2 class="title" id="titleCadastroUser">Adicionar Etiquetas de Marcação</h2>
     <div class="">
-        <form method="post" id="gravaEtiqueta" name="gravaEtiqueta" action="cadastros/etiquetas/salvar.php">
+        <form method="post" id="gravaEtiqueta" name="gravaEtiqueta" action="/cadastros/etiquetas/salvar.php">
             <input type="hidden" value="0" name="acaoEtiqueta" id="acaoEtiqueta" />
 			<input type="hidden" value="0" name="id_Etiqueta" id="id_Etiqueta" />
 			
@@ -49,7 +49,7 @@
 
 <script>
     $( document ).ready(function(){
-        $.ajax("cadastros/etiquetas/listar.php").done(function(data) {
+        $.ajax("/cadastros/etiquetas/listar.php").done(function(data) {
             $('#ListarEtiqueta').html(data);
         });
 
@@ -106,7 +106,7 @@
 				else if (retorno == 3){ mostraDialogo("Já existe uma etiqueta com essa cor", "danger", 2500); }
 				else{ mostraDialogo(retorno, "danger", 5500); }
 
-				$.ajax("cadastros/etiquetas/listar.php").done(function(data) {
+				$.ajax("/cadastros/etiquetas/listar.php").done(function(data) {
 					$('#ListarEtiqueta').html(data);
 				});
 			},		 

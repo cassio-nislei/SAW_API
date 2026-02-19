@@ -102,7 +102,7 @@
     </div>
 </div>
 
-<script type='text/javascript' src="cadastros/respostasrapidas/acoes.js"></script>
+<script type='text/javascript' src="/cadastros/respostasrapidas/acoes.js"></script>
 <script>
   $(document).ready(function() {
     $.ajax("cadastros/respostasrapidas/listar.php").done(function(data) {
