@@ -967,46 +967,50 @@ if (!isset($_SESSION["usuariosaw"])){
                 $("#tabs4").tabs();
             // FIM Habilita o sistema de Abas //
 
-               
             //Ocultar Conversas
-            
-            $("#btnMinimuiConversas").on("click", function() {    
-                var MenuLateral = document.querySelector('#MenuLateral');
-                MenuLateral.style.display = 'none';
-                     
-                $("#Verchat").css("display","none");  //Oculto o chat de Atendentes
-                $("#btManipulaChat").css("display","none");  //Oculto o botão do chat de Atendentes
-                $("._1FKgS").css("overflow","hidden");  //Oculto a barra de rolagem inferior
-                $("#btnVoltarResponsivo").css("display","block");   //Mostro o Botão voltar do lado da foto de perfil < azul
-   
+            setTimeout(function() {
+                var btnMini = document.getElementById('btnMinimuiConversas');
                 
-                $("#btnMinimuiConversas2").css("display","block");       
-                $('._1Iexl').css("-webkit-flex","100%");                 
-
-                
-            });
+                if (btnMini) {
+                    btnMini.addEventListener('click', function(e) {    
+                        console.log("✓ btnMinimuiConversas CLICADO!");
+                        var MenuLateral = document.querySelector('#MenuLateral');
+                        MenuLateral.style.display = 'none';
+                        document.getElementById('Verchat').style.display = 'none';
+                        document.getElementById('btManipulaChat').style.display = 'none';
+                        document.getElementById('btnMinimuiConversas2').style.display = 'block';
+                        
+                        // Rotaciona o ícone chevron
+                        var chevron = btnMini.querySelector('.fa-chevron-right');
+                        if (chevron) {
+                            chevron.classList.add('rotateIconClose');
+                        }
+                    });
+                }
+            }, 100);
 
             //Mostrar Conversas
-            $("#btnMinimuiConversas2").on("click", function() {   
-                  var MenuLateral = document.querySelector('#MenuLateral');
-                  MenuLateral.style.display = 'block';                      
-                 
-                  $("#Verchat").css("display","block");  //Mostro o chat de Atendentes
-                  $("#btManipulaChat").css("display","block");  //Mostro o botão do chat de Atendentes
-                  $("._1FKgS").css("overflow","visible"); //Mostro a barra de rolagem inferior
-
-                 
-
-                 $("#btnMinimuiConversas2").css("display","none");  
-                 $('._1Iexl').css("-webkit-flex","100%");   
-                    
-                 $("#btnVoltarResponsivo").css("display","none");   //Mostro o Botão voltar do lado da foto de perfil < azul
-             
-               
-
-        });
-            
-              
+            setTimeout(function() {
+                var btnMostra = document.getElementById('btnMinimuiConversas2');
+                
+                if (btnMostra) {
+                    btnMostra.addEventListener('click', function(e) {
+                        console.log("✓ btnMinimuiConversas2 CLICADO!");
+                        var MenuLateral = document.querySelector('#MenuLateral');
+                        MenuLateral.style.display = 'block';
+                        document.getElementById('Verchat').style.display = 'block';
+                        document.getElementById('btManipulaChat').style.display = 'block';
+                        document.getElementById('btnMinimuiConversas2').style.display = 'none';
+                        
+                        // Desrotaciona o ícone chevron
+                        var btnMini = document.getElementById('btnMinimuiConversas');
+                        var chevron = btnMini.querySelector('.fa-chevron-right');
+                        if (chevron) {
+                            chevron.classList.remove('rotateIconClose');
+                        }
+                    });
+                }
+            }, 100);
 
         });
     </script>
