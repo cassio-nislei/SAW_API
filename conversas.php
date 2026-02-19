@@ -967,55 +967,90 @@ if (!isset($_SESSION["usuariosaw"])){
                 $("#tabs4").tabs();
             // FIM Habilita o sistema de Abas //
 
-            //Ocultar Conversas
-            
-            $("#btnMinimuiConversas").on("click", function() {    
-                var MenuLateral = document.querySelector('#MenuLateral');
-                MenuLateral.style.display = 'none';
-                     
-                $("#Verchat").css("display","none");  //Oculto o chat de Atendentes
-                $("#btManipulaChat").css("display","none");  //Oculto o botão do chat de Atendentes
-                $("._1FKgS").css("overflow","hidden");  //Oculto a barra de rolagem inferior
-                $("#btnVoltarResponsivo").css("display","block");   //Mostro o Botão voltar do lado da foto de perfil < azul
-   
-                
-                $("#btnMinimuiConversas2").css("display","block");       
-                $('._1Iexl').css("-webkit-flex","100%");
-                
-                // Rotaciona o ícone chevron
-                var chevron = document.querySelector('#btnMinimuiConversas .fa-chevron-right');
-                if (chevron) {
-                    chevron.classList.add('rotateIconClose');
+            // Aguarda o DOM estar pronto
+            setTimeout(function() {
+                //Ocultar Conversas
+                var btnOcultarEl = document.getElementById('btnMinimuiConversas');
+                if (btnOcultarEl) {
+                    console.log("✓ btnMinimuiConversas encontrado");
+                    btnOcultarEl.addEventListener('click', function(e) {    
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log("✓ btnMinimuiConversas CLICADO!");
+                        
+                        var MenuLateral = document.querySelector('#MenuLateral');
+                        if (MenuLateral) MenuLateral.style.display = 'none';
+                        
+                        var Verchat = document.getElementById('Verchat');
+                        if (Verchat) Verchat.style.display = 'none';
+                        
+                        var btChat = document.getElementById('btManipulaChat');
+                        if (btChat) btChat.style.display = 'none';
+                        
+                        var wrapper = document.querySelector('._1FKgS');
+                        if (wrapper) wrapper.style.overflow = 'hidden';
+                        
+                        var btnVoltar = document.getElementById('btnVoltarResponsivo');
+                        if (btnVoltar) btnVoltar.style.display = 'block';
+                        
+                        var btnMostra = document.getElementById('btnMinimuiConversas2');
+                        if (btnMostra) btnMostra.style.display = 'block';
+                        
+                        var iexl = document.querySelector('._1Iexl');
+                        if (iexl) iexl.style.webkitFlex = '100%';
+                        
+                        // Rotaciona o ícone chevron
+                        var chevron = document.querySelector('#btnMinimuiConversas .fa-chevron-right');
+                        if (chevron) {
+                            chevron.classList.add('rotateIconClose');
+                            console.log("✓ Chevron rotacionado!");
+                        }
+                    });
+                } else {
+                    console.error("✗ btnMinimuiConversas NÃO encontrado!");
                 }
 
-                
-            });
-
-            //Mostrar Conversas
-            $("#btnMinimuiConversas2").on("click", function() {   
-                  var MenuLateral = document.querySelector('#MenuLateral');
-                  MenuLateral.style.display = 'block';                      
-                 
-                  $("#Verchat").css("display","block");  //Mostro o chat de Atendentes
-                  $("#btManipulaChat").css("display","block");  //Mostro o botão do chat de Atendentes
-                  $("._1FKgS").css("overflow","visible"); //Mostro a barra de rolagem inferior
-
-                 
-
-                 $("#btnMinimuiConversas2").css("display","none");  
-                 $('._1Iexl').css("-webkit-flex","100%");   
-                    
-                 $("#btnVoltarResponsivo").css("display","none");   //Mostro o Botão voltar do lado da foto de perfil < azul
-                 
-                 // Remove a rotação do ícone chevron
-                 var chevron = document.querySelector('#btnMinimuiConversas .fa-chevron-right');
-                 if (chevron) {
-                     chevron.classList.remove('rotateIconClose');
-                 }
-             
-               
-
-        });
+                //Mostrar Conversas
+                var btnMostraEl = document.getElementById('btnMinimuiConversas2');
+                if (btnMostraEl) {
+                    console.log("✓ btnMinimuiConversas2 encontrado");
+                    btnMostraEl.addEventListener('click', function(e) {   
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log("✓ btnMinimuiConversas2 CLICADO!");
+                        
+                        var MenuLateral = document.querySelector('#MenuLateral');
+                        if (MenuLateral) MenuLateral.style.display = 'block';
+                        
+                        var Verchat = document.getElementById('Verchat');
+                        if (Verchat) Verchat.style.display = 'block';
+                        
+                        var btChat = document.getElementById('btManipulaChat');
+                        if (btChat) btChat.style.display = 'block';
+                        
+                        var wrapper = document.querySelector('._1FKgS');
+                        if (wrapper) wrapper.style.overflow = 'visible';
+                        
+                        if (btnMostraEl) btnMostraEl.style.display = 'none';
+                        
+                        var iexl = document.querySelector('._1Iexl');
+                        if (iexl) iexl.style.webkitFlex = '100%';
+                        
+                        var btnVoltar = document.getElementById('btnVoltarResponsivo');
+                        if (btnVoltar) btnVoltar.style.display = 'none';
+                        
+                        // Remove a rotação do ícone chevron
+                        var chevron = document.querySelector('#btnMinimuiConversas .fa-chevron-right');
+                        if (chevron) {
+                            chevron.classList.remove('rotateIconClose');
+                            console.log("✓ Chevron rotação removida!");
+                        }
+                    });
+                } else {
+                    console.error("✗ btnMinimuiConversas2 NÃO encontrado!");
+                }
+            }, 500);
+            
             
               
 
