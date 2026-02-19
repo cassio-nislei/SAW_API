@@ -2,7 +2,7 @@
 	require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
 	$acao	= $_POST['acaoRespostaRapida'];
 	$id		= $_POST['IdRespostaRapida'];
-	$idUser	= (isset($_POST['id_usuario']) && intval($_POST['id_usuario']) == 2) ? $_SESSION["usuariosaw"]["id"] : $_SESSION["usuariosaw"]["id"];
+	$idUser	= $_SESSION["usuariosaw"]["id"];
 	$titulo	= $_POST['titulo'];
 	$resposta = $_POST['resposta'];
 	$acaoMenu = (isset($_POST['acao'])) ? intval($_POST['acao']) : 0;
