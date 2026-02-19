@@ -985,7 +985,7 @@ if (!isset($_SESSION["usuariosaw"])){
                   MenuLateral.style.display = 'block';                      
                  
                   $("#Verchat").css("display","block");  //Mostro o chat de Atendentes
-                  $("#btManipulaChat").css("display","block");  //Mostro o botão do chat de Atendentes
+                  $("#btManipulaChat").css("display","none");  //Oculto o botão do chat de Atendentes (CORRIGIDO)
                   $("._1FKgS").css("overflow","visible"); //Mostro a barra de rolagem inferior
 
                  
