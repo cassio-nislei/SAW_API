@@ -339,7 +339,106 @@
             background: #4caf50;
         }
 
-        /* Responsive */
+        /* Responsive */        /* Message Actions */
+        .message-actions {
+            display: none;
+            gap: 4px;
+            align-items: center;
+            margin-left: 8px;
+        }
+
+        .message-item.own:hover .message-actions {
+            display: flex;
+            animation: fadeIn 0.2s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .action-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .action-btn:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: scale(1.1);
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .action-btn.btn-delete:hover {
+            color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom: none;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .modal-header .btn-close {
+            filter: invert(1);
+        }
+
+        .modal-title {
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #e0e0e0;
+            padding: 15px 20px;
+        }
+
+        .modal-body textarea {
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-body textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #6a3d8f 100%);
+        }
         @media (max-width: 768px) {
             .webchat-header {
                 flex-direction: column;
@@ -413,7 +512,50 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Modal Editar Mensagem -->
+    <div class="modal fade" id="editMessageModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Mensagem</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea id="editMessageText" class="form-control" rows="4" placeholder="Edite sua mensagem..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnSaveEdit">
+                        <i class="bi bi-check-circle"></i> Salvar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmar Exclusão -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Confirmar Exclusão</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza que deseja <strong>deletar</strong> esta mensagem?</p>
+                    <p style="color: #999; font-size: 12px;">Esta ação não pode ser desfeita.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmDelete">
+                        <i class="bi bi-trash"></i> Deletar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function() {
             const chatContainer = $('#conversas_chat');
@@ -528,6 +670,121 @@
             $('#mudaDepartamento').on('change', function() {
                 departamentoInput.val($(this).val());
                 carregaChat($(this).val());
+            });
+
+            // Edit message handler
+            let currentEditMsgId = null;
+            $(document).on('click', '.btn-edit', function(e) {
+                e.preventDefault();
+                currentEditMsgId = $(this).data('msg-id');
+                const messageText = $(this).closest('.message-item').find('.message-text').data('original');
+                
+                $('#editMessageText').val(messageText).focus();
+                const editModal = new bootstrap.Modal(document.getElementById('editMessageModal'));
+                editModal.show();
+            });
+
+            // Save edited message
+            $('#btnSaveEdit').on('click', function() {
+                const novaMensagem = $('#editMessageText').val().trim();
+                
+                if (!novaMensagem) {
+                    alert('Mensagem não pode estar vazia!');
+                    return;
+                }
+
+                if (!currentEditMsgId) {
+                    alert('Erro: ID da mensagem não encontrado.');
+                    return;
+                }
+
+                $(this).prop('disabled', true).html('<span class="loading-spinner"></span> Salvando...');
+
+                $.ajax({
+                    url: '/webchat/editarMensagem.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        id: currentEditMsgId,
+                        mensagem: novaMensagem
+                    },
+                    timeout: 10000,
+                    success: function(response) {
+                        if (response.success) {
+                            const editModal = bootstrap.Modal.getInstance(document.getElementById('editMessageModal'));
+                            editModal.hide();
+                            carregaChat(departamentoInput.val());
+                        } else {
+                            alert('Erro ao editar: ' + (response.error || 'Tente novamente'));
+                        }
+                        $('#btnSaveEdit').prop('disabled', false).html('<i class="bi bi-check-circle"></i> Salvar');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Erro:', error);
+                        let mensagemErro = 'Erro ao editar mensagem.';
+                        
+                        if (status === 'timeout') {
+                            mensagemErro += ' Tempo limite excedido.';
+                        } else if (xhr.responseJSON && xhr.responseJSON.error) {
+                            mensagemErro += ' ' + xhr.responseJSON.error;
+                        }
+                        
+                        alert(mensagemErro);
+                        $('#btnSaveEdit').prop('disabled', false).html('<i class="bi bi-check-circle"></i> Salvar');
+                    }
+                });
+            });
+
+            // Delete message handler
+            let currentDeleteMsgId = null;
+            $(document).on('click', '.btn-delete', function(e) {
+                e.preventDefault();
+                currentDeleteMsgId = $(this).data('msg-id');
+                const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+                deleteModal.show();
+            });
+
+            // Confirm delete
+            $('#btnConfirmDelete').on('click', function() {
+                if (!currentDeleteMsgId) {
+                    alert('Erro: ID da mensagem não encontrado.');
+                    return;
+                }
+
+                $(this).prop('disabled', true).html('<span class="loading-spinner"></span> Deletando...');
+
+                $.ajax({
+                    url: '/webchat/deletarMensagem.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        id: currentDeleteMsgId
+                    },
+                    timeout: 10000,
+                    success: function(response) {
+                        if (response.success) {
+                            const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+                            deleteModal.hide();
+                            carregaChat(departamentoInput.val());
+                        } else {
+                            alert('Erro ao deletar: ' + (response.error || 'Tente novamente'));
+                        }
+                        $('#btnConfirmDelete').prop('disabled', false).html('<i class="bi bi-trash"></i> Deletar');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Erro:', error);
+                        let mensagemErro = 'Erro ao deletar mensagem.';
+                        
+                        if (status === 'timeout') {
+                            mensagemErro += ' Tempo limite excedido.';
+                        } else if (xhr.responseJSON && xhr.responseJSON.error) {
+                            mensagemErro += ' ' + xhr.responseJSON.error;
+                        }
+                        
+                        alert(mensagemErro);
+                        $('#btnConfirmDelete').prop('disabled', false).html('<i class="bi bi-trash"></i> Deletar');
+                    }
+                });
             });
 
             // Auto-refresh messages every 5 seconds

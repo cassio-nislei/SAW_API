@@ -58,7 +58,7 @@
 			$ultimoUsuarioId = $arrMensagens["idUsuario"];
 		}
 
-		echo '<div class="message-item ' . ($isOwnMessage ? 'own' : '') . '">';
+		echo '<div class="message-item ' . ($isOwnMessage ? 'own' : '') . '" data-msg-id="' . $arrMensagens["id"] . '" data-msg-user="' . $arrMensagens["idUsuario"] . '">';
 		
 		// Avatar
 		echo '<div class="message-avatar" title="' . htmlspecialchars($arrMensagens["nome"]) . '">';
@@ -80,12 +80,21 @@
 		echo '<div class="message-header">' . htmlspecialchars($arrMensagens["nome"]) . $destinoInfo . '</div>';
 		
 		// Texto da mensagem
-		echo '<div class="message-text">' . nl2br(htmlspecialchars($arrMensagens["mensagem"])) . '</div>';
+		echo '<div class="message-text" data-original="' . htmlspecialchars($arrMensagens["mensagem"]) . '">' . nl2br(htmlspecialchars($arrMensagens["mensagem"])) . '</div>';
 		
 		// Timestamp
 		echo '<div class="message-time">' . $arrMensagens["hora"] . '</div>';
 		
 		echo '</div>';
+		
+		// Botões de ação (editar/deletar) - apenas para mensagens do usuário
+		if ($isOwnMessage) {
+			echo '<div class="message-actions">';
+			echo '<button class="action-btn btn-edit" data-msg-id="' . $arrMensagens["id"] . '" title="Editar"><i class="bi bi-pencil"></i></button>';
+			echo '<button class="action-btn btn-delete" data-msg-id="' . $arrMensagens["id"] . '" title="Deletar"><i class="bi bi-trash"></i></button>';
+			echo '</div>';
+		}
+		
 		echo '</div>';
 		echo '</div>';
 	}
