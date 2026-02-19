@@ -8,7 +8,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
 
 // Se é um operador/atendente (tem usuário logado em gestao), mostra painel de conversas
 if (isset($_SESSION["usuariosaw"])) {
-    include('conversas.php');
+    include('conversas_sala.php');
     exit;
 }
 ?>
