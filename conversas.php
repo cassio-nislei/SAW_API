@@ -704,7 +704,7 @@ if (!isset($_SESSION["usuariosaw"])){
 
                 <!-- ÁREA PRINCIPAL DOS COMENTÁRIOS -->
                 <div class="_3q4NP _1Iexl mostrar">
-                    <div id="btManipulaChat" class="action_arrow" title="" aria-expanded="false">
+                    <div id="btManipulaChat" class="action_arrow" title="Ocultar conversas" aria-expanded="false" style="display: flex !important; cursor: pointer; pointer-events: auto; z-index: 999 !important;">
                         <div class="changebtchat">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
                                 <path fill="#FFF" d="M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.17-11.996z"></path>
@@ -968,7 +968,7 @@ if (!isset($_SESSION["usuariosaw"])){
                 MenuLateral.style.display = 'none';
                      
                 $("#Verchat").css("display","none");  //Oculto o chat de Atendentes
-                $("#btManipulaChat").css("display","none");  //Oculto o botão do chat de Atendentes
+                $("#btManipulaChat").css("display","flex").css("z-index","999");  //Mostro o botão do chat de Atendentes
                 $("._1FKgS").css("overflow","hidden");  //Oculto a barra de rolagem inferior
                 $("#btnVoltarResponsivo").css("display","block");   //Mostro o Botão voltar do lado da foto de perfil < azul
    
@@ -979,21 +979,29 @@ if (!isset($_SESSION["usuariosaw"])){
                 
             });
 
-            //Botão para Ocultar Chat e Mostrar Menu Lateral
-            $("#btManipulaChat").on("click", function() {
+            //Botão para Ocultar/Mostrar Menu Lateral
+            $(document).on("click", "#btManipulaChat", function(e) {
+                console.log("Botão btManipulaChat foi clicado!");
+                e.preventDefault();
+                e.stopPropagation();
+                
                 var MenuLateral = document.querySelector('#MenuLateral');
+                var btManipula = document.getElementById('btManipulaChat');
+                console.log("MenuLateral display antes:", MenuLateral.style.display);
                 
                 if (MenuLateral.style.display === 'none' || MenuLateral.style.display === '') {
                     // Mostrar menu lateral
+                    console.log("Mostrando menu lateral");
                     MenuLateral.style.display = 'block';
-                    $("#Verchat").css("display","block");  //Mostro o chat de Atendentes
-                    $("#btManipulaChat").css("display","block");  //Mostro o botão do chat de Atendentes
+                    $("#Verchat").css("display","block");
+                    btManipula.style.display = 'none';
                     $(this).attr("aria-expanded", "false");
                 } else {
                     // Ocultar menu lateral
+                    console.log("Ocultando menu lateral");
                     MenuLateral.style.display = 'none';
-                    $("#Verchat").css("display","none");  //Oculto o chat de Atendentes
-                    $("#btManipulaChat").css("display","none");  //Oculto o botão do chat de Atendentes
+                    $("#Verchat").css("display","none");
+                    btManipula.style.display = 'flex';
                     $(this).attr("aria-expanded", "true");
                 }
             });
