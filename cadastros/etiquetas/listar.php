@@ -1,5 +1,4 @@
 <?php require_once("../../includes/padrao.inc.php"); ?>
-<script type='text/javascript' src="/cadastros/etiquetas/acoesListar.js"></script>
 
 <!-- Htmls Novos -->
 <div class="topLine">
@@ -25,9 +24,9 @@
                 <div class="titlesTable w60p"><i style="color:'.$registros->cor.'" class="fas fa-tag"></i></div>
                 <div class="titlesTable w20p">'. $registros->descricao.'</div>
                 <div class="titlesTable w10p">
-                    <button class="add" style="padding: 0 10px;" title="Excluir"><span uk-icon="trash" class="ConfirmaExclusaoEtiqueta"></span></button>
-                    <button class="add" style="padding: 0 10px;" title="Editar"><span uk-icon="pencil" class="botaoAlterarEtiqueta"></span></button>
-                    </div>
+                    <button class="add" style="padding: 0 10px;" title="Excluir"><i class="fas fa-trash ConfirmaExclusaoEtiqueta" style="cursor: pointer;"></i></button>
+                    <button class="add" style="padding: 0 10px;" title="Editar"><i class="fas fa-pencil-alt botaoAlterarEtiqueta" style="cursor: pointer;"></i></button>
+                </div>
                 <div style="clear: both;"></div>
             </li>';
           $l = $l+1;
@@ -109,7 +108,7 @@ $( document ).ready(function() {
 		$("#ListaEtiquetas").css("display","block");
 		$("#FormEtiquetas").css("display","none");
 	});
-	$('#btnCancelaRemoveEtiquta').on('click', function (){
+	$('#btnCancelaRemoveEtiqueta').on('click', function (){
 		// Fechando a Modal de Confirmação //
 		$('#modalEtiquetaExclusao').attr('style', 'display: none');
 		
