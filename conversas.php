@@ -975,7 +975,7 @@ if (!isset($_SESSION["usuariosaw"])){
                 MenuLateral.style.display = 'none';
                      
                 $("#Verchat").css("display","none");  //Oculto o chat de Atendentes
-                $("#btManipulaChat").css("display","flex");  //Mostro o botão do chat de Atendentes (CORRIGIDO)
+                $("#btManipulaChat").css("display","block");  //Mostro o botão do chat de Atendentes
                 $("._1FKgS").css("overflow","hidden");  //Oculto a barra de rolagem inferior
                 $("#btnVoltarResponsivo").css("display","block");   //Mostro o Botão voltar do lado da foto de perfil < azul
    
@@ -992,7 +992,7 @@ if (!isset($_SESSION["usuariosaw"])){
                   MenuLateral.style.display = 'block';                      
                  
                   $("#Verchat").css("display","block");  //Mostro o chat de Atendentes
-                  $("#btManipulaChat").css("display","none");  //Oculto o botão do chat de Atendentes (CORRIGIDO)
+                  $("#btManipulaChat").css("display","none");  //Oculto o botão do chat de Atendentes
                   $("._1FKgS").css("overflow","visible"); //Mostro a barra de rolagem inferior
 
                  
@@ -1006,22 +1006,13 @@ if (!isset($_SESSION["usuariosaw"])){
 
         });
 
-            //Botão para Ocultar/Mostrar Menu Lateral
-            $("#btManipulaChat").click(function() {
-                var MenuLateral = document.querySelector('#MenuLateral');
-                
-                if (MenuLateral.style.display === 'none' || MenuLateral.style.display === '') {
-                    // Mostrar menu lateral
-                    MenuLateral.style.display = 'block';
-                    $("#Verchat").css("display","block");
-                    document.getElementById('btManipulaChat').style.display = 'none';
-                } else {
-                    // Ocultar menu lateral
-                    MenuLateral.style.display = 'none';
-                    $("#Verchat").css("display","none");
-                    document.getElementById('btManipulaChat').style.display = 'flex';
-                }
+            // Seta (btManipulaChat) também funciona para recolher (clica para chamar btnMinimuiConversas)
+            $(document).on("click", "#btManipulaChat", function() {   
+                $("#btnMinimuiConversas").trigger("click");
             });
+            
+              
+
         });
     </script>
   <script>
