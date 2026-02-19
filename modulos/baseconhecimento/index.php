@@ -1,4 +1,4 @@
-<?php require_once("../../includes/padrao.inc.php"); ?>
+<?php require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php"); ?>
 <script type='text/javascript' src="js/tagsinput.js"></script>
 <script type='text/javascript' src="js/ajaxupload.js"></script>
 <script type='text/javascript' src="js/quill.js"></script>
@@ -22,86 +22,106 @@
 
 </style>
 
-<div class="box-modal" id="FormBC" style="display: none;">    
-    <h2 class="title" id="titleCadastroBC">Adicionar Novo Usuário</h2>
-    <div class="">
+<div class="card" id="FormBC" style="display: none; margin-bottom: 20px;">
+    <div class="card-header">
+        <h4 class="mb-0" id="titleCadastroBC">Adicionar Nova Solução</h4>
+    </div>
+    <div class="card-body">
         <form method="post" id="gravaBC" name="gravaBC">
             <input type="hidden" id="idBC" name="idBC" value="0" />
             <input type="hidden" value="0" name="acaoBC" id="acaoBC" />
 
-            <div>
-                <div class="uk-width-1-1@m" style="width: 49%; float: left;">
-                    <div class="uk-form-label"><b>Descrição do problema</b></div>
-                    <div class="editor" id="editorProblema"></div>
-                    <div id="valida_problema" style="display: none" class="msgValida">
-                        Por favor, informe o [problema].
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><b>Descrição do problema</b></label>
+                        <div class="editor" id="editorProblema"></div>
+                        <small id="valida_problema" style="display: none; color: red;">
+                            Por favor, informe o [problema].
+                        </small>
                     </div>
                 </div>
 
-                <div class="uk-width-1-1@m" style="width: 49%; float: right;">
-                    <div class="uk-form-label"><b>Descrição da solução</b></div>
-                    <div class="editor" id="editorSolucao"></div>
-                    <div id="valida_solucao" style="display: none" class="msgValida">
-                        Por favor, informe a [solução].
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><b>Descrição da solução</b></label>
+                        <div class="editor" id="editorSolucao"></div>
+                        <small id="valida_solucao" style="display: none; color: red;">
+                            Por favor, informe a [solução].
+                        </small>
                     </div>
                 </div>
-			</div>
-
-            <div>
-                <div class="uk-width-1-1@m" style="width: 49%; float: left;">
-                    <div class="uk-form-label"><label for="mensagem"><b>Tags EX: (NFe, SAT, Fiscal)</b></label></div>
-                    <input type="text" data-role="tagsinput" id="categorias" name="categorias" value="" />
-                </div>
-
-                <div class="uk-width-1-1@m" id="mainbody" style="width: 49%; float: right;">
-                    <div class="uk-form-label"><label for="mensagem"><b>Anexos</b></label></div>
-                    <div id="uploadd" ><span>Anexar Arquivos<span></div><span id="statuss" ></span>		
-                    <ul id="files"></ul>
-                </div> 
-                <div id="aguarde" style="margin:auto;text-align:center;z-index:9999;"></div>
-                <div id="statuss" style='display:block;color:#F90;text-align:center'></div>
             </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><b>Tags EX: (NFe, SAT, Fiscal)</b></label>
+                        <input type="text" data-role="tagsinput" id="categorias" name="categorias" value="" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><b>Anexos</b></label>
+                        <div id="uploadd" class="btn btn-sm btn-secondary" style="cursor: pointer; display: block; padding: 10px; text-align: center;">Anexar Arquivos</div>
+                        <small id="statuss" style='display:block;color:#F90;text-align:center'></small>		
+                        <ul id="files" style="margin-top: 10px;"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="aguarde" style="margin:auto;text-align:center;z-index:9999;"></div>
         </form>
     </div>
 
-    <p class="uk-text-right" style="margin-top: 2rem; margin-left: 33rem; float: right;">
-        <button id="btnFecharCadastroBC" class="uk-button uk-button-default uk-modal-close" type="button">Voltar</button>
-        <button id="btnGravarBC" class="uk-button uk-button-primary" type="button">Salvar</button>
-    </p>
+    <div class="card-footer text-right">
+        <button id="btnFecharCadastroBC" class="btn btn-secondary" type="button">Voltar</button>
+        <button id="btnGravarBC" class="btn btn-primary" type="button">Salvar</button>
+    </div>
 </div>
 
-<div class="box-modal" id="ListaBC">
-    <h2 class="title">Base de Conhecimento 
-        <a id="btnNovoBC" href="#" class="uk-align-right" uk-icon="plus-circle" title="+ Incluir Solução"></a>
-    </h2>
+<div class="card" id="ListaBC">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Base de Conhecimento</h4>
+        <button id="btnNovoBC" class="btn btn-primary btn-sm" title="+ Incluir Solução">
+            <i class="fas fa-plus-circle"></i> Inserir
+        </button>
+    </div>
 
-    <div class="panel-body" id="ListarBC">
-        <!-- Base de Conhecimento Cadastradas -->
-        <table class="uk-table uk-table-striped">
-            <tbody>
-                <tr>
-                    <form>
-                        <input type="hidden" name="ordenacao" id="hstOrdenacao" value="ASC" />
-                        <td width="86%">
-                            <div class="uk-margin">
-                                <input name="termo" id="termo" class="uk-input" type="text" placeholder="Informe o seu termo de busca">
-                            </div>
-                        </td>
-                        <td><button type="button" id="btnPesquisar" class="uk-button"><i class="fas fa-search" style="margin-top: 15px"></i></button></td>
-                        <td><button type="button" id="btnVerTodos" class="uk-button"><span uk-icon="refresh" style="margin-top: 12px;"></span></button></td>
-                    </form>
-                </tr>
-            </tbody>
-        </table>
+    <div class="card-body">
+        <!-- Search Bar -->
+        <div class="row mb-3">
+            <div class="col-md-10">
+                <input type="hidden" name="ordenacao" id="hstOrdenacao" value="ASC" />
+                <input name="termo" id="termo" class="form-control" type="text" placeholder="Informe o seu termo de busca">
+            </div>
+            <div class="col-md-2">
+                <button type="button" id="btnPesquisar" class="btn btn-secondary btn-block">
+                    <i class="fas fa-search"></i> Pesquisar
+                </button>
+            </div>
+        </div>
 
-        <table class="table table-striped">
-		<thead class="thead-dark">
-            <tr>
-			  <th scope="col">Problema</th>
-			  <th scope="col">Solução</th>
-              <th scope="col">Anexos</th>
-            </tr>
-			</thead>
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <button type="button" id="btnVerTodos" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-redo"></i> Ver Todos
+                </button>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-responsive">
+            <table class="table table-striped table-sm">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col" style="width: 30%;">Problema</th>
+                        <th scope="col" style="width: 30%;">Solução</th>
+                        <th scope="col" style="width: 40%;">Anexos / Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
 
 
      
@@ -153,8 +173,8 @@
                     
                     while( $objResultAnexos = mysqli_fetch_object($registrosAnxs) ){
                         $downloads .= '<a href="modulos/baseconhecimento/anexo.php?id='.$objResultAnexos->id.'" target="_blank" title="'.$objResultAnexos->nome_arquivo.'" style="text-decoration:none">
-                            <span uk-icon="cloud-download" class="ConfirmaExclusaoUsuario"></span>
-                        </a>';
+                            <i class="fas fa-cloud-download"></i>
+                        </a> ';
                     }
                 // FIM Buscando os Anexos //
 
@@ -163,8 +183,12 @@
                         <td>'.limitarTexto($objResult->problema,40).'</td>
                         <td>'.limitarTexto($objResult->solucao,40).'</td>
                         <td>
-                            <button class="add" style="padding: 0 10px;" title="Excluir"><span uk-icon="trash" class="ConfirmaExclusaoBC"></span></button>
-                            <button class="add" style="padding: 0 10px;" title="Editar"><span uk-icon="pencil" class="botaoAlterarBC"></span></button>
+                            <button class="btn btn-sm btn-danger" style="padding: 2px 6px;" title="Excluir">
+                                <i class="fas fa-trash ConfirmaExclusaoBC"></i>
+                            </button>
+                            <button class="btn btn-sm btn-primary" style="padding: 2px 6px;" title="Editar">
+                                <i class="fas fa-pencil-alt botaoAlterarBC"></i>
+                            </button>
                             '.$downloads.'
                         </td>                     
                     </tr>';
@@ -172,13 +196,14 @@
             }
             // FIM Busncando os Usuários cadastrados //		
         ?>
-        </table>
-      
+        </tbody>
+            </table>
+        </div>
     </div>
 
-    <p class="uk-text-right" style="margin-top:1rem">
-        <button class="uk-button uk-button-default uk-modal-close fechar" type="button">Cancelar</button>
-    </p>
+    <div class="card-footer text-right">
+        <button class="btn btn-secondary fechar" type="button">Cancelar</button>
+    </div>
 </div>
 <input type="hidden" name="qtdeFiles" id="qtdeFiles" value="0" />
 <script>

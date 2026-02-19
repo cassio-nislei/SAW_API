@@ -1,5 +1,5 @@
 <?php
-  require_once("../../includes/padrao.inc.php");
+  require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
   $idBC = isset($_POST["IdBC"]) ? $_POST["IdBC"] : "";
 
   $sql = "DELETE FROM base_conhecimento WHERE id = '".$idBC."'";

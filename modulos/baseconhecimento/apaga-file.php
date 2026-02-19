@@ -1,6 +1,6 @@
 <?php
 //session_start();
-require_once("../../includes/padrao.inc.php");
+require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
 $arquivoexcluido = $_POST["file"];
 $id = $_POST["id"];   
 

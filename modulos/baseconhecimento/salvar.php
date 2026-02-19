@@ -1,5 +1,5 @@
 <?php
-	require_once("../../includes/padrao.inc.php");
+	require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
 	$idBC = isset($_POST["idBC"]) ? $_POST["idBC"] : "";
   	$problema = isset($_POST["problema"]) ? $_POST["problema"] : "";
 	$solucao = isset($_POST["solucao"]) ? $_POST["solucao"] : "";
