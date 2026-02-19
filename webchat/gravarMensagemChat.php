@@ -1,27 +1,72 @@
 <?php
+	if (session_status() === PHP_SESSION_NONE) {
+	    session_start();
+	}
+	
 	require_once("../includes/padrao.inc.php");
 
-	// Definição de Variáveis //
-	$idUsuario = $_SESSION["usuariosaw"]["id"];
-    $idDepto = $_POST["idDepto"];
-	$strMensagem = $_POST["strMensagem"];
-	$sqlInsert = "";
+	header('Content-Type: application/json');
 
-	// Montanto o Insert //
-		if( intval($idDepto) > 0 ){
-			$sqlInsert = "INSERT INTO tbchatoperadores(id_usuario,id_departamento,mensagem)
-							VALUES('".$idUsuario."','".$idDepto."','".$strMensagem."')";
+	try {
+		// Validação de sessão
+		if (!isset($_SESSION["usuariosaw"]["id"])) {
+			throw new Exception('Usuário não autenticado');
 		}
-		else{
-			$sqlInsert = "INSERT INTO tbchatoperadores(id_usuario,mensagem)
-							VALUES('".$idUsuario."','".$strMensagem."')";
+
+		// Validação de parâmetros
+		if (!isset($_POST["idDepto"]) || !isset($_POST["strMensagem"])) {
+			throw new Exception('Parâmetros incompletos');
 		}
-	// FIM Montanto o Insert //
 
-  	$insert = mysqli_query(
-		  $conexao
-		  , $sqlInsert
-	);
+		$idUsuario = intval($_SESSION["usuariosaw"]["id"]);
+		$idDepto = intval($_POST["idDepto"] ?? 0);
+		$strMensagem = trim($_POST["strMensagem"] ?? "");
 
-	if( $insert ){ echo "1"; }
-	else{ echo "0"; }
+		// Validações
+		if (empty($strMensagem)) {
+			throw new Exception('Mensagem não pode estar vazia');
+		}
+
+		if (strlen($strMensagem) > 5000) {
+			throw new Exception('Mensagem muito longa (máximo 5000 caracteres)');
+		}
+
+		// Sanitizar mensagem
+		$strMensagem = mysqli_real_escape_string($conexao, $strMensagem);
+
+		// Validar departamento se informado
+		if ($idDepto > 0) {
+			$sqlValidaDepto = "SELECT id FROM tbdepartamentos WHERE id = '$idDepto' LIMIT 1";
+			$resultDepto = mysqli_query($conexao, $sqlValidaDepto);
+			
+			if (!$resultDepto || mysqli_num_rows($resultDepto) === 0) {
+				throw new Exception('Departamento inválido');
+			}
+
+			$sqlInsert = "INSERT INTO tbchatoperadores(id_usuario, id_departamento, mensagem, data_hora)
+						  VALUES('" . $idUsuario . "', '" . $idDepto . "', '" . $strMensagem . "', NOW())";
+		} else {
+			$sqlInsert = "INSERT INTO tbchatoperadores(id_usuario, mensagem, data_hora)
+						  VALUES('" . $idUsuario . "', '" . $strMensagem . "', NOW())";
+		}
+
+		$insert = mysqli_query($conexao, $sqlInsert);
+
+		if (!$insert) {
+			throw new Exception('Erro ao salvar mensagem: ' . mysqli_error($conexao));
+		}
+
+		// Responder com sucesso
+		echo json_encode([
+			'success' => true,
+			'message' => 'Mensagem enviada com sucesso'
+		]);
+
+	} catch (Exception $e) {
+		http_response_code(400);
+		echo json_encode([
+			'success' => false,
+			'error' => $e->getMessage()
+		]);
+	}
+?>
