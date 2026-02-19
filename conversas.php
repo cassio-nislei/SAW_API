@@ -315,6 +315,8 @@ if (!isset($_SESSION["usuariosaw"])){
             if (MenuLateral && MenuLateral.style.display === '') {
                 MenuLateral.style.display = 'block';  // Estado padrão: menu visível
                 document.getElementById('btManipulaChat').style.display = 'none';  // Seta oculta
+                document.getElementById('btnMinimuiConversas').style.display = 'block';  // Chevron VISÍVEL
+                document.getElementById('btnMinimuiConversas2').style.display = 'none';  // Seta para expandir oculta
             }
             
             // Aguarda um tempo mínimo para garantir que o DOM está totalmente pronto
@@ -334,9 +336,10 @@ if (!isset($_SESSION["usuariosaw"])){
                         MenuLateral.style.display = 'none';
                         document.getElementById('Verchat').style.display = 'none';
                         document.getElementById('btManipulaChat').style.display = 'block';
+                        document.getElementById('btnMinimuiConversas').style.display = 'block';  // Mantém VISÍVEL
                         document.querySelector('._1FKgS').style.overflow = 'hidden';
                         document.getElementById('btnVoltarResponsivo').style.display = 'block';
-                        document.getElementById('btnMinimuiConversas2').style.display = 'block';
+                        document.getElementById('btnMinimuiConversas2').style.display = 'none';  // Oculta a seta de expandir
                         document.querySelector('._1Iexl').style.webkitFlex = '100%';
                     });
                 } else {
@@ -350,8 +353,9 @@ if (!isset($_SESSION["usuariosaw"])){
                         MenuLateral.style.display = 'block';
                         document.getElementById('Verchat').style.display = 'block';
                         document.getElementById('btManipulaChat').style.display = 'none';
+                        document.getElementById('btnMinimuiConversas').style.display = 'block';  // Chevron VISÍVEL
                         document.querySelector('._1FKgS').style.overflow = 'visible';
-                        document.getElementById('btnMinimuiConversas2').style.display = 'none';
+                        document.getElementById('btnMinimuiConversas2').style.display = 'none';  // Seta oculta
                         document.querySelector('._1Iexl').style.webkitFlex = '100%';
                         document.getElementById('btnVoltarResponsivo').style.display = 'none';
                     });
