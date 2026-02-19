@@ -442,7 +442,7 @@
                 isLoading = true;
 
                 $.ajax({
-                    url: 'webchat/listaMensagens.php?idDepto=' + idDepartamento,
+                    url: '/webchat/listaMensagens.php?idDepto=' + idDepartamento,
                     type: 'GET',
                     dataType: 'html',
                     timeout: 10000,
@@ -477,7 +477,7 @@
                 btnSend.prop('disabled', true).html('<div class="loading-spinner"></div>');
 
                 $.ajax({
-                    url: 'webchat/gravarMensagemChat.php',
+                    url: '/webchat/gravarMensagemChat.php',
                     type: 'POST',
                     dataType: 'json',
                     data: {
