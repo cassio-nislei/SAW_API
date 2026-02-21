@@ -98,7 +98,167 @@ if (!isset($_SESSION["usuariosaw"])){
             color: #dc3545 !important;
         }
 
-        /* Estilo para a área de digitação de mensagem - WhatsApp Web */
+        /* ===== TOGGLE MENU ANIMAÇÃO ===== */
+        html, body {
+            width: 100% !important;
+            height: 100% !important;
+            overflow-x: hidden !important;
+        }
+
+        ._1FKgS.app-wrapper-web {
+            display: flex !important;
+            flex-direction: row !important;
+            width: 100% !important;
+            height: 100% !important;
+            overflow: hidden !important;
+            position: relative !important;
+        }
+
+        #MenuLateral {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            transform: translateX(0) !important;
+            opacity: 1 !important;
+            flex: 0 0 360px !important;
+            min-width: 360px !important;
+            width: 360px !important;
+            overflow: hidden !important;
+            position: relative !important;
+        }
+
+        #MenuLateral.menu-hidden {
+            transform: translateX(-100%) !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            flex: 0 !important;
+            min-width: 0 !important;
+            width: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Alinhar btnMinimuiConversas2 com margem esquerda */
+        #btnMinimuiConversas2 {
+            left: 0 !important;
+        }
+
+        /* Área principal expande quando menu está oculto */
+        ._3q4NP._1Iexl {
+            transition: flex 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            flex: 1 1 auto !important;
+            min-width: 1px !important;
+            width: 100% !important;
+            max-width: none !important;
+            overflow: hidden !important;
+        }
+
+        /* Garante que o container interno cabe nas dimensões */
+        #app {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        #app-content {
+            width: 100% !important;
+            height: 100% !important;
+            display: flex !important;
+            flex-direction: row !important;
+        }
+
+        #btnMinimuiConversas, #btnMinimuiConversas2 {
+            transition: all 0.3s ease !important;
+        }
+
+        /* Desktop - até 1200px */
+        @media (max-width: 1200px) {
+            #MenuLateral {
+                flex: 0 0 300px !important;
+                min-width: 300px !important;
+                width: 300px !important;
+            }
+        }
+
+        /* Tablet - até 768px */
+        @media (max-width: 768px) {
+            html, body {
+                overflow-x: hidden !important;
+                width: 100% !important;
+            }
+
+            #MenuLateral {
+                flex: 0 0 75vw !important;
+                width: 75vw !important;
+                min-width: 75vw !important;
+                overflow: hidden !important;
+            }
+
+            #MenuLateral.menu-hidden {
+                flex: 0 0 0 !important;
+                width: 0 !important;
+                min-width: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border: 0 !important;
+            }
+
+            ._1FKgS.app-wrapper-web {
+                overflow-x: hidden !important;
+                width: 100% !important;
+            }
+
+            #app {
+                width: 100% !important;
+            }
+
+            #app-content {
+                width: 100% !important;
+            }
+
+            ._3q4NP._1Iexl {
+                flex: 1 1 auto !important;
+                width: 100% !important;
+                max-width: none !important;
+            }
+        }
+
+        /* Mobile - até 480px */
+        @media (max-width: 480px) {
+            html, body {
+                width: 100% !important;
+                overflow-x: hidden !important;
+            }
+
+            #MenuLateral {
+                flex: 0 0 85vw !important;
+                width: 85vw !important;
+                min-width: 85vw !important;
+                overflow: hidden !important;
+            }
+
+            #MenuLateral.menu-hidden {
+                flex: 0 0 0 !important;
+                width: 0 !important;
+                min-width: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border: 0 !important;
+            }
+
+            ._1FKgS.app-wrapper-web {
+                width: 100vw !important;
+            }
+
+            #app {
+                width: 100vw !important;
+            }
+
+            #app-content {
+                width: 100vw !important;
+            }
+
+            ._3q4NP._1Iexl {
+                width: 100vw !important;
+            }
+        }
         ._2bXVy {
             background-color: #f0f0f0 !important;
             border-radius: 20px !important;
@@ -484,6 +644,62 @@ if (!isset($_SESSION["usuariosaw"])){
                 // Chama na primeira vez em que a página é Carregada //
                 updateTimestampUser();
             // FIM Atualiza o 'Timestamp' do Usuário para identificar se ele está logado //
+            
+            // ===== TOGGLE MENU LATERAL =====
+            console.log("✅✅✅ TOGGLE MENU INICIADO ✅✅✅");
+            
+            $("#btnMinimuiConversas").on("click", function(e) {    
+                e.preventDefault();
+                console.log("✅ CLIQUE EM OCULTAR MENU");
+                
+                var MenuLateral = document.querySelector('#MenuLateral');
+                if (MenuLateral) {
+                    MenuLateral.classList.add('menu-hidden');
+                }
+                
+                $("#btnMinimuiConversas").fadeOut(200);
+                $("#btnMinimuiConversas2").fadeIn(200);
+            });
+            
+            $("#btnMinimuiConversas2").on("click", function(e) {   
+                e.preventDefault();
+                console.log("✅ CLIQUE EM MOSTRAR MENU");
+                
+                var MenuLateral = document.querySelector('#MenuLateral');
+                if (MenuLateral) {
+                    MenuLateral.classList.remove('menu-hidden');
+                }
+                
+                $("#btnMinimuiConversas2").fadeOut(200);
+                $("#btnMinimuiConversas").fadeIn(200);
+            });
+            
+            console.log("✅ Toggle Menu ATIVO E FUNCIONANDO!");
+            // ===== FIM TOGGLE MENU =====
+            
+            // ===== TOGGLE WEBCHAT AREA =====
+            console.log("✅✅✅ CONFIGURANDO btManipulaChat ✅✅✅");
+            
+            $("#btManipulaChat").on("click", function(e) {
+                e.preventDefault();
+                console.log("✅ CLIQUE EM btManipulaChat");
+                
+                var webchatArea = document.querySelector('#webchatArea');
+                if (webchatArea) {
+                    if (webchatArea.style.display === 'none' || webchatArea.style.display === '') {
+                        webchatArea.style.display = 'block';
+                        $(this).attr('aria-expanded', 'true');
+                        console.log("✅ Webchat visível");
+                    } else {
+                        webchatArea.style.display = 'none';
+                        $(this).attr('aria-expanded', 'false');
+                        console.log("✅ Webchat oculto");
+                    }
+                }
+            });
+            
+            console.log("✅ btManipulaChat ATIVO E FUNCIONANDO!");
+            // ===== FIM TOGGLE WEBCHAT AREA =====
         });
     </script>
 </head>
@@ -552,7 +768,11 @@ if (!isset($_SESSION["usuariosaw"])){
                             <span class="fa fa-chevron-left rotateIconClose"></span>
                         </div>
                 </div>
-              
+                 <div id="btnMinimuiConversas"  title="" aria-expanded="false" class="SetaOcultarAtendimentos">
+                    <div class="changebtchat2">
+                        <span class="fa fa-chevron-right rotateIconClose"></span>
+                    </div>
+                </div>
                 <!-- ÁREA DOS CONTATOS -->
                 <div class="_3q4NP k1feT" id="MenuLateral">  <!-- Preciso tonar esse trecho responsivo //André Luiz 14/11/2022 -->
                     <div id="side" class="swl8g">
@@ -694,13 +914,10 @@ if (!isset($_SESSION["usuariosaw"])){
                             </div>
                         </div>
                     </div>
-                    <div id="btnMinimuiConversas"  title="" aria-expanded="false" class="SetaOcultarAtendimentos">
-                        <div class="changebtchat2">
-                            <span class="fa fa-chevron-right rotateIconClose"></span>
-                        </div>
-                    </div>
                 </div>
                 <!-- FECHA ÁREA DOS CONTATOS -->
+
+             
 
                 <!-- ÁREA PRINCIPAL DOS COMENTÁRIOS -->
                 <div class="_3q4NP _1Iexl mostrar">
@@ -719,7 +936,9 @@ if (!isset($_SESSION["usuariosaw"])){
                         </div>
                     </div>
                     <!-- Área do Chat entre Operadores -->
-                    <?php require_once("webchat/index.php"); ?>
+                    <div id="webchatArea" class="webchat-container">
+                        <?php require_once("webchat/index.php"); ?>
+                    </div>
                     <!-- FIM Área do Chat entre Operadores -->
                 </div>
                 <!-- FIM ÁREA PRINCIPAL DOS COMENTÁRIOS -->
@@ -741,6 +960,8 @@ if (!isset($_SESSION["usuariosaw"])){
     </script>
     <script>
         $(document).ready(function() {
+            console.log("🚀🚀🚀 SEGUNDO $(document).ready INICIADO 🚀🚀🚀");
+            
             // Habilita a opção de Configurações apenas para os Administradores //         
             if( $("#perfilUsuario").val() != 1 ){
                 $("#menu-options").attr('style','display: block');
@@ -967,93 +1188,62 @@ if (!isset($_SESSION["usuariosaw"])){
                 $("#tabs4").tabs();
             // FIM Habilita o sistema de Abas //
 
-            // Aguarda o DOM estar pronto
-            setTimeout(function() {
-                //Ocultar Conversas
-                var btnOcultarEl = document.getElementById('btnMinimuiConversas');
-                if (btnOcultarEl) {
-                    console.log("✓ btnMinimuiConversas encontrado");
-                    btnOcultarEl.addEventListener('click', function(e) {    
-                        e.preventDefault();
-                        e.stopPropagation();
-                        console.log("✓ btnMinimuiConversas CLICADO!");
-                        
-                        var MenuLateral = document.querySelector('#MenuLateral');
-                        if (MenuLateral) MenuLateral.style.display = 'none';
-                        
-                        var Verchat = document.getElementById('Verchat');
-                        if (Verchat) Verchat.style.display = 'none';
-                        
-                        var btChat = document.getElementById('btManipulaChat');
-                        if (btChat) btChat.style.display = 'none';
-                        
-                        var wrapper = document.querySelector('._1FKgS');
-                        if (wrapper) wrapper.style.overflow = 'hidden';
-                        
-                        var btnVoltar = document.getElementById('btnVoltarResponsivo');
-                        if (btnVoltar) btnVoltar.style.display = 'block';
-                        
-                        var btnMostra = document.getElementById('btnMinimuiConversas2');
-                        if (btnMostra) btnMostra.style.display = 'block';
-                        
-                        var iexl = document.querySelector('._1Iexl');
-                        if (iexl) iexl.style.webkitFlex = '100%';
-                        
-                        // Rotaciona o ícone chevron
-                        var chevron = document.querySelector('#btnMinimuiConversas .fa-chevron-right');
-                        if (chevron) {
-                            chevron.classList.add('rotateIconClose');
-                            console.log("✓ Chevron rotacionado!");
-                        }
-                    });
-                } else {
-                    console.error("✗ btnMinimuiConversas NÃO encontrado!");
-                }
+            console.log("�🔴🔴 INICIANDO CONFIGURAÇÃO DO TOGGLE 🔴🔴🔴");
+            console.log("�🔍 TESTE: jQuery está disponível?", typeof $);
+            console.log("🔍 TESTE: Elemento #btnMinimuiConversas existe?", document.getElementById('btnMinimuiConversas'));
+            console.log("🔍 TESTE: jQuery encontrou #btnMinimuiConversas?", $("#btnMinimuiConversas").length);
 
-                //Mostrar Conversas
-                var btnMostraEl = document.getElementById('btnMinimuiConversas2');
-                if (btnMostraEl) {
-                    console.log("✓ btnMinimuiConversas2 encontrado");
-                    btnMostraEl.addEventListener('click', function(e) {   
-                        e.preventDefault();
-                        e.stopPropagation();
-                        console.log("✓ btnMinimuiConversas2 CLICADO!");
-                        
-                        var MenuLateral = document.querySelector('#MenuLateral');
-                        if (MenuLateral) MenuLateral.style.display = 'block';
-                        
-                        var Verchat = document.getElementById('Verchat');
-                        if (Verchat) Verchat.style.display = 'block';
-                        
-                        var btChat = document.getElementById('btManipulaChat');
-                        if (btChat) btChat.style.display = 'block';
-                        
-                        var wrapper = document.querySelector('._1FKgS');
-                        if (wrapper) wrapper.style.overflow = 'visible';
-                        
-                        if (btnMostraEl) btnMostraEl.style.display = 'none';
-                        
-                        var iexl = document.querySelector('._1Iexl');
-                        if (iexl) iexl.style.webkitFlex = '100%';
-                        
-                        var btnVoltar = document.getElementById('btnVoltarResponsivo');
-                        if (btnVoltar) btnVoltar.style.display = 'none';
-                        
-                        // Remove a rotação do ícone chevron
-                        var chevron = document.querySelector('#btnMinimuiConversas .fa-chevron-right');
-                        if (chevron) {
-                            chevron.classList.remove('rotateIconClose');
-                            console.log("✓ Chevron rotação removida!");
-                        }
-                    });
-                } else {
-                    console.error("✗ btnMinimuiConversas2 NÃO encontrado!");
+            //Ocultar Conversas (TOGGLE MENU)
+            
+            $("#btnMinimuiConversas").on("click", function(e) {    
+                e.preventDefault();
+                console.log("✅ CLIQUE EM OCULTAR MENU DETECTADO");
+                
+                var MenuLateral = document.querySelector('#MenuLateral');
+                if (MenuLateral) {
+                    MenuLateral.style.display = 'none';
+                    console.log("✅ Menu oculto");
                 }
-            }, 500);
-            
-            
-              
+                     
+                if ($("#Verchat").length) $("#Verchat").css("display","none");
+                if ($("#btManipulaChat").length) $("#btManipulaChat").css("display","none");
+                if ($("._1FKgS").length) $("._1FKgS").css("overflow","hidden");
+                if ($("#btnVoltarResponsivo").length) $("#btnVoltarResponsivo").css("display","block");
+   
+                
+                $("#btnMinimuiConversas2").css("display","flex");       
+                if ($('.._1Iexl').length) $('.._1Iexl').css("-webkit-flex","100%");                 
 
+                
+            });
+
+            //Mostrar Conversas (TOGGLE MENU)
+            $("#btnMinimuiConversas2").on("click", function(e) {   
+                e.preventDefault();
+                console.log("✅ CLIQUE EM MOSTRAR MENU DETECTADO");
+                
+                var MenuLateral = document.querySelector('#MenuLateral');
+                if (MenuLateral) {
+                    MenuLateral.style.display = 'block';
+                    console.log("✅ Menu visível");
+                }                     
+                 
+                if ($("#Verchat").length) $("#Verchat").css("display","block");
+                if ($("#btManipulaChat").length) $("#btManipulaChat").css("display","block");
+                if ($("._1FKgS").length) $("._1FKgS").css("overflow","visible");
+
+                 
+
+                $("#btnMinimuiConversas2").css("display","none");  
+                if ($('.._1Iexl').length) $('.._1Iexl').css("-webkit-flex","100%");   
+                    
+                if ($("#btnVoltarResponsivo").length) $("#btnVoltarResponsivo").css("display","none");
+             
+               
+
+            });
+
+            
         });
     </script>
   <script>
@@ -1105,7 +1295,6 @@ if (!isset($_SESSION["usuariosaw"])){
     observeListChanges('ListaEmAtendimento', 'counterEmAtendimentoValue');
   };
 </script>
-
 
 
 </body>

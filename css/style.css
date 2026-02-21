@@ -19162,22 +19162,38 @@ html[dir="rtl"] ._2ICcy:after {
 
 .SetaOcultarAtendimentos {
   background: #949a9c;
-  position: absolute;
-  right: 0;
-  top: 47%;
-  margin-top: -50px;
+  position: fixed;
+  left: 330px;
+  top: 50%;
+  margin-top: -25px;
   border-top-left-radius: 20px;
   border-bottom-left-radius: 20px;
   padding: 5px 8px;
-  cursor: pointer;
+  cursor: pointer !important;
   height: auto;
+  min-width: 30px;
   z-index: 50000;
   opacity: 1 !important;
   visibility: visible !important;
-  display: flex !important;
+  display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: auto !important;
   transition: all 0.3s ease-in-out;
+}
+
+/* Tablet - 768px e abaixo */
+@media (max-width: 768px) {
+  .SetaOcultarAtendimentos {
+    left: calc(75vw - 30px);
+  }
+}
+
+/* Mobile - 480px e abaixo */
+@media (max-width: 480px) {
+  .SetaOcultarAtendimentos {
+    left: calc(85vw - 30px);
+  }
 }
 
 .SetaOcultarAtendimentos:hover {
@@ -19187,21 +19203,23 @@ html[dir="rtl"] ._2ICcy:after {
 
 .SetaMostrarAtendimentos {
   background: #949a9c;
-  position: absolute;
-  left: 0;
-  top: 47%;
-  margin-top: -50px;
+  position: fixed;
+  left: 10px;
+  top: 50%;
+  margin-top: -25px;
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
   padding: 5px 8px;
-  cursor: pointer;
+  cursor: pointer !important;
   height: auto;
+  min-width: 30px;
   z-index: 50000;
   opacity: 1 !important;
   visibility: visible !important;
-  display: flex !important;
+  display: none;
   align-items: center;
   justify-content: center;
+  pointer-events: auto !important;
   transition: all 0.3s ease-in-out;
 }
 
@@ -19227,4 +19245,30 @@ html[dir="rtl"] ._2ICcy:after {
   #btnVoltarResponsivo {
     display: none; /* André tentando tornar responsivo */
   }
+}
+
+/* Classes para controlar visibilidade do menu lateral */
+#MenuLateral.menu-hidden {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#MenuLateral.menu-visible {
+  display: block !important;
+  visibility: visible !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
 }

@@ -31,7 +31,7 @@
 							LEFT JOIN tbcontatos tc ON taa.numero = tc.numero
 							/*LEFT JOIN tbfotoperfil tfp ON(tfp.numero = taa.numero)*/
 							LEFT JOIN tbetiquetas tbe on tbe.id = tc.idetiqueta
-								WHERE ta.situacao = 'A' ${permissaoAdmin}
+								WHERE ta.situacao = 'A' {$permissaoAdmin}
 								$filtroDepartamento
 									ORDER BY ordem DESC";
 	$qryAtendimento = mysqli_query(
