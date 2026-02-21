@@ -1134,7 +1134,7 @@ if (!isset($_SESSION["usuariosaw"])){
                 <!-- FIM ÁREA PRINCIPAL DOS COMENTÁRIOS -->
 
                 <!-- WEBCHAT LATERAL DIREITO -->
-                <div id="webchatArea" class="_3q4NP k1feT webchat-container webchat-hidden">
+                <div id="webchatArea" class="_3q4NP k1feT webchat-container">
                     <?php require_once("webchat/content.php"); ?>
                 </div>
                 <!-- FIM WEBCHAT LATERAL DIREITO -->

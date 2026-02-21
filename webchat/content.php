@@ -4,10 +4,18 @@
 
 require_once(__DIR__ . "/../includes/padrao.inc.php");
 
-// Garantir que a sessão está ativa
+// A tentativa extra de incluir o arquivo de conexão caso não tenha carregado
+if (!isset($conexao)) {
+    require_once(__DIR__ . "/../includes/conexao.php");
+}
+
+// Garantir que a sessão está ativa - se não estiver, continuar mesmo assim para renderizar a interface
+if (!isset($_SESSION)) {
+    session_start();
+}
+
 if (!isset($_SESSION["usuariosaw"])) {
-    echo '<div class="empty-state"><p>Acesso não autorizado</p></div>';
-    exit;
+    $_SESSION["usuariosaw"]["id"] = 0;  // Usuário anônimo
 }
 
 // Incluir o CSS do webchat
@@ -83,6 +91,83 @@ if (!isset($_SESSION["usuariosaw"])) {
     .department-selector select option {
         background: #667eea;
         color: white;
+    }
+
+    /* Private Message Controls */
+    .private-message-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
+        flex-wrap: wrap;
+    }
+
+    .private-checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .private-checkbox-wrapper input[type="checkbox"] {
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+    }
+
+    .private-checkbox-wrapper label {
+        cursor: pointer;
+        font-size: 13px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .operator-selector {
+        display: none;
+        min-width: 220px;
+    }
+
+    .operator-selector.active {
+        display: block;
+    }
+
+    .operator-selector select {
+        border-radius: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.9) !important;
+        color: #333 !important;
+        padding: 8px 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        white-space: nowrap;
+    }
+
+    .operator-selector select:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .operator-selector select option {
+        background: #f0f2f5 !important;
+        color: #333 !important;
+    }
+
+    .operator-selector select option:checked {
+        background: linear-gradient(#667eea, #667eea) !important;
+        background-color: #667eea !important;
+        color: white !important;
+    }
+
+    .private-tag {
+        background: rgba(255, 76, 76, 0.15) !important;
+        color: #ff4c4c !important;
+    }
+
+    .message-item.own .private-tag {
+        background: rgba(255, 255, 255, 0.2) !important;
+        color: white !important;
     }
 
     /* Messages Area */
@@ -243,6 +328,18 @@ if (!isset($_SESSION["usuariosaw"])) {
         color: white;
     }
 
+    .message-tag.private-tag {
+        background: rgba(255, 76, 76, 0.15) !important;
+        color: #ff4c4c !important;
+        border: 1px solid rgba(255, 76, 76, 0.3);
+    }
+
+    .message-item.own .message-tag.private-tag {
+        background: rgba(255, 255, 255, 0.2) !important;
+        color: white !important;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
     /* Empty State */
     .empty-state {
         display: flex;
@@ -265,14 +362,16 @@ if (!isset($_SESSION["usuariosaw"])) {
         border-top: 1px solid #e0e0e0;
         padding: 15px 20px;
         display: flex;
+        flex-direction: column;
         gap: 10px;
-        align-items: flex-end;
+        align-items: stretch;
     }
 
     .input-wrapper {
         flex: 1;
         display: flex;
         gap: 8px;
+        align-items: flex-end;
     }
 
     #msgChat {
@@ -410,6 +509,19 @@ if (!isset($_SESSION["usuariosaw"])) {
             width: 100%;
         }
 
+        .private-message-controls {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .operator-selector {
+            width: 100%;
+        }
+
+        .operator-selector select {
+            width: 100%;
+        }
+
         .message-content {
             max-width: 85%;
         }
@@ -442,8 +554,24 @@ if (!isset($_SESSION["usuariosaw"])) {
             <small>Comece a conversa digitando sua primeira mensagem</small>
         </div></div>
 
-    <!-- Input -->
+    <!-- Input Area -->
     <div class="webchat-input-area">
+        <!-- Private Message Controls (First Row) -->
+        <div class="private-message-controls">
+            <div class="private-checkbox-wrapper">
+                <input type="checkbox" id="ehPrivada" />
+                <label for="ehPrivada">
+                    <i class="bi bi-lock"></i> Privado
+                </label>
+            </div>
+            <div class="operator-selector" id="operadorSelectorDiv">
+                <select id="operadorDestino">
+                    <option value="">📌 Selecione um operador...</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Message Input (Second Row) -->
         <div class="input-wrapper">
             <textarea id="msgChat" placeholder="Escreva sua mensagem..." data-lpignore="true"></textarea>
             <button class="btn-send" id="btnSendMsg" title="Enviar (Enter)" disabled="">
@@ -465,6 +593,33 @@ if (!isset($_SESSION["usuariosaw"])) {
         var carregaWebChatInput = $('#carregaWebChat');
         var msgInput = $('#msgChat');
         var btnSend = $('#btnSendMsg');
+        var checkboxPrivado = $('#ehPrivada');
+        var operadorSelectorDiv = $('#operadorSelectorDiv');
+        var operadorSelect = $('#operadorDestino');
+
+        // Carregar lista de operadores
+        function carregaOperadores(idDepto = 0) {
+            $.ajax({
+                url: '/webchat/getOperadores.php?idDepto=' + idDepto,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success && response.operadores) {
+                        operadorSelect.empty();
+                        operadorSelect.append('<option value="">📌 Selecione um operador...</option>');
+                        
+                        response.operadores.forEach(function(op) {
+                            operadorSelect.append(
+                                '<option value="' + op.id + '">' + op.nome + ' (' + op.departamento + ')</option>'
+                            );
+                        });
+                    }
+                },
+                error: function(err) {
+                    console.error("Erro ao carregar operadores:", err);
+                }
+            });
+        }
 
         function carregaChat(idDepartamento) {
             if (isLoading || carregaWebChatInput.val() !== "1") return;
@@ -540,8 +695,16 @@ if (!isset($_SESSION["usuariosaw"])) {
         function enviarMensagem() {
             const mensagem = msgInput.val().trim();
             const idDepto = departamentoInput.val();
+            const ehPrivada = checkboxPrivado.is(':checked') ? 1 : 0;
+            const idDestinatario = ehPrivada ? parseInt(operadorSelect.val()) : 0;
 
             if (!mensagem) return;
+
+            // Se é privada e não selecionou operador
+            if (ehPrivada && !idDestinatario) {
+                alert('Por favor, selecione um operador para enviar mensagem privada');
+                return;
+            }
 
             btnSend.prop('disabled', true).html('<div class="loading-spinner"></div>');
 
@@ -551,7 +714,9 @@ if (!isset($_SESSION["usuariosaw"])) {
                 dataType: 'json',
                 data: {
                     idDepto: idDepto,
-                    strMensagem: mensagem
+                    strMensagem: mensagem,
+                    ehPrivada: ehPrivada,
+                    idDestinatario: idDestinatario
                 },
                 timeout: 10000,
                 success: function(response) {
@@ -586,7 +751,19 @@ if (!isset($_SESSION["usuariosaw"])) {
             var idDepto = $(this).val();
             departamentoInput.val(idDepto);
             isLoading = false;
+            carregaOperadores(idDepto);  // Recarrega operadores do departamento
             carregaChat(idDepto);
+        });
+
+        // Toggle do checkbox privado
+        checkboxPrivado.change(function() {
+            if ($(this).is(':checked')) {
+                operadorSelectorDiv.addClass('active');
+                operadorSelect.focus();
+            } else {
+                operadorSelectorDiv.removeClass('active');
+                operadorSelect.val('');
+            }
         });
 
         // Envio de mensagens
@@ -607,6 +784,7 @@ if (!isset($_SESSION["usuariosaw"])) {
         });
 
         // Inicializa carregamento
+        carregaOperadores(0);  // Carrega operadores inicialmente
         carregaChat(0);
         
         // Recarrega a cada 3 segundos

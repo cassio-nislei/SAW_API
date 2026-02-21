@@ -76,6 +76,73 @@
             color: white;
         }
 
+        /* Private Message Controls */
+        .private-message-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            flex-wrap: wrap;
+        }
+
+        .private-checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .private-checkbox-wrapper input[type="checkbox"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .private-checkbox-wrapper label {
+            cursor: pointer;
+            font-size: 13px;
+            margin: 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .operator-selector {
+            display: none;
+            min-width: 220px;
+        }
+
+        .operator-selector.active {
+            display: block;
+        }
+
+        .operator-selector select {
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.9) !important;
+            color: #333 !important;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            white-space: nowrap;
+        }
+
+        .operator-selector select:hover {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .operator-selector select option {
+            background: #f0f2f5 !important;
+            color: #333 !important;
+        }
+
+        .operator-selector select option:checked {
+            background: linear-gradient(#667eea, #667eea) !important;
+            background-color: #667eea !important;
+            color: white !important;
+        }
+
         /* Messages Area */
         .webchat-messages {
             flex: 1;
@@ -256,14 +323,16 @@
             border-top: 1px solid #e0e0e0;
             padding: 15px 20px;
             display: flex;
+            flex-direction: column;
             gap: 10px;
-            align-items: flex-end;
+            align-items: stretch;
         }
 
         .input-wrapper {
             flex: 1;
             display: flex;
             gap: 8px;
+            align-items: flex-end;
         }
 
         #msgChat {
@@ -459,6 +528,19 @@
                 width: 100%;
             }
 
+            .private-message-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .operator-selector {
+                width: 100%;
+            }
+
+            .operator-selector select {
+                width: 100%;
+            }
+
             .message-content {
                 max-width: 85%;
             }
@@ -503,8 +585,24 @@
             </div>
         </div>
 
-        <!-- Input -->
+        <!-- Input Area -->
         <div class="webchat-input-area">
+            <!-- Private Message Controls (First Row) -->
+            <div class="private-message-controls">
+                <div class="private-checkbox-wrapper">
+                    <input type="checkbox" id="ehPrivada" />
+                    <label for="ehPrivada">
+                        <i class="bi bi-lock"></i> Privado
+                    </label>
+                </div>
+                <div class="operator-selector" id="operadorSelectorDiv">
+                    <select id="operadorDestino">
+                        <option value="">📌 Selecione um operador...</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Message Input (Second Row) -->
             <div class="input-wrapper">
                 <textarea 
                     id="msgChat" 
@@ -568,8 +666,46 @@
             const departamentoInput = $('#idDepartamentoChat');
             const msgInput = $('#msgChat');
             const btnSend = $('#btnSendMsg');
+            const checkboxPrivado = $('#ehPrivada');
+            const operadorSelectorDiv = $('#operadorSelectorDiv');
+            const operadorSelect = $('#operadorDestino');
             let lastMessageId = 0;
             let isLoading = false;
+
+            // Carregar lista de operadores
+            function carregaOperadores(idDepto = 0) {
+                $.ajax({
+                    url: '/webchat/getOperadores.php?idDepto=' + idDepto,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success && response.operadores) {
+                            operadorSelect.empty();
+                            operadorSelect.append('<option value="">📌 Selecione um operador...</option>');
+                            
+                            response.operadores.forEach(function(op) {
+                                operadorSelect.append(
+                                    '<option value="' + op.id + '">' + op.nome + '</option>'
+                                );
+                            });
+                        }
+                    },
+                    error: function(err) {
+                        console.error("Erro ao carregar operadores:", err);
+                    }
+                });
+            }
+
+            // Toggle do checkbox privado
+            checkboxPrivado.change(function() {
+                if ($(this).is(':checked')) {
+                    operadorSelectorDiv.addClass('active');
+                    operadorSelect.focus();
+                } else {
+                    operadorSelectorDiv.removeClass('active');
+                    operadorSelect.val('');
+                }
+            });
 
             // Auto-resize textarea
             msgInput.on('input', function() {
@@ -700,8 +836,16 @@
             function enviarMensagem() {
                 const mensagem = msgInput.val().trim();
                 const idDepto = departamentoInput.val();
+                const ehPrivada = checkboxPrivado.is(':checked') ? 1 : 0;
+                const idDestinatario = ehPrivada ? parseInt(operadorSelect.val()) : 0;
 
                 if (!mensagem) return;
+
+                // Se é privada e não selecionou operador
+                if (ehPrivada && !idDestinatario) {
+                    alert('Por favor, selecione um operador para enviar mensagem privada');
+                    return;
+                }
 
                 btnSend.prop('disabled', true).html('<div class="loading-spinner"></div>');
 
@@ -711,13 +855,16 @@
                     dataType: 'json',
                     data: {
                         idDepto: idDepto,
-                        strMensagem: mensagem
+                        strMensagem: mensagem,
+                        ehPrivada: ehPrivada,
+                        idDestinatario: idDestinatario
                     },
                     timeout: 10000,
                     success: function(response) {
                         if (response.success) {
                             msgInput.val('').trigger('input');
                             carregaChat(idDepto);
+                            btnSend.prop('disabled', true).html('<i class="bi bi-send-fill"></i>');
                         } else {
                             console.error('Erro:', response.error);
                             alert('Erro ao enviar mensagem: ' + (response.error || 'Tente novamente'));
@@ -756,6 +903,7 @@
             // Department change
             $('#mudaDepartamento').on('change', function() {
                 departamentoInput.val($(this).val());
+                carregaOperadores($(this).val());  // Recarrega operadores do departamento
                 carregaChat($(this).val());
             });
 
@@ -897,6 +1045,7 @@
             }, 5000);
 
             // Initial load
+            carregaOperadores(0);  // Carrega operadores inicialmente
             carregaChat(0);
             
             // Scroll para o fim da página ao carregar

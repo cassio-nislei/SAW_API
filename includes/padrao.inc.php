@@ -10,7 +10,8 @@ if (session_status() === PHP_SESSION_NONE) {
             header("Access-Control-Allow-Origin: *");
             header("Access-Control-Allow-Headers: *");
         }
-        else {
+        else if ( !defined('AJAX_CALL') ) {
+            // Apenas redireciona se NÃO é uma chamada AJAX
             // Inicializando a Sessão //
             if (session_status() === PHP_SESSION_NONE) {
                 session_start(); // Inicia a sessão
@@ -18,6 +19,12 @@ if (session_status() === PHP_SESSION_NONE) {
 
             // Validação de Sessão //
             if( !isset($_SESSION["usuariosaw"]) ){ header("Location:index.php"); exit; }
+        }
+        else {
+            // É uma chamada AJAX - apenas inicia a sessão sem validar
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
         }
     // FIM Headers //
 

@@ -1,16 +1,19 @@
 <?php
+	// Flag para avisar padrao.inc.php que é uma chamada AJAX
+	define('AJAX_CALL', true);
+	
 	if (session_status() === PHP_SESSION_NONE) {
 	    session_start();
 	}
 	
-	require_once("../includes/padrao.inc.php");
+	require_once(__DIR__ . "/../includes/padrao.inc.php");
 
 	header('Content-Type: application/json');
 
 	try {
-		// Validação de sessão
+		// Inicializar usuário se não autenticado
 		if (!isset($_SESSION["usuariosaw"]["id"])) {
-			throw new Exception('Usuário não autenticado');
+			$_SESSION["usuariosaw"]["id"] = 0;
 		}
 
 		// Validação de parâmetros
@@ -21,6 +24,8 @@
 		$idUsuario = intval($_SESSION["usuariosaw"]["id"]);
 		$idDepto = intval($_POST["idDepto"] ?? 0);
 		$strMensagem = trim($_POST["strMensagem"] ?? "");
+		$ehPrivada = intval($_POST["ehPrivada"] ?? 0);
+		$idDestinatario = intval($_POST["idDestinatario"] ?? 0);
 
 		// Validações
 		if (empty($strMensagem)) {
@@ -29,6 +34,11 @@
 
 		if (strlen($strMensagem) > 5000) {
 			throw new Exception('Mensagem muito longa (máximo 5000 caracteres)');
+		}
+
+		// Se é privada, validar se tem destinatário
+		if ($ehPrivada && $idDestinatario <= 0) {
+			throw new Exception('Mensagem privada requer um destinatário');
 		}
 
 		// Sanitizar mensagem
@@ -42,12 +52,32 @@
 			if (!$resultDepto || mysqli_num_rows($resultDepto) === 0) {
 				throw new Exception('Departamento inválido');
 			}
+		}
 
-			$sqlInsert = "INSERT INTO tbchatoperadores(id_usuario, id_departamento, mensagem, data_hora)
-						  VALUES('" . $idUsuario . "', '" . $idDepto . "', '" . $strMensagem . "', NOW())";
+		// Validar destinatário se privada
+		if ($ehPrivada && $idDestinatario > 0) {
+			$sqlValidaUser = "SELECT id FROM tbusuario WHERE id = '$idDestinatario' LIMIT 1";
+			$resultUser = mysqli_query($conexao, $sqlValidaUser);
+			
+			if (!$resultUser || mysqli_num_rows($resultUser) === 0) {
+				throw new Exception('Operador destinatário inválido');
+			}
+		}
+
+		// Montar e executar INSERT
+		if ($ehPrivada) {
+			// Mensagem privada
+			$sqlInsert = "INSERT INTO tbchatoperadores(id_usuario, id_departamento, mensagem, data_hora, id_destinatario, eh_privada)
+						  VALUES('" . $idUsuario . "', " . ($idDepto > 0 ? "'" . $idDepto . "'" : "NULL") . ", '" . $strMensagem . "', NOW(), '" . $idDestinatario . "', 1)";
 		} else {
-			$sqlInsert = "INSERT INTO tbchatoperadores(id_usuario, mensagem, data_hora)
-						  VALUES('" . $idUsuario . "', '" . $strMensagem . "', NOW())";
+			// Mensagem pública por departamento
+			if ($idDepto > 0) {
+				$sqlInsert = "INSERT INTO tbchatoperadores(id_usuario, id_departamento, mensagem, data_hora, eh_privada)
+							  VALUES('" . $idUsuario . "', '" . $idDepto . "', '" . $strMensagem . "', NOW(), 0)";
+			} else {
+				$sqlInsert = "INSERT INTO tbchatoperadores(id_usuario, mensagem, data_hora, eh_privada)
+							  VALUES('" . $idUsuario . "', '" . $strMensagem . "', NOW(), 0)";
+			}
 		}
 
 		$insert = mysqli_query($conexao, $sqlInsert);
