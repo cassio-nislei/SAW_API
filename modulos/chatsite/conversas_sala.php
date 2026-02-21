@@ -36,6 +36,22 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
             --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
+        /* Aplicar cor dinâmica do banco de dados */
+        <?php 
+        $cor = isset($_SESSION["parametros"]["color"]) ? $_SESSION["parametros"]["color"] : "#2c3e50";
+        echo ":root { 
+            --sidebar-bg: $cor !important;
+            --sidebar-hover: " . hex2rgba($cor, 0.8) . " !important;
+        }";
+        
+        function hex2rgba($color, $alpha = 0.5) {
+            $color = ltrim($color, '#');
+            $hex = array($color[0].$color[1], $color[2].$color[3], $color[4].$color[5]);
+            $rgb = array_map('hexdec', $hex);
+            return 'rgba('.implode(',', $rgb).',' . $alpha . ')';
+        }
+        ?>
+
         html, body {
             height: 100%;
             overflow: hidden;
@@ -50,6 +66,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
         /* ===== CONTAINER PRINCIPAL ===== */
         .chat-container {
             display: flex;
+            flex-direction: row-reverse;
             height: 100vh;
         }
 
@@ -60,7 +77,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
             color: white;
             display: flex;
             flex-direction: column;
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
             overflow: hidden;
         }
 
@@ -464,7 +481,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
         @media (max-width: 768px) {
             .sidebar {
                 position: fixed;
-                left: 0;
+                right: 0;
                 top: 0;
                 height: 100vh;
                 z-index: 1000;
@@ -473,7 +490,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/padrao.inc.php");
             }
 
             .sidebar.oculto {
-                transform: translateX(-100%);
+                transform: translateX(100%);
             }
 
             .main-chat {
