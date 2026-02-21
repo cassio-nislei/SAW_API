@@ -4,15 +4,20 @@ LABEL maintainer="SAW Development Team"
 LABEL description="SAW Web Application with PHP 8.2 and Apache"
 
 # ========================================
-# 1. Instalar dependências do sistema
+# 1. Instalar dependências do sistema e ferramentas build
 # ========================================
-RUN apt-get update && apt-get install -y \
-    libgd-dev \
-    libjpeg62-turbo-dev \
-    libpng-dev \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    autoconf \
+    automake \
+    libtool \
+    pkg-config \
     libfreetype6-dev \
+    libjpeg-dev \
+    libpng-dev \
     libzip-dev \
     zlib1g-dev \
+    libgd-dev \
     git \
     curl \
     wget \
@@ -23,16 +28,16 @@ RUN apt-get update && apt-get install -y \
 # ========================================
 # 2. Instalar e habilitar extensões PHP
 # ========================================
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
-    docker-php-ext-install \
-    gd \
-    mysqli \
-    pdo \
-    pdo_mysql \
-    zip \
-    bcmath \
-    json \
-    && docker-php-ext-enable gd mysqli pdo pdo_mysql zip bcmath json
+RUN docker-php-ext-configure gd \
+        --with-freetype=/usr/include/freetype2 \
+        --with-jpeg=/usr && \
+    docker-php-ext-install -j$(nproc) \
+        gd \
+        mysqli \
+        pdo \
+        pdo_mysql \
+        zip \
+        bcmath
 
 # ========================================
 # 3. Habilitar módulos Apache necessários
@@ -106,7 +111,14 @@ RUN echo "session.gc_maxlifetime = 86400" >> /usr/local/etc/php/conf.d/session.i
     echo "session.cookie_samesite = None" >> /usr/local/etc/php/conf.d/session.ini
 
 # ========================================
-# 7. Criar diretórios necessários
+# 7. Limpar ferramentas de build (reduz tamanho da imagem)
+# ========================================
+RUN apt-get remove --purge -y build-essential autoconf automake libtool pkg-config && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# ========================================
+# 8. Criar diretórios necessários
 # ========================================
 RUN mkdir -p /var/www/html/logs && \
     mkdir -p /var/www/html/tmp && \
@@ -114,12 +126,12 @@ RUN mkdir -p /var/www/html/logs && \
     mkdir -p /var/www/html/cache
 
 # ========================================
-# 8. Copiar código da aplicação
+# 9. Copiar código da aplicação
 # ========================================
 COPY . /var/www/html/
 
 # ========================================
-# 9. Definir permissões corretas
+# 10. Definir permissões corretas
 # ========================================
 RUN chown -R www-data:www-data /var/www/html && \
     chmod -R 755 /var/www/html && \
@@ -129,19 +141,20 @@ RUN chown -R www-data:www-data /var/www/html && \
     chmod -R 775 /var/www/html/cache
 
 # ========================================
-# 10. Verificar instalação
+# 11. Verificar instalação
 # ========================================
 RUN php -v && \
-    apache2ctl -v
+    apache2ctl -v && \
+    php -m | grep -E "gd|mysqli|pdo|zip|bcmath"
 
 # ========================================
-# 11. Health Check
+# 12. Health Check
 # ========================================
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost/ || exit 1
 
 # ========================================
-# 12. Configurações de inicialização
+# 13. Configurações de inicialização
 # ========================================
 EXPOSE 80 443
 
