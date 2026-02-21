@@ -898,6 +898,12 @@
 
             // Initial load
             carregaChat(0);
+            
+            // Scroll para o fim da página ao carregar
+            setTimeout(function() {
+                window.scrollTo(0, document.body.scrollHeight);
+                chatContainer.scrollTop(chatContainer[0].scrollHeight);
+            }, 500);
         });
     </script>
 </body>
