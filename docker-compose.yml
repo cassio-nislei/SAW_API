@@ -5,12 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: saw-api-web
-
-    # Portas: http:// no localhost
-    ports:
-      - "7080:80"
-      - "7443:443"
+    container_name: whatsaap-api
+    restart: unless-stopped
 
     # Volumes para sincronizar código
     volumes:
@@ -51,28 +47,40 @@ services:
       CORS_ALLOW_ORIGIN: "*"
       CORS_ALLOW_CREDENTIALS: "true"
 
+    # Labels para Traefik
+    labels:
+      # Habilitar Traefik
+      - traefik.enable=true
+      - traefik.docker.network=public
+
+      # Router HTTPS (principal)
+      - traefik.http.routers.whatsaap.rule=Host(`whatsaap.easilybr.com.br`)
+      - traefik.http.routers.whatsaap.entrypoints=websecure
+      - traefik.http.routers.whatsaap.tls=true
+      - traefik.http.routers.whatsaap.tls.certresolver=le
+
+      # Router HTTP (redirecionar para HTTPS)
+      - traefik.http.routers.whatsaap-http.rule=Host(`whatsaap.easilybr.com.br`)
+      - traefik.http.routers.whatsaap-http.entrypoints=web
+      - traefik.http.routers.whatsaap-http.middlewares=redirect-to-https@docker
+
+      # Service
+      - traefik.http.services.whatsaap.loadbalancer.server.port=80
+      - traefik.http.services.whatsaap.loadbalancer.healthcheck.path=/
+      - traefik.http.services.whatsaap.loadbalancer.healthcheck.interval=10s
+
+      # Middleware para redirecionar HTTP para HTTPS
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true
+
+      # Headers de segurança
+      - traefik.http.middlewares.security-headers.headers.accesscontrolalloworigin=*
+      - traefik.http.middlewares.security-headers.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS
+      - traefik.http.middlewares.security-headers.headers.stricttransportsecurity=max-age=31536000; includeSubDomains; preload
+
     # Networks
     networks:
-      - saw-network
-
-    # Restart policy
-    restart: unless-stopped
-
-    # Labels para identificar o container
-    labels:
-      com.saw.service: "web"
-      com.saw.environment: "development"
-
-    # Deploy constraints (opcional para swarm)
-    deploy:
-      replicas: 1
-      resources:
-        limits:
-          cpus: "2"
-          memory: 1G
-        reservations:
-          cpus: "1"
-          memory: 512M
+      - public
 
     # Health check
     healthcheck:
@@ -89,10 +97,18 @@ services:
         max-size: "10m"
         max-file: "3"
 
-# Networks
+    # Deploy constraints
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1G
+        reservations:
+          cpus: "1"
+          memory: 512M
+
+# Networks - usar network do Traefik
 networks:
-  saw-network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
+  public:
+    external: true
