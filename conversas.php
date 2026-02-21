@@ -30,6 +30,10 @@ if (!isset($_SESSION["usuariosaw"])){
     <script src="js/notification.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- Bootstrap 5 para WebChat -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
         /* Estilo para os menus de conversas com efeito WhatsApp */
         .RLfQR {
@@ -102,7 +106,7 @@ if (!isset($_SESSION["usuariosaw"])){
         html, body {
             width: 100% !important;
             height: 100% !important;
-            overflow-x: hidden !important;
+            overflow: visible !important;
         }
 
         ._1FKgS.app-wrapper-web {
@@ -141,6 +145,45 @@ if (!isset($_SESSION["usuariosaw"])){
             left: 0 !important;
         }
 
+        /* Estilo para o webchatArea quando oculto */
+        #webchatArea.webchat-hidden {
+            transform: translateX(100%) !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            flex: 0 !important;
+            min-width: 0 !important;
+            width: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Alinhar btManipulaChat2 com margem direita - MOSTRAR CHAT (IDÊNTICO ao menu esquerdo) */
+        #btManipulaChat2 {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        #btManipulaChat2:hover {
+            background-color: #707577 !important;
+            opacity: 1 !important;
+        }
+
+        #btManipulaChat {
+            display: none !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        #btManipulaChat:hover {
+            background-color: #707577 !important;
+            opacity: 1 !important;
+        }
+
+        #btnManipulaChat, #btnManipulaChat2 {
+            transition: all 0.3s ease !important;
+        }
+
         /* Área principal expande quando menu está oculto */
         ._3q4NP._1Iexl {
             transition: flex 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
@@ -168,12 +211,43 @@ if (!isset($_SESSION["usuariosaw"])){
             transition: all 0.3s ease !important;
         }
 
+        /* Webchat Area com Transição Suave - Painel Lateral Direito */
+        #webchatArea {
+            transition: flex 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease !important;
+            flex: 0 0 350px !important;
+            min-width: 350px !important;
+            width: 350px !important;
+            overflow: visible !important;
+            position: relative !important;
+            display: flex !important;
+            flex-direction: column !important;
+            background: white !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
         /* Desktop - até 1200px */
         @media (max-width: 1200px) {
             #MenuLateral {
                 flex: 0 0 300px !important;
                 min-width: 300px !important;
                 width: 300px !important;
+            }
+
+            #webchatArea {
+                flex: 0 0 300px !important;
+                min-width: 300px !important;
+                width: 300px !important;
+            }
+
+            #webchatArea.webchat-hidden {
+                flex: 0 0 0 !important;
+                width: 0 !important;
+                min-width: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border: 0 !important;
             }
         }
 
@@ -193,6 +267,29 @@ if (!isset($_SESSION["usuariosaw"])){
 
             #MenuLateral.menu-hidden {
                 flex: 0 0 0 !important;
+                width: 0 !important;
+                min-width: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border: 0 !important;
+            }
+
+            /* Webchat em modo FULLSCREEN no tablet */
+            #webchatArea {
+                position: fixed !important;
+                top: 0 !important;
+                right: 0 !important;
+                flex: 0 0 100vw !important;
+                width: 100vw !important;
+                min-width: 100vw !important;
+                height: 100vh !important;
+                overflow: hidden !important;
+                z-index: 9999 !important;
+            }
+
+            #webchatArea.webchat-hidden {
+                display: none !important;
+                flex: 0 !important;
                 width: 0 !important;
                 min-width: 0 !important;
                 padding: 0 !important;
@@ -236,6 +333,29 @@ if (!isset($_SESSION["usuariosaw"])){
 
             #MenuLateral.menu-hidden {
                 flex: 0 0 0 !important;
+                width: 0 !important;
+                min-width: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border: 0 !important;
+            }
+
+            /* Webchat em modo FULLSCREEN no mobile */
+            #webchatArea {
+                position: fixed !important;
+                top: 0 !important;
+                right: 0 !important;
+                flex: 0 0 100vw !important;
+                width: 100vw !important;
+                min-width: 100vw !important;
+                height: 100vh !important;
+                overflow: hidden !important;
+                z-index: 9999 !important;
+            }
+
+            #webchatArea.webchat-hidden {
+                display: none !important;
+                flex: 0 !important;
                 width: 0 !important;
                 min-width: 0 !important;
                 padding: 0 !important;
@@ -464,6 +584,9 @@ if (!isset($_SESSION["usuariosaw"])){
         var globalEhupload = false;
         
         $(document).ready(function() {
+            // Ativar carregamento do webchat
+            $("#carregaWebChat").val("1");
+            
             // Pesquisa de Contatos //
                 // Carregando a Lista de Contatos, ao pesquisar um nome //
                 $("#pesquisaContato").keyup(function() { 
@@ -680,28 +803,107 @@ if (!isset($_SESSION["usuariosaw"])){
             // ===== TOGGLE WEBCHAT AREA =====
             console.log("✅✅✅ CONFIGURANDO btManipulaChat ✅✅✅");
             
-            $("#btManipulaChat").on("click", function(e) {
+            $("#btManipulaChat").on("click", function(e) {    
                 e.preventDefault();
-                console.log("✅ CLIQUE EM btManipulaChat");
+                console.log("✅ CLIQUE EM OCULTAR WEBCHAT");
                 
                 var webchatArea = document.querySelector('#webchatArea');
                 if (webchatArea) {
-                    if (webchatArea.style.display === 'none' || webchatArea.style.display === '') {
-                        webchatArea.style.display = 'block';
-                        $(this).attr('aria-expanded', 'true');
-                        console.log("✅ Webchat visível");
-                    } else {
-                        webchatArea.style.display = 'none';
-                        $(this).attr('aria-expanded', 'false');
-                        console.log("✅ Webchat oculto");
-                    }
+                    webchatArea.classList.add('webchat-hidden');
                 }
+                
+                $("#btManipulaChat").fadeOut(200);
+                $("#btManipulaChat2").fadeIn(200);
+            });
+            
+            $("#btManipulaChat2").on("click", function(e) {   
+                e.preventDefault();
+                console.log("✅ CLIQUE EM MOSTRAR WEBCHAT");
+                
+                var webchatArea = document.querySelector('#webchatArea');
+                if (webchatArea) {
+                    webchatArea.classList.remove('webchat-hidden');
+                }
+                
+                $("#btManipulaChat2").fadeOut(200);
+                $("#btManipulaChat").fadeIn(200);
             });
             
             console.log("✅ btManipulaChat ATIVO E FUNCIONANDO!");
             // ===== FIM TOGGLE WEBCHAT AREA =====
         });
     </script>
+    <script>
+        // Script de Força para garantir que botões apareçam
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("🔴🔴🔴 SCRIPT DE FORÇA INICIADO 🔴🔴🔴");
+            
+            // Criar novo botão do zero
+            function criarBotaoFallback() {
+                // Verifica se já existe
+                if (document.getElementById('btManipulaChat2Fallback')) {
+                    return;
+                }
+                
+                // Cria novo elemento
+                var novoBotao = document.createElement('div');
+                novoBotao.id = 'btManipulaChat2Fallback';
+                novoBotao.style.position = 'fixed';
+                novoBotao.style.right = '10px';
+                novoBotao.style.top = '50%';
+                novoBotao.style.marginTop = '-25px';
+                novoBotao.style.backgroundColor = '#949a9c';
+                novoBotao.style.borderTopLeftRadius = '20px';
+                novoBotao.style.borderBottomLeftRadius = '20px';
+                novoBotao.style.padding = '5px 8px';
+                novoBotao.style.cursor = 'pointer';
+                novoBotao.style.height = 'auto';
+                novoBotao.style.minWidth = '30px';
+                novoBotao.style.zIndex = '50000';
+                novoBotao.style.opacity = '1';
+                novoBotao.style.visibility = 'visible';
+                novoBotao.style.display = 'flex';
+                novoBotao.style.alignItems = 'center';
+                novoBotao.style.justifyContent = 'center';
+                novoBotao.style.pointerEvents = 'auto';
+                novoBotao.style.transition = 'all 0.3s ease-in-out';
+                novoBotao.style.fontSize = '20px';
+                novoBotao.style.color = 'white';
+                novoBotao.innerHTML = '<span class="fa fa-chevron-right rotateIconClose"></span>';
+                
+                // Clique do botão
+                novoBotao.onclick = function() {
+                    console.log("✅ CLIQUE NO BOTÃO FALLBACK");
+                    var webchatArea = document.querySelector('#webchatArea');
+                    if (webchatArea) {
+                        if (webchatArea.classList.contains('webchat-hidden')) {
+                            webchatArea.classList.remove('webchat-hidden');
+                        } else {
+                            webchatArea.classList.add('webchat-hidden');
+                        }
+                    }
+                };
+                
+                // Hover effect
+                novoBotao.onmouseover = function() {
+                    this.style.backgroundColor = '#707577';
+                };
+                novoBotao.onmouseout = function() {
+                    this.style.backgroundColor = '#949a9c';
+                };
+                
+                // Adiciona ao body
+                document.body.appendChild(novoBotao);
+                console.log("✅ BOTÃO FALLBACK CRIADO E ADICIONADO AO BODY!");
+            }
+            
+            // Executa imediatamente
+            setTimeout(criarBotaoFallback, 100);
+            setTimeout(criarBotaoFallback, 500);
+            setTimeout(criarBotaoFallback, 1500);
+        });
+    </script>
+
 </head>
 
 <body class="web">
@@ -921,13 +1123,6 @@ if (!isset($_SESSION["usuariosaw"])){
 
                 <!-- ÁREA PRINCIPAL DOS COMENTÁRIOS -->
                 <div class="_3q4NP _1Iexl mostrar">
-                    <div id="btManipulaChat" class="action_arrow" title="" aria-expanded="false">
-                        <div class="changebtchat">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
-                                <path fill="#FFF" d="M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.17-11.996z"></path>
-                            </svg>
-                        </div>
-                    </div>
                     <div id="home" class="_3qlW9">
                         <!-- Conecta Celular -->
                         <!-- FIM Conecta Celular -->
@@ -935,15 +1130,29 @@ if (!isset($_SESSION["usuariosaw"])){
                             <!-- Conversa Atual -->
                         </div>
                     </div>
-                    <!-- Área do Chat entre Operadores -->
-                    <div id="webchatArea" class="webchat-container">
-                        <?php require_once("webchat/index.php"); ?>
-                    </div>
-                    <!-- FIM Área do Chat entre Operadores -->
                 </div>
                 <!-- FIM ÁREA PRINCIPAL DOS COMENTÁRIOS -->
+
+                <!-- WEBCHAT LATERAL DIREITO -->
+                <div id="webchatArea" class="_3q4NP k1feT webchat-container webchat-hidden">
+                    <?php require_once("webchat/content.php"); ?>
+                </div>
+                <!-- FIM WEBCHAT LATERAL DIREITO -->
             </div>
         </div>
+
+        <!-- BOTÕES TOGGLE WEBCHAT (FORA DO app-wrapper-web para evitar overflow hidden) -->
+        <div id="btManipulaChat2" title="Mostrar Chat" aria-expanded="false">
+            <div class="changebtchat2">
+                <span class="fa fa-chevron-left rotateIconClose"></span>
+            </div>
+        </div>
+        <div id="btManipulaChat" title="Ocultar Chat" aria-expanded="true">
+            <div class="changebtchat">
+                <span class="fa fa-chevron-right rotateIconClose"></span>
+            </div>
+        </div>
+        <!-- FIM BOTÕES TOGGLE WEBCHAT -->
 
         <?php require_once("modais/modais.php"); ?>
     </div>
@@ -1205,8 +1414,6 @@ if (!isset($_SESSION["usuariosaw"])){
                     console.log("✅ Menu oculto");
                 }
                      
-                if ($("#Verchat").length) $("#Verchat").css("display","none");
-                if ($("#btManipulaChat").length) $("#btManipulaChat").css("display","none");
                 if ($("._1FKgS").length) $("._1FKgS").css("overflow","hidden");
                 if ($("#btnVoltarResponsivo").length) $("#btnVoltarResponsivo").css("display","block");
    
@@ -1228,8 +1435,6 @@ if (!isset($_SESSION["usuariosaw"])){
                     console.log("✅ Menu visível");
                 }                     
                  
-                if ($("#Verchat").length) $("#Verchat").css("display","block");
-                if ($("#btManipulaChat").length) $("#btManipulaChat").css("display","block");
                 if ($("._1FKgS").length) $("._1FKgS").css("overflow","visible");
 
                  

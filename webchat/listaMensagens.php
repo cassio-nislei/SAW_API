@@ -18,15 +18,13 @@
 					FROM tbchatoperadores tbc
 					INNER JOIN tbusuario tbu ON(tbu.id=tbc.id_usuario)
 					LEFT JOIN tbdepartamentos tbd ON(tbd.id=tbc.id_departamento)
-					WHERE ";
+					WHERE DATE(tbc.data_hora) = CURDATE()";
 
 	// Filtro por Departamento
 	if( intval($idDepto) > 0 ){
-		$sqlMensagens .= " tbc.id_departamento = '".intval($idDepto)."'";
+		$sqlMensagens .= " AND tbc.id_departamento = '".intval($idDepto)."'";
 	}
-	else{ 
-		$sqlMensagens .= " tbc.id_departamento IS NULL"; 
-	}
+	// Quando idDepto = 0 (Todos os setores), não adiciona filtro de departamento - traz todas as conversas
 	
 	$sqlMensagens .= " ORDER BY tbc.id ASC";
 
