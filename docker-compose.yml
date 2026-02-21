@@ -1,22 +1,98 @@
-version: "3.8"
+version: "3.9"
 
 services:
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: saw-api-web
+
+    # Portas: http:// no localhost
     ports:
       - "7080:80"
+      - "7443:443"
+
+    # Volumes para sincronizar código
     volumes:
+      # Código da aplicação
       - ./:/var/www/html/
+
+      # Apache logs
+      - ./logs/apache:/var/log/apache2/
+
+      # PHP logs
+      - ./logs/php:/var/log/php/
+
+      # Custom configs
+      - ./apache-config.conf:/etc/apache2/conf-available/saw-config.conf:ro
+      - ./.htaccess:/var/www/html/.htaccess:ro
+
+    # Variáveis de ambiente para banco de dados
     environment:
-      DB_HOST: ${DB_HOST:-db}
+      DB_HOST: ${DB_HOST:-db.remote}
       DB_USER: ${DB_USER:-root}
       DB_PASS: ${DB_PASS:-root}
-      DB_NAME: ${DB_NAME:-saw15}
+      DB_NAME: ${DB_NAME:-saw_quality}
+      DB_PORT: ${DB_PORT:-3306}
+
+      # Configurações PHP
+      PHP_DISPLAY_ERRORS: "On"
+      PHP_ERROR_REPORTING: "E_ALL"
+      PHP_MEMORY_LIMIT: "256M"
+      PHP_UPLOAD_MAX_FILESIZE: "50M"
+      PHP_POST_MAX_SIZE: "50M"
+      PHP_MAX_EXECUTION_TIME: "300"
+
+      # Configurações Apache
+      APACHE_RUN_USER: www-data
+      APACHE_RUN_GROUP: www-data
+
+      # Configurações de CORS
+      CORS_ALLOW_ORIGIN: "*"
+      CORS_ALLOW_CREDENTIALS: "true"
+
+    # Networks
     networks:
-      - atende
+      - saw-network
+
+    # Restart policy
     restart: unless-stopped
 
+    # Labels para identificar o container
+    labels:
+      com.saw.service: "web"
+      com.saw.environment: "development"
+
+    # Deploy constraints (opcional para swarm)
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1G
+        reservations:
+          cpus: "1"
+          memory: 512M
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# Networks
 networks:
-  atende:
-    external: true
+  saw-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

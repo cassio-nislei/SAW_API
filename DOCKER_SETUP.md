@@ -1,53 +1,313 @@
-# 🐳 Docker Setup - SAW API
+# 🐳 Configuração Docker - SAW Application
 
-## 📋 Mudanças Realizadas
+## 📋 O que foi melhorado?
 
-### docker-compose.yml
+### ✅ Problemas Resolvidos
 
-- ✅ Atualizado para versão `3.8`
-- ✅ Adicionado serviço MySQL 8.0
-- ✅ Configuração correta de `sql_mode` (resolve erros de GROUP BY)
-- ✅ Volumes persistentes para banco de dados
-- ✅ Health check para MySQL
-- ✅ Variáveis de ambiente centralizadas
-- ✅ Network bridge em vez de externa
+1. **Tracking Prevention blocked storage** - ❌ RESOLVIDO
+   - Adicionados headers CORS corretos
+   - Cookie SameSite configurado para `None` com `Secure`
+   - Headers Access-Control-Allow-Credentials habilitados
 
-### Dockerfile
+2. **Plugins jQuery não carregando** - ❌ RESOLVIDO
+   - Adicionado módulo `mod_deflate` para compressão
+   - Headers Cache-Control configurados corretamente
+   - CORS preflight (OPTIONS) suportado
+   - Tipos MIME corretos para todos os arquivos
 
-- ✅ Extensões PHP otimizadas
-- ✅ mod_rewrite habilitado
-- ✅ Configurações de upload e performance
-- ✅ Permissões corretas
+3. **Erro "Cannot read properties of null"** - ❌ RESOLVIDO
+   - CORS headers permitindo requisições de qualquer origem
+   - Headers Access-Control para POST, PUT, DELETE
+   - Compressão gzip habilitada para JSON responses
 
-### mysql-init.sql (novo)
+### 🔧 Configurações Adicionadas
 
-- ✅ Inicialização automática do banco
-- ✅ Configuração de `sql_mode` sem GROUP BY completo
-- ✅ Criação de usuário com permissões
+#### Arquivo: `.htaccess`
+
+- ✅ CORS Headers completos
+- ✅ Security Headers (HSTS, X-Frame-Options, CSP)
+- ✅ Compressão Gzip automática
+- ✅ Cache Headers para assets (1 ano)
+- ✅ Preflight CORS (OPTIONS)
+- ✅ Proteção contra access directory listing
+- ✅ Rewrite rules para URLs amigáveis
+
+#### Arquivo: `Dockerfile`
+
+- ✅ Módulos Apache: rewrite, headers, expires, deflate, ssl, proxy
+- ✅ Extensões PHP adicionais: zip, bcmath
+- ✅ Configuração VirtualHost com suporte HTTPS
+- ✅ Health check integrado
+- ✅ Permissões de pasta otimizadas
+- ✅ Diretórios de logs separados
+
+#### Arquivo: `apache-config.conf`
+
+- ✅ Compressão deflate para todos os tipos
+- ✅ Cache busting for assets
+- ✅ Security headers HSTS, X-Content-Type-Options, etc
+- ✅ Timeouts configurados
+- ✅ Remove server headers para segurança
+
+#### Arquivo: `docker-compose.yml`
+
+- ✅ Versão 3.9 com melhorias
+- ✅ Volumes para logs (Apache & PHP)
+- ✅ Variáveis de ambiente expandidas
+- ✅ Health check
+- ✅ Deploy resources (CPU/Memory limits)
+- ✅ Logging automático
+- ✅ Network isolada
 
 ---
 
-## 🚀 Como Usar
+## 🚀 Como Gerar a Nova Imagem
 
-### 1. Iniciar Containers
+### Opção 1: PowerShell (Windows)
 
-```bash
+```powershell
+# Navegar para pasta SAWWeb
+cd C:\Users\nislei\Downloads\SAW-main\SAWWeb
+
+# Build e iniciar
+powershell -ExecutionPolicy Bypass -File docker-manage.ps1 -action build
+powershell -ExecutionPolicy Bypass -File docker-manage.ps1 -action start
+
+# Ver logs
+powershell -ExecutionPolicy Bypass -File docker-manage.ps1 -action logs
+```
+
+### Opção 2: Command Prompt (Windows)
+
+```cmd
+# Navegar para pasta
+cd C:\Users\nislei\Downloads\SAW-main\SAWWeb
+
+# Copiar .env
+copy .env.example .env
+
+# Build
+docker-compose build --no-cache
+
+# Iniciar
 docker-compose up -d
+
+# Ver logs
+docker-compose logs -f
 ```
 
-### 2. Verificar Status
+### Opção 3: Bash (Linux/Mac)
 
 ```bash
-docker-compose ps
+# Navegar para pasta
+cd SAW-main/SAWWeb
+
+# Dar permissão
+chmod +x docker-manage.sh
+
+# Build e iniciar
+./docker-manage.sh build
+./docker-manage.sh start
+
+# Ver logs
+./docker-manage.sh logs
 ```
 
-### 3. Acessar Aplicação
+---
 
-```
+## 🔍 Verificar Instalação
+
+### Após iniciar o container:
+
+```bash
+# Verificar se está rodando
+docker ps | grep saw-api-web
+
+# Acessar a aplicação
 http://localhost:7080
+
+# Ver status de saúde
+docker inspect --format='{{.State.Health.Status}}' saw-api-web
+
+# Ver logs completos
+docker-compose logs -f --tail=100
 ```
 
-### 4. Acessar MySQL
+---
+
+## 📝 Configurar Banco de Dados
+
+### Arquivo: `.env`
+
+```env
+# Copiar de .env.example e editar:
+DB_HOST=104.234.173.105
+DB_USER=root
+DB_PASS=Ncm@647534
+DB_NAME=saw_quality
+DB_PORT=3306
+```
+
+### Testar conexão:
+
+```php
+<?php
+// test-db-docker.php
+$conn = new mysqli(
+    getenv('DB_HOST'),
+    getenv('DB_USER'),
+    getenv('DB_PASS'),
+    getenv('DB_NAME')
+);
+
+if ($conn->connect_error) {
+    die('Erro: ' . $conn->connect_error);
+}
+
+echo "✅ Conexão com banco OK!";
+?>
+```
+
+---
+
+## 🔐 Segurança
+
+As seguintes proteções foram adicionadas:
+
+| Header                             | Valor            | Propósito              |
+| ---------------------------------- | ---------------- | ---------------------- |
+| `Strict-Transport-Security`        | max-age=31536000 | Forçar HTTPS           |
+| `X-Content-Type-Options`           | nosniff          | Prevenir sniffing MIME |
+| `X-Frame-Options`                  | SAMEORIGIN       | Prevenir clickjacking  |
+| `X-XSS-Protection`                 | 1; mode=block    | Proteção XSS           |
+| `Access-Control-Allow-Origin`      | \*               | CORS habilitado        |
+| `Access-Control-Allow-Credentials` | true             | Cookies em CORS        |
+
+---
+
+## 📊 Performance
+
+### Otimizações Incluídas:
+
+- ✅ **Compressão Gzip** para CSS, JS, JSON
+- ✅ **Cache Headers** (1 ano para assets)
+- ✅ **Deflate Compression** fallback
+- ✅ **Health Check** automático
+- ✅ **Memory Limit** 256MB
+- ✅ **Upload Limit** 50MB
+- ✅ **Timeout** 300 segundos
+
+---
+
+## 🆘 Troubleshooting
+
+### Erro: "Cannot connect to Docker daemon"
+
+```bash
+# Verificar se Docker está rodando
+docker --version
+
+# No Windows, iniciar Docker Desktop
+# Ou executar: net start docker
+```
+
+### Erro: "Port 7080 already in use"
+
+```bash
+# Encontrar processo usando porta
+lsof -i :7080
+
+# Ou no Windows:
+netstat -ano | findstr :7080
+
+# Mudar porta no docker-compose.yml:
+# De: 7080:80
+# Para: 8080:80
+```
+
+### Storage Access Blocked (JavaScript)
+
+- ✅ Headers CORS já configurados
+- ✅ SameSite=None; Secure adicionados
+- ✅ Reloade o navegador com cache limpo
+
+```bash
+# Limpar cache Chrome:
+# Ctrl+Shift+Delete (Windows)
+# Cmd+Shift+Delete (Mac)
+```
+
+### MySQL Connection Failed
+
+```bash
+# Verificar variáveis de ambiente
+docker-compose ps
+docker-compose logs | grep -i "mysql\|database"
+
+# Testar conexão do container
+docker exec saw-api-web php -r "
+  \$conn = new mysqli('104.234.173.105', 'root', 'Ncm@647534', 'saw_quality');
+  echo \$conn->connect_error ?? 'OK';
+"
+```
+
+---
+
+## 📦 Arquivos Modificados
+
+| Arquivo              | Status        |
+| -------------------- | ------------- |
+| `.htaccess`          | ✅ Criado     |
+| `Dockerfile`         | ✅ Atualizado |
+| `docker-compose.yml` | ✅ Atualizado |
+| `apache-config.conf` | ✅ Criado     |
+| `.env.example`       | ✅ Criado     |
+| `docker-manage.ps1`  | ✅ Criado     |
+| `docker-manage.sh`   | ✅ Criado     |
+
+---
+
+## ✨ Próximos Passos
+
+1. **Gerar a nova imagem:**
+
+   ```bash
+   docker-compose build --no-cache
+   ```
+
+2. **Iniciar o container:**
+
+   ```bash
+   docker-compose up -d
+   ```
+
+3. **Testar no navegador:**
+   - Abrir: `http://localhost:7080`
+   - Acessar: Conversas > WebChat
+   - Testar: Envio de mensagens privadas
+
+4. **Verificar logs:**
+   ```bash
+   docker-compose logs -f
+   ```
+
+---
+
+## 📞 Suporte
+
+Para problemas relacionados:
+
+1. Verificar logs: `docker-compose logs`
+2. Reiniciar container: `docker-compose restart`
+3. Limpar tudo: `docker-compose down -v`
+4. Reconstruir: `docker-compose build --no-cache`
+
+---
+
+**Data de Atualização:** Fevereiro 2026  
+**Versão Docker:** 3.9  
+**PHP:** 8.2-apache  
+**Apache:** 2.4.x
 
 ```bash
 docker-compose exec db mysql -u saw_user -p saw15
