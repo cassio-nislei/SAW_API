@@ -97,17 +97,6 @@ services:
         max-size: "10m"
         max-file: "3"
 
-    # Deploy constraints
-    deploy:
-      replicas: 1
-      resources:
-        limits:
-          cpus: "2"
-          memory: 1G
-        reservations:
-          cpus: "1"
-          memory: 512M
-
 # Networks - usar network do Traefik
 networks:
   public:
