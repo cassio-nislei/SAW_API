@@ -3,13 +3,21 @@ require_once("includes/padrao.inc.php");
 if (!isset($_SESSION["usuariosaw"])){
     header("Location: index.php");
   }
-//echo 'Protocolo '.$_SESSION["parametros"]["usar_protocolo"];
+
+// Helper function para acesso seguro a SESSION
+function safe_session($key1, $key2 = null, $default = '') {
+    if ($key2 === null) {
+        return isset($_SESSION[$key1]) ? $_SESSION[$key1] : $default;
+    }
+    return isset($_SESSION[$key1][$key2]) ? $_SESSION[$key1][$key2] : $default;
+}
+//echo 'Protocolo '.safe_session("parametros", "usar_protocolo");
 ?>
 <html class="js adownload cssanimations csstransitions webp webp-alpha webp-animation webp-lossless wf-roboto-n4-active wf-opensans-n4-active wf-opensans-n6-active wf-roboto-n3-active wf-roboto-n5-active wf-active" dir="ltr" loc="pt-BR" lang="pt-BR">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title><?php echo $_SESSION["parametros"]["title"]; ?></title>
+    <title><?php echo safe_session("parametros", "title", "SAW"); ?></title>
     <meta name="viewport" content="width=device-width">
     <link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
     <!-- Bootstrap CSS -->
@@ -914,20 +922,20 @@ if (!isset($_SESSION["usuariosaw"])){
         <input type="hidden" id="qtdNewMsgTriagem" name="qtdNewMsgTriagem" value='0' />
         <input type="hidden" id="qtdNewMsgPendentes" name="qtdNewMsgPendentes" value='0' />
         <input type="hidden" id="qtdNewMsgAtendendo" name="qtdNewMsgAtendendo" value='0' />
-        <input type="hidden" id="id_usuariologado" name="id_usuariologado" value="<?php echo $_SESSION["usuariosaw"]["id"]; ?>" />
-        <input type="hidden" id="perfilUsuario" name="perfilUsuario" value="<?php echo $_SESSION["usuariosaw"]["perfil"]; ?>" />
-        <input type="hidden" id="chatOperadores" name="chatOperadores" value="<?php echo $_SESSION["parametros"]["chat_operadores"]; ?>" />
-        <input type="hidden" id="atendTriagem" name="atendTriagem" value="<?php echo $_SESSION["parametros"]["atend_triagem"]; ?>" />
-        <input type="hidden" id="historicoConversas" name="historicoConversas" value="<?php echo $_SESSION["parametros"]["historico_conversas"]; ?>" />
-        <input type="hidden" id="parametrosTitle" name="parametrosTitle" value="<?php echo $_SESSION["parametros"]["title"]; ?>" />
-        <input type="hidden" id="parametrosIniciarConversa" name="parametrosIniciarConversa" value="<?php echo $_SESSION["parametros"]["iniciar_conversa"]; ?>" />
-        <input type="hidden" id="parametrosRespRapidaAut" name="parametrosRespRapidaAut" value="<?php echo $_SESSION["parametros"]["enviar_resprapida_aut"]; ?>" />
-        <input type="hidden" id="parametrosEnvioAudioAut" name="parametrosEnvioAudioAut" value="<?php echo $_SESSION["parametros"]["enviar_audio_aut"]; ?>" />
-        <input type="hidden" id="parametrosQRCode" name="parametrosQRCode" value="<?php echo $_SESSION["parametros"]["qrcode"]; ?>" />
-        <input type="hidden" id="parametrosOpNaoEnvUltMensagem" name="parametrosOpNaoEnvUltMensagem" value="<?php echo $_SESSION["parametros"]["op_naoenv_ultmsg"]; ?>" />
-        <input type="hidden" id="parametrosMostraTodosChats" name="parametrosMostraTodosChats" value="<?php echo $_SESSION["parametros"]["mostra_todos_chats"]; ?>" />
-        <input type="hidden" id="parametrosTransferOffline" name="parametrosTransferOffline" value="<?php echo $_SESSION["parametros"]["transferencia_offline"]; ?>" />
-        <input type="hidden" id="parametroshistorico_atendimento" name="parametroshistorico_atendimento" value="<?php echo $_SESSION["parametros"]["historico_atendimento"]; ?>" />
+        <input type="hidden" id="id_usuariologado" name="id_usuariologado" value="<?php echo safe_session("usuariosaw", "id", "0"); ?>" />
+        <input type="hidden" id="perfilUsuario" name="perfilUsuario" value="<?php echo safe_session("usuariosaw", "perfil", "3"); ?>" />
+        <input type="hidden" id="chatOperadores" name="chatOperadores" value="<?php echo safe_session("parametros", "chat_operadores", "0"); ?>" />
+        <input type="hidden" id="atendTriagem" name="atendTriagem" value="<?php echo safe_session("parametros", "atend_triagem", "0"); ?>" />
+        <input type="hidden" id="historicoConversas" name="historicoConversas" value="<?php echo safe_session("parametros", "historico_conversas", "0"); ?>" />
+        <input type="hidden" id="parametrosTitle" name="parametrosTitle" value="<?php echo safe_session("parametros", "title", "SAW"); ?>" />
+        <input type="hidden" id="parametrosIniciarConversa" name="parametrosIniciarConversa" value="<?php echo safe_session("parametros", "iniciar_conversa", "0"); ?>" />
+        <input type="hidden" id="parametrosRespRapidaAut" name="parametrosRespRapidaAut" value="<?php echo safe_session("parametros", "enviar_resprapida_aut", "0"); ?>" />
+        <input type="hidden" id="parametrosEnvioAudioAut" name="parametrosEnvioAudioAut" value="<?php echo safe_session("parametros", "enviar_audio_aut", "0"); ?>" />
+        <input type="hidden" id="parametrosQRCode" name="parametrosQRCode" value="<?php echo safe_session("parametros", "qrcode", "0"); ?>" />
+        <input type="hidden" id="parametrosOpNaoEnvUltMensagem" name="parametrosOpNaoEnvUltMensagem" value="<?php echo safe_session("parametros", "op_naoenv_ultmsg", "0"); ?>" />
+        <input type="hidden" id="parametrosMostraTodosChats" name="parametrosMostraTodosChats" value="<?php echo safe_session("parametros", "mostra_todos_chats", "0"); ?>" />
+        <input type="hidden" id="parametrosTransferOffline" name="parametrosTransferOffline" value="<?php echo safe_session("parametros", "transferencia_offline", "0"); ?>" />
+        <input type="hidden" id="parametroshistorico_atendimento" name="parametroshistorico_atendimento" value="<?php echo safe_session("parametros", "historico_atendimento", "0"); ?>" />
         <input type="hidden" id="countViewQRCode" name="countViewQRCode" value="0" />
         <input type="hidden" id="s_id_atendimento" name="s_id_atendimento" />
         <input type="hidden" id="s_id_canal" name="s_id_canal" />
@@ -943,7 +951,7 @@ if (!isset($_SESSION["usuariosaw"])){
     
 
     <div id="app">
-        <div class="backgroundLine" style="background: <?php echo $_SESSION["parametros"]["color"]; ?>;"></div>
+        <div class="backgroundLine" style="background: <?php echo safe_session("parametros", "color", "#007bff"); ?>;"></div>
         <div class="_1FKgS app-wrapper-web bFqKf">
             <span>
                 <!-- Span Contato -->
@@ -984,7 +992,7 @@ if (!isset($_SESSION["usuariosaw"])){
                                     <img src="#" class="Qgzj8 gqwaM" style="display:none;">
                                     <div class="_3ZW2E">                                                               
                                         <span data-icon="default-user">
-                                            <img src="<?php echo $_SESSION["parametros"]["imagem_perfil"]; ?>" class="rounded-circle user_img_msg">
+                                            <img src="<?php echo safe_session("parametros", "imagem_perfil", "images/user-default.png"); ?>" class="rounded-circle user_img_msg">
                                         </span>
                                     </div>
                                 </div>

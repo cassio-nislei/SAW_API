@@ -24,7 +24,7 @@
                                     <img src="#" class="photo" id="img-panel-edit-profile" style="height: 100%; width: 100%; display:none">
                                     <div class="_3ZW2E no-photo-edit" id="img-default-panel-edit-profile">
                                         <span data-icon="default-user">
-                                            <img src="<?php echo $_SESSION["parametros"]["imagem_perfil"]; ?>" class="rounded-circle user_img_msg">
+                                            <img src="<?php echo isset($_SESSION["parametros"]["imagem_perfil"]) ? $_SESSION["parametros"]["imagem_perfil"] : "images/user-default.png"; ?>" class="rounded-circle user_img_msg">
                                         </span>
                                     </div>
                                 </div>
@@ -52,7 +52,7 @@
                         <div tabindex="-1" class="_3F6QL bsmJe">
                             <div class="_39LWd" style="visibility: hidden;"></div>
                             <div id="input-name-panel-edit-profile" class="_2S1VP copyable-text selectable-text input-name" contenteditable="true" dir="ltr">
-                                <?php echo $_SESSION["usuariosaw"]["nome_chat"]; ?>
+                                <?php echo isset($_SESSION["usuariosaw"]["nome_chat"]) ? $_SESSION["usuariosaw"]["nome_chat"] : (isset($_SESSION["usuariosaw"]["nome"]) ? $_SESSION["usuariosaw"]["nome"] : "Usuário"); ?>
                             </div>
                         </div>
                         <div class="_2YmC2">
