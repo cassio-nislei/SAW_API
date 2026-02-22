@@ -20,6 +20,7 @@
 						tbd.id AS idDepartamento, 
 						tbc.mensagem, 
 						tbu.nome, 
+						tbu.foto AS fotoUsuario,
 						tbd.departamento, 
 						DATE_FORMAT(tbc.data_hora, '%d/%m %H:%i') AS data_hora,
 						TIME_FORMAT(tbc.data_hora, '%H:%i') AS hora,
@@ -85,7 +86,14 @@
 		// Avatar e ações (coluna vertical)
 		echo '<div class="avatar-actions-wrapper">';
 			echo '<div class="message-avatar" title="' . htmlspecialchars($arrMensagens["nome"]) . '">';
-			echo strtoupper($inicial);
+			
+			// Se houver foto, exibir como imagem; senão, exibir inicial
+			if (!empty($arrMensagens["fotoUsuario"])) {
+				echo '<img src="' . htmlspecialchars($arrMensagens["fotoUsuario"]) . '" alt="' . htmlspecialchars($arrMensagens["nome"]) . '" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" onerror="this.parentElement.innerHTML = \"' . strtoupper($inicial) . '\";">';
+			} else {
+				echo strtoupper($inicial);
+			}
+			
 			echo '</div>';
 			
 			// Botões de ação (editar/deletar) - apenas para mensagens do usuário

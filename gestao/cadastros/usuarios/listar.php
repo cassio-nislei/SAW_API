@@ -148,7 +148,7 @@
     // FIM Busncando os Usuários cadastrados //		
 ?>
 
-<p>* Clique em cima do nome do usuário para verificar quais departamentos ele está vinculado.</p>
+<p style="display: none;">* Clique em cima do nome do usuário para verificar quais departamentos ele está vinculado.</p>
 
 </tbody>
   </table>

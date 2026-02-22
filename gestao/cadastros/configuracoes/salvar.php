@@ -32,8 +32,10 @@
    $usar_pesquisa_satisfacao    = !empty($_POST['usar_pesquisa_satisfacao']) ? $_POST['usar_pesquisa_satisfacao'] : "0";
    $tipo_menu                   = !empty($_POST['tipo_menu']) ? $_POST['tipo_menu'] : "0";
    
-   
-   $foto                         = @$_POST["foto2"];
+   $foto = !empty($_POST["foto2"]) ? mysqli_real_escape_string($conexao, trim($_POST["foto2"])) : "";
+
+	// DEBUG - Log para verificar se foto está sendo recebida
+	error_log("DEBUG: foto2 recebido: " . (!empty($_POST["foto2"]) ? "SIM (tamanho: " . strlen($_POST["foto2"]) . ")" : "NÃO"));
 
 	// Atualiza a cor da tarja na Sessão //
 	$_SESSION["parametros"]["color"] = $color;
@@ -121,12 +123,19 @@
                   , msg_inicio_atendente = (CONCAT_WS(REPLACE('\\\ n', ' ', ''), ".$msg_inicio_atendente.")";
 
       if( $foto != "" ){
-         $sql .= ", imagem_perfil = '".$foto."';";
+         $sql .= ", imagem_perfil = '".$foto."'";
       }
-      else{ $sql .= ";"; }
+
+      $sql .= " WHERE id = 1";
 
       $atualizar = mysqli_query($conexao,$sql)
          or die($sql."<br/>".mysqli_error($conexao));
 
-      if ($atualizar){ echo "1"; }
+      if ($atualizar){ 
+         echo "1"; 
+         error_log("UPDATE sucesso - imagem_perfil atualizado: " . (!empty($foto) ? "SIM" : "NÃO"));
+      }
+      else{
+         error_log("ERRO UPDATE: " . mysqli_error($conexao));
+      }
    }

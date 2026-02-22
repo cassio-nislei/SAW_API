@@ -124,7 +124,21 @@ if($interval->format('%i%h%d%m%y')=="00000")
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
                 <div class="sidebar-brand-icon">
-                    <img src="imgs/logo.png" width="48">
+                    <?php
+                        // Buscar imagem do perfil da tbparametros
+                        $sqlLogo = "SELECT imagem_perfil FROM tbparametros LIMIT 1";
+                        $resultLogo = mysqli_query($conexao, $sqlLogo);
+                        $imagemPerfil = null;
+                        
+                        if ($resultLogo && mysqli_num_rows($resultLogo) > 0) {
+                            $linhaLogo = mysqli_fetch_assoc($resultLogo);
+                            $imagemPerfil = $linhaLogo['imagem_perfil'];
+                        }
+                        
+                        // Se encontrou imagem em base64, usa; senão usa logo padrão
+                        $srcLogo = (!empty($imagemPerfil)) ? $imagemPerfil : "imgs/logo.png";
+                    ?>
+                    <img src="<?php echo $srcLogo; ?>" width="48" onerror="this.src='imgs/logo.png'">
                 </div>
                 <div class="sidebar-brand-text mx-3">Início</div>
             </a>
@@ -367,8 +381,25 @@ if($interval->format('%i%h%d%m%y')=="00000")
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?php echo $_SESSION["usuariosaw"]["nome"]; ?></span>
+                                <?php
+                                    // Buscar foto do usuário logado
+                                    $idUsuario = $_SESSION["usuariosaw"]["id"];
+                                    $sqlFoto = "SELECT foto FROM tbusuario WHERE id = " . intval($idUsuario) . " LIMIT 1";
+                                    $resultFoto = mysqli_query($conexao, $sqlFoto);
+                                    $fotoUsuario = null;
+                                    
+                                    if ($resultFoto && mysqli_num_rows($resultFoto) > 0) {
+                                        $linhaFoto = mysqli_fetch_assoc($resultFoto);
+                                        $fotoUsuario = $linhaFoto['foto'];
+                                    }
+                                    
+                                    // Se encontrou foto em base64, usa; senão usa imagem padrão
+                                    $srcFoto = (!empty($fotoUsuario)) ? $fotoUsuario : "imgs/undraw_profile.svg";
+                                ?>
                                 <img class="img-profile rounded-circle"
-                                    src="imgs/undraw_profile.svg">
+                                    src="<?php echo $srcFoto; ?>"
+                                    width="90" height="90"
+                                    onerror="this.src='imgs/undraw_profile.svg'">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -442,6 +473,19 @@ if($interval->format('%i%h%d%m%y')=="00000")
 
             </div>
             <!-- End of Main Content -->
+
+			<!-- Modal para Crop de Imagem -->
+			<div id="modalUpload" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
+				<div style="background: white; padding: 20px; border-radius: 8px; max-width: 600px; width: 90%;">
+					<h4 style="margin-top: 0;">Recortar Imagem</h4>
+					<div id="image_demo" style="width: 100%; max-width: 500px;"></div>
+					<br>
+					<div style="text-align: center;">
+						<button class="btn btn-success crop_image" style="margin-right: 10px;">Recortar</button>
+						<button class="btn btn-danger" id="btnCancelaUpload">Cancelar</button>
+					</div>
+				</div>
+			</div>
 
             <!-- Footer -->
             <footer class="sticky-footer bg-white">

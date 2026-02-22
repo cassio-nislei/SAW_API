@@ -24,6 +24,7 @@ function safe_session($key1, $key2 = null, $default = '') {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
         integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/panel-fix.css">
     <link rel="stylesheet" href="css/jquery-ui.min.css">
     <link rel="stylesheet" href="css/uikit.min.css">
     <link rel="stylesheet" href="css/all.min.css">
@@ -34,6 +35,7 @@ function safe_session($key1, $key2 = null, $default = '') {
     <script src="js/uikit.min.js"></script>
     <script src="js/uikit-icons.min.js"></script>
     <script src="js/funcionalidade.js"></script>
+    <script src="js/profile_foto_upload.js"></script>
     <script src="js/jquery.mask.min.js"></script>
     <script src="js/notification.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -991,8 +993,8 @@ function safe_session($key1, $key2 = null, $default = '') {
                                 <div class="_1WliW" id="my-photo" style="height: 40px; width: 40px; cursor: pointer;">
                                     <img src="#" class="Qgzj8 gqwaM" style="display:none;">
                                     <div class="_3ZW2E">                                                               
-                                        <span data-icon="default-user">
-                                            <img src="<?php echo safe_session("parametros", "imagem_perfil", "images/user-default.png"); ?>" class="rounded-circle user_img_msg">
+                                        <span data-icon="default-user" style="display: block; width: 100%; height: 100%; overflow: hidden;">
+                                            <img src="carregarFotoUsuario.php" class="rounded-circle user_img_msg" style="width: 100%; height: 100%; object-fit: cover; display: block; margin: 0; padding: 0; border: 0;">
                                         </span>
                                     </div>
                                 </div>
@@ -1507,6 +1509,27 @@ function safe_session($key1, $key2 = null, $default = '') {
     observeListChanges('ListaPendentes', 'counterPendentesValue');
     observeListChanges('ListaEmAtendimento', 'counterEmAtendimentoValue');
   };
+  
+  // ===== Carregar foto do usuário =====
+  $(document).ready(function() {
+    // Ensegurar que a foto do usuário está carregada
+    $('.user_img_msg').on('error', function() {
+      // Se houver erro ao carregar, mostra foto padrão
+      $(this).attr('src', 'images/user-default.png');
+    });
+    
+    // Recarregar foto a cada 30 segundos (em caso de alteração)
+    setInterval(function() {
+      const $img = $('.user_img_msg');
+      const currentSrc = $img.attr('src');
+      if (currentSrc && currentSrc.includes('carregarFotoUsuario.php')) {
+        $img.attr('src', currentSrc + '?t=' + new Date().getTime());
+      }
+    }, 30000);
+    
+    console.log("✓ Sistema de foto do usuário carregado");
+  });
+  // ===== FIM Carregar foto do usuário =====
 </script>
 
 

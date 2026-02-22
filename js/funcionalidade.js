@@ -1,4 +1,21 @@
 $(function () {
+  // Sincronizar nome do usuário no header do painel de perfil
+  function syncProfileName() {
+    var userName = $("#input-name-panel-edit-profile").text().trim();
+    if (userName) {
+      $("#panel-edit-profile ._1xGbt").text(userName);
+    }
+  }
+
+  // Sincronizar ao carregar
+  syncProfileName();
+
+  // Sincronizar quando houver mudanças
+  $(document).on("input", "#input-name-panel-edit-profile", function () {
+    var currentName = $(this).text().trim();
+    $("#panel-edit-profile ._1xGbt").text(currentName || "Perfil");
+  });
+
   /*** chama operadores **/
   $("#menu-usuarios").click(function (ev) {
     ev.preventDefault();

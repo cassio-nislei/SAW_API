@@ -154,3 +154,13 @@ Stack trace:
 (
 )
 
+[22-Feb-2026 14:11:08 America/Sao_Paulo] PHP Warning:  Undefined variable $conexao in C:\Users\nislei\Downloads\SAW-main\SAWWeb\salvarNomeChat.php on line 27
+[22-Feb-2026 14:11:08 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\Users\nislei\Downloads\SAW-main\SAWWeb\salvarNomeChat.php:27
+Stack trace:
+#0 {main}
+  thrown in C:\Users\nislei\Downloads\SAW-main\SAWWeb\salvarNomeChat.php on line 27
+[22-Feb-2026 14:11:31 America/Sao_Paulo] PHP Warning:  Undefined variable $conexao in C:\Users\nislei\Downloads\SAW-main\SAWWeb\salvarNomeChat.php on line 27
+[22-Feb-2026 14:11:31 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to a member function prepare() on null in C:\Users\nislei\Downloads\SAW-main\SAWWeb\salvarNomeChat.php:27
+Stack trace:
+#0 {main}
+  thrown in C:\Users\nislei\Downloads\SAW-main\SAWWeb\salvarNomeChat.php on line 27
