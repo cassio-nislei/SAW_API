@@ -17914,18 +17914,29 @@ html[dir="rtl"] ._2ICcy:after {
   height: 49.35rem;
 }
 .panel-left {
+  display: block;
   height: 100%;
   left: -450px;
+  position: fixed;
+  top: 0;
   transform: translateX(-450px);
   -webkit-transition: 0.3s ease-in-out;
   -moz-transition: 0.3s ease-in-out;
   -o-transition: 0.3s ease-in-out;
   transition: 0.3s ease-in-out;
+  width: 450px;
+  z-index: 999;
+  pointer-events: auto;
+  opacity: 1;
+  visibility: visible;
+  background: #fff;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
 }
 .panel-left.open {
-  display: block;
   transform: translateX(0px);
+  left: 0;
 }
+
 .menu-dropdown {
   display: none;
 }
