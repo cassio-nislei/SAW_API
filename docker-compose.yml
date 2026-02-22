@@ -73,11 +73,6 @@ services:
       - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
       - traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true
 
-      # Headers de segurança
-      - traefik.http.middlewares.security-headers.headers.accesscontrolalloworigin=*
-      - traefik.http.middlewares.security-headers.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS
-      - traefik.http.middlewares.security-headers.headers.stricttransportsecurity=max-age=31536000; includeSubDomains; preload
-
     # Networks
     networks:
       - public

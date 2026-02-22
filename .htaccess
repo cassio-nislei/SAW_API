@@ -16,11 +16,8 @@
     RewriteCond %{REQUEST_FILENAME} !-l
     RewriteRule ^([^\.]+)$ $1.php [L]
     
-    # Redirecionar HTTPS
-    RewriteCond %{HTTPS} off
-    RewriteCond %{HTTP:X-Forwarded-Proto} !https
-    RewriteCond %{REQUEST_URI} !^/\.well-known
-    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    # NOTA: Redirect HTTPS é feito pelo Traefik, não no Apache
+    # Traefik middleware "redirect-to-https" cuida disso
 </IfModule>
 
 # ========================================
